@@ -4,33 +4,30 @@
 
 # 9router-go-x
 
-> Fork [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) (Go + Svelte port dari [decolua/9router](https://github.com/decolua/9router)) dengan pengembangan UI dan fitur dari berbagai referensi AI gateway.
+Personal fork of [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) (Go + Svelte port of [decolua/9router](https://github.com/decolua/9router)).
 
-### FREE AI Router & Token Saver with Single Binary
-
-**Never stop coding. Save 20-40% tokens with RTK + auto-fallback to FREE & cheap AI models.**
-
-**Connect Claude Code, Cursor, Antigravity, Codex, Gemini, OpenCode, Cline, OpenClaw... to 40+ AI providers & 100+ models — no Node.js needed at runtime.**
+Built to fix dashboard layout and routing issues I ran into in daily use, and to try out features from other open-source AI gateways.
 
 [![License](https://img.shields.io/github/license/ulyafarhan/9router-go-x)](LICENSE)
 [![Upstream Go](https://img.shields.io/badge/upstream-luqman--v1%2F9router--go-blue)](https://github.com/luqman-v1/9router-go)
-[![Upstream JS](https://img.shields.io/badge/original-decolua%2F9router-black)](https://github.com/decolua/9router)
+[![Original JS](https://img.shields.io/badge/original-decolua%2F9router-black)](https://github.com/decolua/9router)
 
-[✨ Fork Notes](#-catatan-fork-9router-go-x) • [🚀 Quick Start](#-quick-start) • [💡 Features](#-key-features) • [⚙️ Setup](#-setup-guide) • [🔄 Share DB](#-sharing-a-database-with-9router) • [🙌 Credits](#-credits--references)
+[What Changed in This Fork](#what-changed-in-this-fork) • [Quick Start](#-quick-start) • [Key Features](#-key-features) • [Setup Guide](#-setup-guide) • [Share DB with 9Router](#-sharing-a-database-with-9router) • [Credits](#credits)
 
 </div>
 
 ---
 
-## ✨ Catatan Fork (`9router-go-x`)
+## What Changed in This Fork
 
-Repositori ini dikembangkan di atas fondasi [`luqman-v1/9router-go`](https://github.com/luqman-v1/9router-go) sambil menjaga kompatibilitas skema dengan [`decolua/9router`](https://github.com/decolua/9router). Fokus perubahan pada edisi ini meliputi:
+Branched off `luqman-v1/9router-go` (`v1.9.17-exp.2`), keeping the same `~/.9router/db/data.sqlite` database compatibility:
 
-- **Perapihan UI & Dashboard Svelte:** penyelarasan margin, padding, keterbacaan tabel/kartu, serta responsivitas di halaman dashboard (`Usage`, `Console Log`, `Providers`, `Endpoint`, `Combos`, `Quota`, dll.).
-- **Tambahan & Perbaikan Modul Gateway:** penambahan dukungan `Task Persona`, `context rescue`, `loop detection`, penanganan `weblanes`, serta perbaikan alur `Console Log`, `Usage`, dan autentikasi/routing provider.
-- **Konfigurasi Fork:** pembaruan atribusi lisensi MIT, dokumentasi, dan target updater ke `ulyafarhan/9router-go-x`.
+- Fixed tight padding, uneven margins, and cramped layouts across the Svelte dashboard (`Usage`, `Console Log`, `Providers`, `Endpoint`, `Combos`, `Quota`).
+- Fixed `Console Log` live stream, `Usage` chart/table interactions, and several OAuth/provider routing bugs.
+- Added `Task Persona` (`internal/persona`, `PersonaView.svelte`), `context_rescue`, `loopdetect`, and `weblanes`.
+- Pointed `LICENSE`, repo links, and self-updater config to `ulyafarhan/9router-go-x`.
 
-> **Catatan Rilis:** Binary pre-built untuk fork `9router-go-x` belum dipublikasikan di GitHub Releases. Untuk menjalankan versi dengan perubahan di atas, gunakan langkah **Build from source** di bawah.
+No pre-built release binaries are uploaded here yet, so build from source below if you want to try this fork.
 
 ---
 
@@ -90,28 +87,28 @@ Result: Never stop coding, minimal cost + 20-40% token savings via RTK
 
 ## ⚡ Quick Start
 
-**1. Build versi fork `9router-go-x` dari source (Go 1.27 + Bun 1.x):**
+**1. Build `9router-go-x` from source (requires Go 1.27 and Bun 1.x):**
 
 ```bash
-git clone https://github.com/ulyafarhan/9router-go-x.git
+git clone -b custom-edition https://github.com/ulyafarhan/9router-go-x.git
 cd 9router-go-x
 make web-build   # bun install --frozen-lockfile && bun run build
-make build       # compile binary 9router-go dengan dashboard ter-embed
+make build       # embeds the built dashboard into the Go binary
 ```
 
-> **Ingin instal cepat binary upstream?** Script one-line di bawah mengunduh rilis resmi dari upstream [`luqman-v1/9router-go`](https://github.com/luqman-v1/9router-go) (bukan build perubahan fork `9router-go-x`):
->
-> ```bash
-> # macOS / Linux (upstream binary)
-> curl -fsSL https://raw.githubusercontent.com/luqman-v1/9router-go/main/install.sh | bash
-> ```
->
-> ```powershell
-> # Windows PowerShell (upstream binary)
-> irm https://raw.githubusercontent.com/luqman-v1/9router-go/main/install.ps1 | iex
-> ```
->
-> Untuk CPU tanpa AVX (`linux/amd64`), upstream menyediakan `install-noavx.sh` (`CGO_ENABLED=0`, `GOAMD64=v1`).
+If you want pre-built binaries from upstream [`luqman-v1/9router-go`](https://github.com/luqman-v1/9router-go) instead of this fork:
+
+```bash
+# macOS / Linux (upstream release)
+curl -fsSL https://raw.githubusercontent.com/luqman-v1/9router-go/main/install.sh | bash
+```
+
+```powershell
+# Windows PowerShell (upstream release)
+irm https://raw.githubusercontent.com/luqman-v1/9router-go/main/install.ps1 | iex
+```
+
+For Linux x86-64 CPUs without AVX, upstream provides `install-noavx.sh` (`CGO_ENABLED=0`, `GOAMD64=v1`).
 
 🎉 Then start it (defaults: port `20130`, data `~/.9router` — no flags needed):
 
@@ -174,10 +171,9 @@ Claude Code / Codex / OpenClaw / Cursor / Cline Settings:
 
 **That's it!** Start coding with FREE AI models.
 
-**Alternatives (Upstream Docker & Releases from `luqman-v1/9router-go`):**
+**Upstream Docker image (`luqman-v1/9router-go`, does not include fork changes):**
 
 ```bash
-# Docker — build image upstream (bukan build fork 9router-go-x)
 docker run -d --name 9router-go --restart unless-stopped \
   -p 20130:20130 -v "$HOME/.9router:/data" \
   -e PORT=20130 -e DATA_DIR=/data \
@@ -185,7 +181,7 @@ docker run -d --name 9router-go --restart unless-stopped \
   luqmenul/9router-go:latest
 ```
 
-📦 [Upstream release binaries (`luqman-v1/9router-go`)](https://github.com/luqman-v1/9router-go/releases/latest) • 🔨 [Build `9router-go-x` from source](#-setup-guide)
+[Upstream releases (`luqman-v1/9router-go`)](https://github.com/luqman-v1/9router-go/releases/latest) • [Build `9router-go-x` from source](#-setup-guide)
 
 ---
 
@@ -270,20 +266,20 @@ Full schema, operator contract, and multi-process limits: [`DATABASE.md`](DATABA
 
 ## ⚙️ Setup Guide
 
-### Build from source (Recommended for `9router-go-x`)
+### Build from source (`9router-go-x`)
 
-Prerequisites: Go 1.27 and Bun 1.x (dashboard is embedded into the binary, so build web first):
+Prerequisites: Go 1.27 and Bun 1.x. Build the Svelte dashboard first because `cmd/9router-go` embeds `web/dist`:
 
 ```bash
-git clone https://github.com/ulyafarhan/9router-go-x.git
+git clone -b custom-edition https://github.com/ulyafarhan/9router-go-x.git
 cd 9router-go-x
-make web-build   # bun install --frozen-lockfile && bun run build
-make build       # embeds VERSION into the Go binary
+make web-build
+make build
 ```
 
-### Upstream release binary (`luqman-v1/9router-go`)
+### Upstream release binary
 
-Jika hanya ingin menjalankan rilis binary siap pakai dari upstream tanpa modifikasi fork ini, unduh dari [Upstream GitHub Releases](https://github.com/luqman-v1/9router-go/releases/latest) dan verifikasi dengan `SHA256SUMS.txt`. Upstream juga mempublikasikan pre-release `exp` dan image Docker `luqmenul/9router-go:exp`.
+Pre-built binaries and Docker `exp` images are published by upstream at [`luqman-v1/9router-go/releases`](https://github.com/luqman-v1/9router-go/releases) (verify with `SHA256SUMS.txt`). Those artifacts track upstream `luqman-v1/9router-go`, not this fork.
 
 ### Run
 
@@ -458,12 +454,11 @@ Repository references:
 - [`CHANGELOG.md`](CHANGELOG.md) — release history (Go **v1.9.15**, upstream baseline `decolua/9router`). Work merged since the last tag lives in [`.changes/`](.changes/) and is folded in at the next release; the dashboard's changelog modal shows both. Check what you are running with `9router-go version`.
 - [`docs/TELEGRAM_RELEASE_NOTIFICATIONS.md`](docs/TELEGRAM_RELEASE_NOTIFICATIONS.md) — one-time setup for the release notice posted to Telegram
 
-## 🙌 Credits & References
+## Credits
 
-- [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) — proyek upstream Go + Svelte gateway & dashboard yang menjadi fondasi fork ini
-- [decolua/9router](https://github.com/decolua/9router) — proyek induk Next.js gateway & dashboard yang menjadi acuan arsitektur serta kompatibilitas skema
-- *(Tambahkan referensi gateway/proyek open-source lain di sini setiap kali ada fitur atau konsep yang diadopsi)*
+- [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) (Go + Svelte implementation this fork builds on)
+- [decolua/9router](https://github.com/decolua/9router) (original Next.js gateway and SQLite schema)
 
 ## 📄 License
 
-MIT License — lihat [`LICENSE`](LICENSE) (mempertahankan hak cipta `decolua and contributors`, `Luqmanul Hakim`, dan `Muhammad Ulya Farhan`).
+MIT License. See [`LICENSE`](LICENSE) (retains copyright notices for `decolua and contributors`, `Luqmanul Hakim`, and `Muhammad Ulya Farhan`).
