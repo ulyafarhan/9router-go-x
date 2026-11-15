@@ -169,15 +169,15 @@ func TestComboBudgetPruneStillCollectsExpiredEntries(t *testing.T) {
 // window elapses, which is what makes a restart-free gateway recover on its
 // own instead of staying capped forever.
 func TestComboBudgetWindowRecycles(t *testing.T) {
-	repo := budgetComboDB(t, `"cheap":{"budgetCalls":1,"budgetWindowMs":1}`)
+	repo := budgetComboDB(t, `"cheap":{"budgetCalls":1,"budgetWindowMs":1000}`)
 	h := &ChatHandler{Repo: repo}
 	h.recordComboBudgetCall("cheap")
 	if !h.comboBudgetExhausted("cheap") {
 		t.Fatal("combo must be capped immediately after the ceiling")
 	}
-	// A 1 ms window elapses before the next call observes it.
+	// Advance past the 1 s window before the next call observes it.
 	h.comboBudgetMu.Lock()
-	h.comboBudget["cheap"].WindowStart = h.comboBudget["cheap"].WindowStart.Add(-2_000_000_000)
+	h.comboBudget["cheap"].WindowStart = h.comboBudget["cheap"].WindowStart.Add(-2 * time.Second)
 	h.comboBudgetMu.Unlock()
 	if h.comboBudgetExhausted("cheap") {
 		t.Fatal("expired window must admit the combo again")

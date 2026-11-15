@@ -92,14 +92,11 @@ func (h *OAuthHandler) HandleOAuthImport(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	now := currentTimestamp()
-	_, err = h.Repo.RawDB().Exec(
-		`INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, ?, 'apikey', ?, 1, ?, ?, ?)`,
-		connID, provider, connName, string(data), now, now,
-	)
-	if err != nil {
-		handlerutil.WriteJSONError(w, http.StatusInternalServerError, fmt.Sprintf("save connection: %v", err))
-		return
+	if h.Repo != nil {
+		if err := h.Repo.CreateProviderConnectionFull(connID, provider, "apikey", connName, nil, string(data)); err != nil {
+			handlerutil.WriteJSONError(w, http.StatusInternalServerError, fmt.Sprintf("save connection: %v", err))
+			return
+		}
 	}
 
 	handlerutil.WriteJSON(w, http.StatusOK, map[string]any{
@@ -237,12 +234,8 @@ func (h *OAuthHandler) HandleOAuthKiroSocialExchange(w http.ResponseWriter, r *h
 	data, err := json.Marshal(dataMap)
 	if err != nil {
 		log.Error("oauth", "marshal Kiro social data failed", "error", err)
-	} else if h.Repo != nil && h.Repo.RawDB() != nil {
-		now := currentTimestamp()
-		if _, err := h.Repo.RawDB().Exec(
-			`INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, ?, 'oauth', ?, 1, ?, ?, ?)`,
-			connID, "kiro", "Kiro Social", string(data), now, now,
-		); err != nil {
+	} else if h.Repo != nil {
+		if err := h.Repo.CreateProviderConnectionFull(connID, "kiro", "oauth", "Kiro Social", nil, string(data)); err != nil {
 			log.Error("oauth", "save Kiro social connection failed", "error", err)
 		}
 	}
@@ -292,13 +285,10 @@ func (h *OAuthHandler) HandleOAuthCodexBulkImport(w http.ResponseWriter, r *http
 			log.Error("oauth", "marshal Codex bulk import failed", "error", err)
 			continue
 		}
-		now := currentTimestamp()
-		_, err = h.Repo.RawDB().Exec(
-			`INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, 'codex', 'oauth', ?, 1, ?, ?, ?)`,
-			connID, name, string(data), now, now,
-		)
-		if err == nil {
-			imported = append(imported, connID)
+		if h.Repo != nil {
+			if err := h.Repo.CreateProviderConnectionFull(connID, "codex", "oauth", name, nil, string(data)); err == nil {
+				imported = append(imported, connID)
+			}
 		}
 	}
 

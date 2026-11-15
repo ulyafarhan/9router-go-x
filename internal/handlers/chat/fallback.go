@@ -726,7 +726,7 @@ func (h *ChatHandler) tryForwardWithConnection(f forwardRequestParams) error {
 	// beta query, the OAuth cloaking and the beta-flag merge below.
 	upstreamClaude := isAnthropic || servesClaudeMessages(provider, providerCfg)
 	compressStart := time.Now()
-	pipedBody, origTokens, savedTokens, savedPct := h.applyTokenSavers(ctx, body, claudeNative)
+	pipedBody, origTokens, savedTokens, savedPct, personaID, personaSource := h.applyTokenSavers(ctx, body, claudeNative)
 	compressDurMs := int(time.Since(compressStart).Milliseconds())
 	if compressDurMs <= 0 {
 		compressDurMs = 1
@@ -1096,7 +1096,7 @@ func (h *ChatHandler) tryForwardWithConnection(f forwardRequestParams) error {
 
 	// Inject served route response headers (x-9router-provider, x-9router-model, etc.)
 	// before any executor or forwarding function writes headers to w.
-	injectRouteHeaders(w, provider, model, f.ComboName, f.Attempts)
+	injectRouteHeaders(ctx, w, provider, model, f.ComboName, f.Attempts, personaID, personaSource)
 
 	// The context budget of the request that is about to be served, so a client
 	// can see how much of the window this turn used.
@@ -1191,6 +1191,7 @@ func (h *ChatHandler) tryForwardWithConnection(f forwardRequestParams) error {
 			} else {
 				fwdErr = h.forwardRequest(ctx, w, providerCfg, apiKey, pipedBody, isStream, translateResponse, metrics, httpClient, provider, upstreamClaude, claudeNative)
 			}
+			fwdErr = guardrailStreamOutcome(gtap, fwdErr)
 		}
 	}
 
@@ -1477,15 +1478,16 @@ func (h *ChatHandler) claudeCacheTTL() string {
 	return h.TokenSaver.ClaudeCacheTTL()
 }
 
-func (h *ChatHandler) applyTokenSavers(ctx context.Context, body []byte, claudeNative bool) ([]byte, int, int, int) {
+func (h *ChatHandler) applyTokenSavers(ctx context.Context, body []byte, claudeNative bool) ([]byte, int, int, int, string, string) {
 	// X-9Router-Token-Saver: off|0|false|bypass opts the whole request out of
 	// every token saver — RTK, Caveman, Ponytail, ADHD, Headroom, system prompt
-	// prefix/suffix — and the body is forwarded untouched with 0 tokens saved.
+	// prefix/suffix, and task persona — and forwards the body untouched.
 	if TokenSaverBypassEnabled(ctx) {
-		return body, 0, 0, 0
+		return body, 0, 0, 0, "", ""
 	}
 	if h.TokenSaver == nil {
-		return body, 0, 0, 0
+		out, pid, source := h.applyPersonaEnvelope(ctx, body, body, claudeNative)
+		return out, 0, 0, 0, pid, source
 	}
 	// Prompt-injection guard: tag (never block) flagged user content. Early
 	// detection here means operators can see abuse before it reaches upstream.
@@ -1630,7 +1632,32 @@ func (h *ChatHandler) applyTokenSavers(ctx context.Context, body []byte, claudeN
 			}
 		}
 	}
-	return out, origTokens, savedTokens, savedPct
+	var pid, source string
+	out, pid, source = h.applyPersonaEnvelope(ctx, out, body, claudeNative)
+	return out, origTokens, savedTokens, savedPct, pid, source
+}
+
+// applyPersonaEnvelope injects the resolved task persona as the outermost layer
+// around global/style prompts so its rules frame the entire turn.
+func (h *ChatHandler) applyPersonaEnvelope(ctx context.Context, out, origBody []byte, claudeNative bool) ([]byte, string, string) {
+	p, source := h.resolveEffectivePersonaPack(ctx, origBody)
+	if p == nil {
+		return out, "", ""
+	}
+	if source == "auto" {
+		log.Info("autotune", "persona auto-applied", "persona", p.ID)
+	}
+	if p.Prefix != "" {
+		if next, did := tokensaver.InjectPrefixSystemPrompt(out, p.Prefix, claudeNative); did {
+			out = next
+		}
+	}
+	if p.Suffix != "" {
+		if next, did := tokensaver.InjectSuffixSystemPrompt(out, p.Suffix, claudeNative); did {
+			out = next
+		}
+	}
+	return out, p.ID, source
 }
 
 // tokenSaverBypassKey carries the X-9Router-Token-Saver opt-out on the context.

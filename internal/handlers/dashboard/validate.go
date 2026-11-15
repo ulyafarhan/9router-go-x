@@ -570,11 +570,25 @@ func validateAnthropicStyle(ctx context.Context, provider string, cfg providers.
 }
 
 func validateGeneric(ctx context.Context, provider string, cfg providers.ProviderConfig, apiKey string) validateOutcome {
+	headers := validateAuthHeaders(cfg, apiKey)
+	headers["Content-Type"] = "application/json"
+
+	if probeURL := strings.TrimSpace(cfg.ValidateURL); probeURL != "" {
+		status, _, err := validateProbeDo(ctx, http.MethodGet, probeURL, headers, nil)
+		if err != nil {
+			return validateOutcome{supported: true, message: err.Error()}
+		}
+		if status == http.StatusUnauthorized || status == http.StatusForbidden {
+			return validateOutcome{supported: true}
+		}
+		if status >= 200 && status < 300 {
+			return validateOutcome{valid: true, supported: true}
+		}
+		return validateOutcome{supported: true, message: fmt.Sprintf("Validation API error (%d)", status)}
+	}
 	if cfg.BaseURL == "" {
 		return validateOutcome{}
 	}
-	headers := validateAuthHeaders(cfg, apiKey)
-	headers["Content-Type"] = "application/json"
 
 	status, _, err := validateProbeDo(ctx, http.MethodGet, validateModelsURL(cfg.BaseURL), headers, nil)
 	if err != nil {

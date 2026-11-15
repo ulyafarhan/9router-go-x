@@ -72,7 +72,7 @@ func overrideCodexProvider(t *testing.T, cfg providers.ProviderConfig) {
 // to. The shared media test database creates the connection tables by hand and
 // never bootstraps the usage schema, so the row this lane is judged on would
 // otherwise have nowhere to land.
-const codexUsageHistorySchema = `CREATE TABLE usageHistory (
+const codexUsageHistorySchema = `CREATE TABLE IF NOT EXISTS usageHistory (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	timestamp TEXT NOT NULL,
 	provider TEXT,

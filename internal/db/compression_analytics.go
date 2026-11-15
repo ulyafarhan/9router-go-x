@@ -779,13 +779,18 @@ WHERE NOT EXISTS (SELECT 1 FROM compressionAnalytics ca WHERE ca.requestId = ?)`
 						rate = defaultAvgInputPricePerMillion
 					}
 					estUsd := math.Round((float64(savedTok)/1_000_000.0)*rate*100) / 100
-					_, _ = insertStmt.Exec(
+					if _, execErr := insertStmt.Exec(
 						ts, prov, mdl, mode, origTok, compTok, savedTok,
 						durMs, id, promptTok, compTok2,
 						totalTok, cachedTok, cacheWrTok, estUsd,
 						id,
-					)
+					); execErr != nil {
+						return fmt.Errorf("BackfillCompressionAnalytics insert from details: %w", execErr)
+					}
 				}
+			}
+			if rowsErr := rows.Err(); rowsErr != nil {
+				return fmt.Errorf("BackfillCompressionAnalytics details cursor: %w", rowsErr)
 			}
 		}
 	}
@@ -835,20 +840,26 @@ WHERE NOT EXISTS (
 					&ts, &prov, &mdl,
 					&origTok, &compTok, &savedTok,
 					&promptTok, &compTok2, &cachedTok, &cacheWrTok,
-				); scanErr == nil {
-					totalTok := promptTok + compTok2
-					mp, _ := pricing.GetPricingForModel(prov, mdl)
-					rate := mp.InputPer1M
-					if rate <= 0 {
-						rate = defaultAvgInputPricePerMillion
-					}
-					estUsd := math.Round((float64(savedTok)/1_000_000.0)*rate*100) / 100
-					_, _ = uhInsertStmt.Exec(
-						ts, prov, mdl, origTok, compTok, savedTok,
-						promptTok, compTok2, totalTok, cachedTok, cacheWrTok, estUsd,
-						ts, prov, savedTok,
-					)
+				); scanErr != nil {
+					return fmt.Errorf("BackfillCompressionAnalytics scan usageHistory: %w", scanErr)
 				}
+				totalTok := promptTok + compTok2
+				mp, _ := pricing.GetPricingForModel(prov, mdl)
+				rate := mp.InputPer1M
+				if rate <= 0 {
+					rate = defaultAvgInputPricePerMillion
+				}
+				estUsd := math.Round((float64(savedTok)/1_000_000.0)*rate*100) / 100
+				if _, execErr := uhInsertStmt.Exec(
+					ts, prov, mdl, origTok, compTok, savedTok,
+					promptTok, compTok2, totalTok, cachedTok, cacheWrTok, estUsd,
+					ts, prov, savedTok,
+				); execErr != nil {
+					return fmt.Errorf("BackfillCompressionAnalytics insert from usageHistory: %w", execErr)
+				}
+			}
+			if rowsErr := uhRows.Err(); rowsErr != nil {
+				return fmt.Errorf("BackfillCompressionAnalytics usageHistory cursor: %w", rowsErr)
 			}
 		}
 	}

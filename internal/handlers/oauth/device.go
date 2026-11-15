@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"9router/proxy/internal/handlerutil"
+	"9router/proxy/internal/log"
 	"9router/proxy/internal/providers"
 	"9router/proxy/internal/proxy"
 )
@@ -565,9 +566,9 @@ func (h *OAuthHandler) saveDeviceConnection(provider string, t deviceTokens) sav
 		// from a stale timestamp.
 		dataMap["expiresAt"] = nil
 	}
-	if h.Repo != nil && h.Repo.RawDB() != nil {
-		now := currentTimestamp()
-		if provider == "muse" {
+	if h.Repo != nil {
+		if provider == "muse" && h.Repo.RawDB() != nil {
+			now := currentTimestamp()
 			// The minted Model API key rotates on every login, so without
 			// this each re-login would pile up another active row for the
 			// same account. Keep only the newest connection active.
@@ -575,20 +576,11 @@ func (h *OAuthHandler) saveDeviceConnection(provider string, t deviceTokens) sav
 				"UPDATE providerConnections SET isActive = 0, updatedAt = ? WHERE provider = ? AND id != ? AND isActive = 1",
 				now, provider, id)
 		}
-		raw, _ := json.Marshal(dataMap)
-		var existing string
-		err := h.Repo.RawDB().QueryRow("SELECT data FROM providerConnections WHERE id = ?", id).Scan(&existing)
-		if err == nil && existing != "" {
-			_, _ = h.Repo.RawDB().Exec(
-				"UPDATE providerConnections SET name = ?, data = ?, updatedAt = ? WHERE id = ?", name, string(raw), now, id)
-		} else {
-			priority := 1
-			if h.Repo != nil {
-				priority = h.Repo.ResolveDefaultPriority(provider)
-			}
-			_, _ = h.Repo.RawDB().Exec(
-				"INSERT INTO providerConnections (id, provider, authType, name, priority, isActive, data, createdAt, updatedAt) VALUES (?, ?, 'oauth', ?, ?, 1, ?, ?, ?)",
-				id, provider, name, priority, string(raw), now, now)
+		raw, err := json.Marshal(dataMap)
+		if err != nil {
+			log.Error("oauth", "marshal device connection failed", "provider", provider, "conn", id, "error", err)
+		} else if err := h.Repo.UpsertProviderConnection(id, provider, "oauth", name, nil, string(raw)); err != nil {
+			log.Error("oauth", "save device connection failed", "provider", provider, "conn", id, "error", err)
 		}
 	}
 	return savedConn{id, name, email}

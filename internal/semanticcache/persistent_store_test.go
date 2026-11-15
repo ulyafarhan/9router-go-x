@@ -40,6 +40,7 @@ func TestPersistentLRUStore_WriteThroughAndHydrate(t *testing.T) {
 
 	ctx := context.Background()
 	store1 := NewPersistentStore(db, 10, 1*time.Hour)
+	defer store1.Close()
 
 	entry1 := Entry{
 		Key:          "key-1",
@@ -86,6 +87,7 @@ func TestPersistentLRUStore_WriteThroughAndHydrate(t *testing.T) {
 
 	// Create new store instance on same DB -> must hydrate from disk
 	store2 := NewPersistentStore(db, 10, 1*time.Hour)
+	defer store2.Close()
 	if store2.Len() != 2 {
 		t.Errorf("hydrated store2.Len() = %d, want 2", store2.Len())
 	}

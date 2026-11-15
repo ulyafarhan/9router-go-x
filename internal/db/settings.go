@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
+
+	"9router/proxy/internal/persona"
 )
 
 // ComboStrategy defines routing strategy, sticky limit, and judge model for a combo.
@@ -136,6 +139,13 @@ type SettingsData struct {
 	SystemPromptEnabled     bool            `json:"systemPromptEnabled"`
 	SystemPromptPrefix      string          `json:"systemPromptPrefix,omitempty"`
 	SystemPromptSuffix      string          `json:"systemPromptSuffix,omitempty"`
+	// Persona routing (dashboard-driven): curated task pack injected when no
+	// explicit X-Persona header is present. PersonaAutoDetect is opt-in (false
+	// by default) so tool-bearing requests do not silently mutate messages[0].
+	PersonaEnabled    bool              `json:"personaEnabled"`
+	PersonaActive     string            `json:"personaActive,omitempty"`
+	PersonaAutoDetect bool              `json:"personaAutoDetect"`
+	CustomPersonas    []persona.Persona `json:"customPersonas,omitempty"`
 	HeadroomUrl             string          `json:"headroomUrl"`
 	// HeadroomEnabled is the master switch for in-flight compression. It is
 	// separate from HeadroomUrl because the URL has a default the panel fills
@@ -237,6 +247,9 @@ func DefaultSettings() *SettingsData {
 		SystemPromptEnabled:     false,
 		SystemPromptPrefix:      "",
 		SystemPromptSuffix:      "",
+		PersonaEnabled:          false,
+		PersonaActive:           "",
+		PersonaAutoDetect:       false,
 		HeadroomUrl:             "http://localhost:8787",
 		HeadroomAutostart:       false,
 		// The engine is written as the literal rather than imported from
@@ -303,6 +316,7 @@ func cloneSettings(s *SettingsData) *SettingsData {
 		return nil
 	}
 	out := *s
+	out.CustomPersonas = slices.Clone(s.CustomPersonas)
 	out.RTKCategories = cloneBoolMap(s.RTKCategories)
 	out.RTKFilters = cloneBoolMap(s.RTKFilters)
 	out.ComboStrategies = cloneComboStrategies(s.ComboStrategies)

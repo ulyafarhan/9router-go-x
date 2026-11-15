@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"9router/proxy/internal/handlerutil"
@@ -145,13 +146,23 @@ func (t toolDef) detector() toolDetector {
 	}
 }
 
-// detectAll runs each tool's detector under a per-tool try/catch; a detector
-// that errors or panics maps to null (reference all-statuses behavior).
+// detectAll runs each tool's detector concurrently under a per-tool try/catch;
+// a detector that errors or panics maps to null (reference all-statuses behavior).
 func detectAll(ctx context.Context, det map[string]toolDetector) map[string]*cliStatus {
 	out := make(map[string]*cliStatus, len(det))
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	wg.Add(len(det))
 	for id, d := range det {
-		out[id] = runDetector(ctx, d)
+		go func(toolID string, detector toolDetector) {
+			defer wg.Done()
+			res := runDetector(ctx, detector)
+			mu.Lock()
+			out[toolID] = res
+			mu.Unlock()
+		}(id, d)
 	}
+	wg.Wait()
 	return out
 }
 

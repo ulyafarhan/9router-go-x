@@ -208,7 +208,6 @@ func (h *OAuthHandler) HandleZedExchange(w http.ResponseWriter, r *http.Request)
 		connName = "Zed"
 	}
 	connID := "zed-" + shortHash(accessToken)
-	now := currentTimestamp()
 	psd := map[string]any{"authMethod": "oauth", "userId": userID}
 	if systemID != "" {
 		psd["systemId"] = systemID
@@ -226,21 +225,8 @@ func (h *OAuthHandler) HandleZedExchange(w http.ResponseWriter, r *http.Request)
 		handlerutil.WriteJSONError(w, http.StatusInternalServerError, "failed to marshal connection data")
 		return
 	}
-	if h.Repo != nil && h.Repo.RawDB() != nil {
-		var existing string
-		err := h.Repo.RawDB().QueryRow("SELECT data FROM providerConnections WHERE id = ?", connID).Scan(&existing)
-		if err == nil && existing != "" {
-			_, err = h.Repo.RawDB().Exec(
-				"UPDATE providerConnections SET name = ?, data = ?, updatedAt = ? WHERE id = ?",
-				connName, string(dataBytes), now, connID,
-			)
-		} else {
-			_, err = h.Repo.RawDB().Exec(
-				"INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, ?, 'oauth', ?, 1, ?, ?, ?)",
-				connID, "zed", connName, string(dataBytes), now, now,
-			)
-		}
-		if err != nil {
+	if h.Repo != nil {
+		if err := h.Repo.UpsertProviderConnection(connID, "zed", "oauth", connName, nil, string(dataBytes)); err != nil {
 			handlerutil.WriteJSONError(w, http.StatusInternalServerError, fmt.Sprintf("failed to save connection: %v", err))
 			return
 		}

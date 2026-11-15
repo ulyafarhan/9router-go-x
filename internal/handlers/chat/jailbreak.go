@@ -39,6 +39,9 @@ func (h *ChatHandler) resolveJailbreak(ids ...string) *db.JailbreakDoc {
 // actually forwarded to, so a keyword such as "deepseek" covers a combo leg
 // like providerx/deepseek-4-pro without arming that id.
 func (h *ChatHandler) applyJailbreak(ctx context.Context, body map[string]any, requestedModel string, legIDs ...string) context.Context {
+	if TokenSaverBypassEnabled(ctx) {
+		return ctx
+	}
 	doc := h.resolveJailbreak(append([]string{requestedModel}, legIDs...)...)
 	if doc == nil {
 		return ctx
@@ -65,9 +68,9 @@ func jailbreakLegIDs(provider, model string) []string {
 }
 
 // prependSystemPrompt injects the configured prompt ahead of the original
-// content. Two wire formats reach here: OpenAI (system role in "messages") and
-// Claude (top-level "system", string or block array). Both get the prompt
-// first, original content intact after it.
+// content across all three gateway wire shapes: Claude Messages (top-level
+// "system"), native OpenAI Responses ("instructions" or "input[]"), and
+// OpenAI Chat ("messages[]").
 func prependSystemPrompt(body map[string]any, prompt string) {
 	if raw, ok := body["system"]; ok {
 		switch v := raw.(type) {
@@ -79,6 +82,57 @@ func prependSystemPrompt(body map[string]any, prompt string) {
 			return
 		}
 	}
+	if _, hasInstr := body["instructions"]; hasInstr || body["input"] != nil {
+		prependResponsesPrompt(body, prompt)
+		return
+	}
 	msgs, _ := body["messages"].([]any)
 	body["messages"] = append([]any{map[string]any{"role": "system", "content": prompt}}, msgs...)
+}
+
+func prependResponsesPrompt(body map[string]any, prompt string) {
+	if instr, ok := body["instructions"].(string); ok {
+		if instr == "" {
+			body["instructions"] = prompt
+		} else {
+			body["instructions"] = prompt + "\n\n" + instr
+		}
+		return
+	}
+	inputArr, ok := body["input"].([]any)
+	if !ok {
+		body["instructions"] = prompt
+		return
+	}
+	clone := make([]any, len(inputArr))
+	copy(clone, inputArr)
+	for i, item := range clone {
+		msg, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		typ, _ := msg["type"].(string)
+		role, _ := msg["role"].(string)
+		if (typ != "" && typ != "message") || (role != "system" && role != "developer") {
+			continue
+		}
+		block := map[string]any{"type": "input_text", "text": prompt}
+		switch c := msg["content"].(type) {
+		case string:
+			msg["content"] = []any{block, map[string]any{"type": "input_text", "text": c}}
+		case []any:
+			msg["content"] = append([]any{block}, c...)
+		default:
+			msg["content"] = []any{block}
+		}
+		clone[i] = msg
+		body["input"] = clone
+		return
+	}
+	devMsg := map[string]any{
+		"type":    "message",
+		"role":    "developer",
+		"content": []any{map[string]any{"type": "input_text", "text": prompt}},
+	}
+	body["input"] = append([]any{devMsg}, clone...)
 }

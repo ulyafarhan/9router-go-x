@@ -282,6 +282,9 @@ func ForwardOpenAI(w http.ResponseWriter, req *Request) error {
 	// params on the outgoing body (executors/default.js:91). The openai rule
 	// renames max_tokens because current OpenAI models answer 400 "Use
 	// 'max_completion_tokens' instead".
+	if req.Config != nil && req.Config.ReasoningAliasFields {
+		req.LiftReasoningAliases = true
+	}
 	if req.Provider == "openai" {
 		req.Body = renameMaxTokensBody(req.Body)
 	}

@@ -251,3 +251,38 @@ func modelContextLimits(provider, model string) (window, maxOutput int) {
 	caps := providers.GetCapabilitiesDetailForModel(provider, model)
 	return caps.ContextWindow, caps.MaxOutput
 }
+
+// rescueLimits returns the binding context budget for a request: the API key's
+// ceiling when it has one, otherwise the model's own window so auto-tuning can
+// trim an oversized history before the provider rejects it.
+func rescueLimits(ctx context.Context, provider, model string) (limit, modelWindow, modelMaxOutput int) {
+	limit = keyContextLimit(ctx)
+	modelWindow, modelMaxOutput = modelContextLimits(provider, model)
+	if limit <= 0 && modelWindow > 0 {
+		limit = modelWindow
+	}
+	return limit, modelWindow, modelMaxOutput
+}
+
+// rescueTriggered reports whether the binding budget came from the model
+// window rather than an explicit operator ceiling.
+func rescueTriggered(ctx context.Context, limit int) bool {
+	return limit > 0 && keyContextLimit(ctx) <= 0
+}
+
+// adjustBudgetForEnvelope reserves estimated Prompt Envelope overhead out of the
+// available context limit so injected presets/personas fit cleanly inside the ceiling.
+func adjustBudgetForEnvelope(limit, modelWindow, overhead int) (adjLimit, adjWindow int, exhausted bool) {
+	if limit <= 0 || overhead <= 0 {
+		return limit, modelWindow, false
+	}
+	if limit <= overhead {
+		return 0, 0, true
+	}
+	adjLimit = limit - overhead
+	adjWindow = modelWindow
+	if adjWindow > overhead {
+		adjWindow -= overhead
+	}
+	return adjLimit, adjWindow, false
+}

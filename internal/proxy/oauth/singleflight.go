@@ -22,9 +22,13 @@ import (
 // account B.
 type RefreshSlot struct {
 	Mu sync.Mutex
-	// Token is the access token a successful refresh produced.
+
+	coordMu sync.Mutex
+	epoch   uint64
+	active  int
+	// Token is the access token produced during the active concurrent wave.
 	Token string
-	// Err is the outcome of the most recent attempt.
+	// Err is the outcome of the active concurrent wave.
 	Err error
 }
 
@@ -98,24 +102,47 @@ func RunRefresh(connectionID string, needsFn func() (bool, error), refreshFn fun
 	}
 
 	slot := SlotFor(connectionID)
+	slot.coordMu.Lock()
+	arrivalEpoch := slot.epoch
+	slot.active++
+	slot.coordMu.Unlock()
+	defer func() {
+		slot.coordMu.Lock()
+		slot.active--
+		if slot.active == 0 {
+			// Clear wave outcome once every concurrent waiter leaves so later
+			// expiry cycles and transient-failure retries always re-evaluate.
+			slot.Token = ""
+			slot.Err = nil
+		}
+		slot.coordMu.Unlock()
+	}()
+
 	slot.Mu.Lock()
 	defer slot.Mu.Unlock()
-	if slot.Token != "" || slot.Err != nil {
-		// Someone completed an attempt while we queued. On success hand back
+
+	slot.coordMu.Lock()
+	if slot.epoch != arrivalEpoch && (slot.Token != "" || slot.Err != nil) {
+		tok, err := slot.Token, slot.Err
+		slot.coordMu.Unlock()
+		// Someone completed an exchange while we queued. On success hand back
 		// the fresh token; on failure hand back the error and let the caller
 		// keep its own credential.
-		return RefreshOutcome{Token: slot.Token, Err: slot.Err}
+		return RefreshOutcome{Token: tok, Err: err}
 	}
+	slot.coordMu.Unlock()
+
 	needs, err := needsFn()
 	if err != nil || !needs {
-		// Token is already fresh (winner refreshed while we queued) or this
-		// caller arrived with a valid credential. Return the slot token if
-		// present; otherwise the caller keeps its own credential.
-		return RefreshOutcome{Token: slot.Token, Err: err, Led: true}
+		// Token is already fresh or this caller arrived with a valid credential.
+		return RefreshOutcome{Err: err, Led: true}
 	}
 	token, rerr := refreshFn()
+	slot.coordMu.Lock()
+	slot.epoch++
 	slot.Token = token
 	slot.Err = rerr
+	slot.coordMu.Unlock()
 	return RefreshOutcome{Token: token, Err: rerr, Led: true}
 }
 

@@ -133,3 +133,46 @@ func TestRunRefresh_DistinctConnectionsDoNotBlock(t *testing.T) {
 		t.Errorf("two connections took %v, want them to run concurrently", elapsed)
 	}
 }
+
+func TestRunRefresh_AllowsSubsequentRefreshCyclesAndRecovery(t *testing.T) {
+	ResetRefreshSlots()
+	t.Cleanup(ResetRefreshSlots)
+
+	var attempt atomic.Int32
+	refreshFn := func() (string, error) {
+		switch n := attempt.Add(1); n {
+		case 1:
+			return "fresh-1", nil
+		case 2:
+			return "", errors.New("temporary 503")
+		default:
+			return "fresh-2", nil
+		}
+	}
+
+	first := RunRefresh("conn-reexpiry", func() (bool, error) { return true, nil }, refreshFn)
+	if first.Err != nil || first.Token != "fresh-1" || !first.Led {
+		t.Fatalf("cycle 1 got (%q, %v, led=%v), want (fresh-1, nil, true)", first.Token, first.Err, first.Led)
+	}
+
+	// Token later becomes valid -> needsFn false must NOT return stale "fresh-1".
+	healthy := RunRefresh("conn-reexpiry", func() (bool, error) { return false, nil }, refreshFn)
+	if healthy.Err != nil || healthy.Token != "" {
+		t.Fatalf("healthy check got (%q, %v), want empty token and nil err", healthy.Token, healthy.Err)
+	}
+
+	// Token expires again and fails transiently.
+	failed := RunRefresh("conn-reexpiry", func() (bool, error) { return true, nil }, refreshFn)
+	if failed.Err == nil {
+		t.Fatal("cycle 2 expected transient error, got nil")
+	}
+
+	// Transient error must NOT poison future refresh attempts once upstream recovers.
+	recovered := RunRefresh("conn-reexpiry", func() (bool, error) { return true, nil }, refreshFn)
+	if recovered.Err != nil || recovered.Token != "fresh-2" || !recovered.Led {
+		t.Fatalf("recovery cycle got (%q, %v, led=%v), want (fresh-2, nil, true)", recovered.Token, recovered.Err, recovered.Led)
+	}
+	if got := attempt.Load(); got != 3 {
+		t.Fatalf("expected 3 refresh attempts across cycles, got %d", got)
+	}
+}

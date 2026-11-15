@@ -451,6 +451,10 @@ func SetupDashboardRoutes(r chi.Router, repo *db.Repo, chatH *chat.ChatHandler) 
 	r.Patch("/api/settings", dashH.HandleUpdateSettings)
 	r.Put("/settings", dashH.HandleUpdateSettings)
 	r.Patch("/settings", dashH.HandleUpdateSettings)
+	r.Get("/api/personas", dashH.HandleListPersonas)
+	r.Post("/api/personas", dashH.HandleCreatePersona)
+	r.Put("/api/personas/{id}", dashH.HandleUpdatePersona)
+	r.Delete("/api/personas/{id}", dashH.HandleDeletePersona)
 
 	// Settings backup/restore + outbound proxy diagnostics (profile page)
 	r.Get("/api/settings/database", dashH.HandleExportDatabase)
@@ -489,9 +493,13 @@ func SetupDashboardRoutes(r chi.Router, repo *db.Repo, chatH *chat.ChatHandler) 
 	r.Get("/api/tunnel/status", dashH.HandleTunnelStatus)
 	r.Post("/api/tunnel/enable", dashH.HandleTunnelEnable)
 	r.Post("/api/tunnel/disable", dashH.HandleTunnelDisable)
+	r.Post("/api/tunnel/repair-origin", dashH.HandleTunnelRepairOrigin)
 	r.Get("/api/tunnel/tailscale-check", dashH.HandleTailscaleCheck)
 	r.Post("/api/tunnel/tailscale-enable", dashH.HandleTailscaleEnable)
 	r.Post("/api/tunnel/tailscale-disable", dashH.HandleTailscaleDisable)
+	if chatH != nil {
+		r.Get("/api/changelog", chatH.HandleChangelog)
+	}
 
 	// Single Sign-On settings checks (profile page). The browser login flows and
 	// SP metadata are registered in SetupServerRouter instead: they have to be

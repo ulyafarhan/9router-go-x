@@ -2,6 +2,7 @@ package db
 
 import (
 	"9router/proxy/internal/handlerutil"
+	"9router/proxy/internal/persona"
 	json "encoding/json/v2"
 )
 
@@ -30,7 +31,52 @@ func parseSettings(rawData string) (*SettingsData, bool) {
 	applyCapacityAdapters(s, raw)
 	applyProviderOverrides(s, raw)
 	applySeatAttemptBudget(s, raw)
+	applyPersonaSettings(s, raw)
 	return s, true
+}
+
+func applyPersonaSettings(s *SettingsData, raw map[string]any) {
+	if v, ok := raw["personaEnabled"].(bool); ok {
+		s.PersonaEnabled = v
+	}
+	if v, ok := raw["personaActive"].(string); ok {
+		s.PersonaActive = v
+	}
+	if v, ok := raw["personaAutoDetect"].(bool); ok {
+		s.PersonaAutoDetect = v
+	}
+	if custom := parseCustomPersonas(raw["customPersonas"]); custom != nil {
+		s.CustomPersonas = custom
+	}
+}
+
+// parseCustomPersonas decodes, validates, and deduplicates stored custom persona packs.
+func parseCustomPersonas(rawVal any) []persona.Persona {
+	if rawVal == nil {
+		return nil
+	}
+	encoded, err := json.Marshal(rawVal)
+	if err != nil {
+		return nil
+	}
+	var parsed []persona.Persona
+	if err := json.Unmarshal(encoded, &parsed); err != nil {
+		return nil
+	}
+	valid := make([]persona.Persona, 0, len(parsed))
+	seen := make(map[string]bool, len(parsed))
+	for _, item := range parsed {
+		clean, verr := persona.ValidateCustom(item)
+		if verr != nil || seen[clean.ID] {
+			continue
+		}
+		seen[clean.ID] = true
+		valid = append(valid, clean)
+		if len(valid) >= persona.MaxCustomPersonas {
+			break
+		}
+	}
+	return valid
 }
 
 func applySeatAttemptBudget(s *SettingsData, raw map[string]any) {

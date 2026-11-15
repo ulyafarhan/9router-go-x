@@ -111,11 +111,20 @@ func (h *ChatHandler) HandleResponses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := thinking.WithSuffixIntent(h.newResponsesContext(r, modelName, modelInfo, &body), suffixIntent)
+	ctx, convErr := h.newResponsesContext(r, modelName, modelInfo, &body)
+	if convErr != nil {
+		handlerutil.WriteJSONError(w, http.StatusBadRequest, convErr.Error())
+		return
+	}
+	ctx = thinking.WithSuffixIntent(ctx, suffixIntent)
 	// X-9Router-Token-Saver: off|0|false|bypass opts the whole request out of
 	// every token saver; the flag travels on ctx to applyTokenSavers.
 	if isTokenSaverBypassValue(r.Header.Get("X-9Router-Token-Saver")) {
 		ctx = WithTokenSaverBypass(ctx)
+	}
+	// X-Persona: the task instruction pack injected around the system prompt.
+	if id := PersonaFromHeader(r.Header.Get); id != "" {
+		ctx = WithPersona(ctx, id)
 	}
 	// The operator's providerThinking overrides are read once here, not once
 	// per connection attempt.
@@ -143,19 +152,13 @@ func (h *ChatHandler) HandleResponses(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// The caller's key may carry a context ceiling below the model's own
-	// window. It is applied here, once, so every attempt — single model, combo
-	// member, fusion leg — is trimmed by the same rule.
-	if limit := keyContextLimit(ctx); limit > 0 {
-		modelWindow, modelMaxOutput := modelContextLimits(modelInfo.Provider, modelInfo.Model)
-		trimmed, limitErr := applyKeyContextLimitMap(workingBody, limit, modelWindow, modelMaxOutput)
-		if limitErr != nil {
-			handlerutil.WriteJSONError(w, http.StatusBadRequest, limitErr.Error())
-			return
-		}
-		if trimmed != nil {
-			workingBody = trimmed
-		}
+	// The binding context budget (key ceiling, else model window rescue with
+	// Prompt Envelope overhead reserved).
+	var limitErr error
+	workingBody, ctx, limitErr = h.applyContextBudgetMap(ctx, workingBody, body, modelInfo, reqBody.Model)
+	if limitErr != nil {
+		handlerutil.WriteJSONError(w, http.StatusBadRequest, limitErr.Error())
+		return
 	}
 
 	requiredCaps := DetectRequiredCapabilities(body)
@@ -187,7 +190,7 @@ func (h *ChatHandler) HandleResponses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.handleResponsesSingleModel(ctx, w, workingBody, modelInfo, reqBody.Stream)
+	h.handleResponsesSingleModel(ctx, w, workingBody, modelInfo, reqBody.Stream, modelName)
 }
 
 // newResponsesContext prepares the request context and rewrites body into the
@@ -199,7 +202,7 @@ func (h *ChatHandler) HandleResponses(w http.ResponseWriter, r *http.Request) {
 // cannot travel back to Responses. When the upstream speaks Responses natively
 // nothing is touched at all: upstream makes the same call by skipping
 // translation when the source format already equals the target format.
-func (h *ChatHandler) newResponsesContext(r *http.Request, requestedModel string, modelInfo *ModelInfo, body *[]byte) context.Context {
+func (h *ChatHandler) newResponsesContext(r *http.Request, requestedModel string, modelInfo *ModelInfo, body *[]byte) (context.Context, error) {
 	ctx := handlerutil.WithSessionID(r.Context(), handlerutil.ExtractSessionID(r))
 	ctx = executor.WithCodexLiteHeader(ctx, r.Header.Get(executor.CodexResponsesLiteHeader))
 	// Provider-scope limit state, installed where the request's context is built
@@ -220,28 +223,29 @@ func (h *ChatHandler) newResponsesContext(r *http.Request, requestedModel string
 	providerCfg, err := h.getProviderConfig(modelInfo.Provider, nil)
 	if err == nil && executor.UpstreamSpeaksResponses(modelInfo.Provider, modelInfo.Model, providerCfg) {
 		log.Debug("chat", "responses passthrough", "provider", modelInfo.Provider, "model", modelInfo.Model)
-		return ctx
+		return ctx, nil
 	}
 
 	converted, err := translator.ResponsesToChatRequest(*body)
 	if err != nil {
 		log.Error("chat", "responses request conversion failed", "error", err)
-		return ctx
+		return ctx, fmt.Errorf("invalid responses request: %w", err)
 	}
 	if !converted.Converted {
-		return ctx
+		return ctx, nil
 	}
 	*body = converted.Body
 	ctx = translator.WithCustomToolNames(ctx, converted.CustomToolNames)
-	return translator.WithResponsesBridge(ctx)
+	return translator.WithResponsesBridge(ctx), nil
 }
 
 // handleResponsesSingleModel forwards a prepared Responses request for a single
 // model. translateResponse stays false: that flag marks a Claude Messages
 // client, and a Responses client is never one.
-func (h *ChatHandler) handleResponsesSingleModel(ctx context.Context, w http.ResponseWriter, preparedReq map[string]any, modelInfo *ModelInfo, isStream bool) {
+func (h *ChatHandler) handleResponsesSingleModel(ctx context.Context, w http.ResponseWriter, preparedReq map[string]any, modelInfo *ModelInfo, isStream bool, requestedModel string) {
 	cw := newCommittedResponseWriter(w)
 	preparedReq["model"] = h.wireModelForNode(modelInfo.Provider, modelInfo.Model)
+	ctx = h.applyJailbreak(ctx, preparedReq, requestedModel, jailbreakLegIDs(modelInfo.Provider, modelInfo.Model)...)
 	finalBody, err := json.Marshal(preparedReq)
 	if err != nil {
 		handlerutil.WriteJSONError(cw, http.StatusInternalServerError, "failed to marshal responses request")

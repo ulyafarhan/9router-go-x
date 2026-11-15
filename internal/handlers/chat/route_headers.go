@@ -36,8 +36,9 @@ func resetRouteHeadersConfigForTesting() {
 }
 
 // injectRouteHeaders sets informational response headers indicating which provider,
-// model, combo, and attempt count successfully served the request.
-func injectRouteHeaders(w http.ResponseWriter, provider, model, combo string, attempts int) {
+// model, combo, attempt count, applied task persona, and context rescue detail
+// served the request.
+func injectRouteHeaders(ctx context.Context, w http.ResponseWriter, provider, model, combo string, attempts int, personaID, personaSource string) {
 	if !isRouteHeadersEnabled() {
 		return
 	}
@@ -54,6 +55,16 @@ func injectRouteHeaders(w http.ResponseWriter, provider, model, combo string, at
 		attempts = 1
 	}
 	w.Header().Set("x-9router-attempts", strconv.Itoa(attempts))
+	if personaID != "" {
+		v := personaID
+		if personaSource == "auto" {
+			v += " (auto)"
+		}
+		w.Header().Set("x-9router-persona", v)
+	}
+	if detail := ContextRescueFrom(ctx); detail != "" {
+		w.Header().Set("x-9router-tuning", detail)
+	}
 }
 
 // clearRouteHeaders removes route metadata headers from w. Used when a dispatch
@@ -67,6 +78,8 @@ func clearRouteHeaders(w http.ResponseWriter) {
 	h.Del("x-9router-model")
 	h.Del("x-9router-combo")
 	h.Del("x-9router-attempts")
+	h.Del("x-9router-persona")
+	h.Del("x-9router-tuning")
 	clearContextHeaders(w)
 }
 

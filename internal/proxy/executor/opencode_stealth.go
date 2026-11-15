@@ -34,9 +34,12 @@ type opencodeStealthClient struct {
 	client tls_client.HttpClient
 }
 
+const maxOpencodeStealthClients = 16
+
 var (
-	opencodeClientMu sync.Mutex
-	opencodeClients  = make(map[string]*opencodeStealthClient)
+	opencodeClientMu    sync.Mutex
+	opencodeClients     = make(map[string]*opencodeStealthClient)
+	opencodeClientOrder []string
 )
 
 var opencodePseudoHeaderOrder = []string{":method", ":path", ":authority", ":scheme"}
@@ -210,15 +213,29 @@ func opencodeProxyFrom(reference *http.Client) string {
 func getOpencodeStealthClient(reference *http.Client) (*opencodeStealthClient, error) {
 	proxyURL := opencodeProxyFrom(reference)
 	opencodeClientMu.Lock()
-	defer opencodeClientMu.Unlock()
 	if client, ok := opencodeClients[proxyURL]; ok {
+		opencodeClientMu.Unlock()
 		return client, nil
 	}
+	opencodeClientMu.Unlock()
+
 	client, err := newOpencodeStealthClient(reference)
 	if err != nil {
 		return nil, err
 	}
+
+	opencodeClientMu.Lock()
+	defer opencodeClientMu.Unlock()
+	if existing, ok := opencodeClients[proxyURL]; ok {
+		return existing, nil
+	}
+	for len(opencodeClientOrder) >= maxOpencodeStealthClients {
+		oldest := opencodeClientOrder[0]
+		opencodeClientOrder = opencodeClientOrder[1:]
+		delete(opencodeClients, oldest)
+	}
 	opencodeClients[proxyURL] = client
+	opencodeClientOrder = append(opencodeClientOrder, proxyURL)
 	return client, nil
 }
 

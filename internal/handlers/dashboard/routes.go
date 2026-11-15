@@ -214,6 +214,10 @@ func RegisterRoutes(r chi.Router, h *DashboardHandler) {
 		// Settings
 		r.Get("/settings", h.HandleGetSettings)
 		r.Put("/settings", h.HandleUpdateSettings)
+		r.Get("/personas", h.HandleListPersonas)
+		r.Post("/personas", h.HandleCreatePersona)
+		r.Put("/personas/{id}", h.HandleUpdatePersona)
+		r.Delete("/personas/{id}", h.HandleDeletePersona)
 		r.Get("/settings/database", h.HandleExportDatabase)
 		r.Post("/settings/database", h.HandleImportDatabase)
 		r.Get("/settings/database/stats", h.HandleGetDatabaseStats)

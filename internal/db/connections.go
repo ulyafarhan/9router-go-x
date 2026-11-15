@@ -96,6 +96,28 @@ func (r *Repo) CreateProviderConnectionFull(id, provider, authType, name string,
 	return nil
 }
 
+// UpsertProviderConnection inserts or updates a provider connection in place,
+// sealing sensitive credential fields when the Vault is enabled. Existing rows
+// preserve their id and priority while refreshing name, active flag, and data.
+func (r *Repo) UpsertProviderConnection(id, provider, authType, name string, priority *int, dataJSON string) error {
+	if r == nil || r.db == nil {
+		return nil
+	}
+	if dataJSON == "" {
+		dataJSON = "{}"
+	}
+	if existing, err := r.GetProviderConnectionByID(id); err == nil && existing != nil {
+		if err := r.ReplaceProviderConnectionPayload(id, name, dataJSON); err != nil {
+			return err
+		}
+		if existing.IsActive == 0 {
+			return r.SetConnectionStatus(id, true)
+		}
+		return nil
+	}
+	return r.CreateProviderConnectionFull(id, provider, authType, name, priority, dataJSON)
+}
+
 // ResolveDefaultPriority returns the next sequential priority for a provider
 // (max(existing priority) + 1), or 1 if no connections exist yet.
 func (r *Repo) ResolveDefaultPriority(provider string) int {
@@ -338,9 +360,7 @@ func (r *Repo) SetConnectionMediaEnabled(id string, mediaEnabled bool) error {
 	if err != nil {
 		return fmt.Errorf("marshal connection data: %w", err)
 	}
-	now := nowUTC()
-	_, err = r.db.ExecContext(context.Background(), `UPDATE providerConnections SET data = ?, updatedAt = ? WHERE id = ?`, string(encoded), now, id)
-	return err
+	return r.UpdateConnectionData(id, string(encoded))
 }
 
 // SetConnectionDisabledKinds updates providerSpecificData.disabledKinds in the connection's data JSON blob.
@@ -366,9 +386,7 @@ func (r *Repo) SetConnectionDisabledKinds(id string, disabledKinds []string) err
 	if err != nil {
 		return fmt.Errorf("marshal connection data: %w", err)
 	}
-	now := nowUTC()
-	_, err = r.db.ExecContext(context.Background(), `UPDATE providerConnections SET data = ?, updatedAt = ? WHERE id = ?`, string(encoded), now, id)
-	return err
+	return r.UpdateConnectionData(id, string(encoded))
 }
 
 // GetMediaConnections retrieves provider connections eligible for media requests.

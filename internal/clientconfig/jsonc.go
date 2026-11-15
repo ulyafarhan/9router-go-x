@@ -173,9 +173,23 @@ func (p *jsonParser) parseArray() (*jsonNode, error) {
 	}
 }
 
-// decodeJSONString unquotes a string literal. stdlib does the escape work, and
-// rejects an escape this lexer let through, which is the fail-closed answer.
+// decodeJSONString unquotes a string literal. Plain printable-UTF8 literals
+// without escapes slice directly instead of calling json.Unmarshal per key;
+// anything with an escape or control byte falls back to stdlib decoding.
 func decodeJSONString(raw []byte) (string, error) {
+	if len(raw) >= 2 && raw[0] == '"' && raw[len(raw)-1] == '"' {
+		inner := raw[1 : len(raw)-1]
+		fast := true
+		for _, b := range inner {
+			if b == '\\' || b < 0x20 || b >= 0x80 {
+				fast = false
+				break
+			}
+		}
+		if fast {
+			return string(inner), nil
+		}
+	}
 	var s string
 	if err := json.Unmarshal(raw, &s); err != nil {
 		return "", fmt.Errorf("%w: bad string literal: %w", ErrParseFailure, err)

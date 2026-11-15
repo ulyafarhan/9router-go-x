@@ -5,6 +5,7 @@ import (
 	json "encoding/json/v2"
 	"errors"
 	"fmt"
+	"maps"
 	"math/rand/v2"
 	"os"
 	"slices"
@@ -754,6 +755,9 @@ func (h *ChatHandler) getProviderConfig(provider string, connData *ConnectionDat
 		if cfg, ok := providers.KnownProviders[provider]; ok {
 			cloned := cfg
 			cloned.BaseURL = baseURL
+			if len(cfg.StaticHeaders) > 0 {
+				cloned.StaticHeaders = maps.Clone(cfg.StaticHeaders)
+			}
 			baseCfg = &cloned
 		} else {
 			baseCfg = &providers.ProviderConfig{
@@ -765,6 +769,9 @@ func (h *ChatHandler) getProviderConfig(provider string, connData *ConnectionDat
 	} else if cfg, ok := providers.KnownProviders[provider]; ok {
 		// Clone config so per-request headers don't mutate global registry
 		cloned := cfg
+		if len(cfg.StaticHeaders) > 0 {
+			cloned.StaticHeaders = maps.Clone(cfg.StaticHeaders)
+		}
 		baseCfg = &cloned
 	} else {
 		node, nodeData, err := h.Repo.GetProviderNodeByID(provider)

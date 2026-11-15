@@ -82,6 +82,12 @@ func ScanStreamWithDeadline(ctx context.Context, r io.Reader, timeout time.Durat
 	})
 }
 
+// ScanStreamEventsWithDeadline combines ScanStreamWithDeadline's idle timeout
+// with early-stop control when onEvent returns false.
+func ScanStreamEventsWithDeadline(ctx context.Context, r io.Reader, timeout time.Duration, pending func() bool, onEvent func(SSEEvent) bool) error {
+	return scanEvents(r, newIdleWatch(ctx, timeout, pending), onEvent)
+}
+
 // idleWatch bounds how long the scanner may wait for the next line of a stream.
 // bufio.Scanner blocks inside Read and takes no deadline, so the wait is
 // covered by closing the reader: everything an SSE stream is built from (http

@@ -28,6 +28,7 @@ type Config struct {
 	CavemanEnabled      bool
 	PonytailEnabled     bool
 	ADHDEnabled         bool
+	WebLanesEnabled     bool
 	SeatAttemptBudgetMs int
 }
 
@@ -53,6 +54,9 @@ func NewViperWithFile(configFile string) *viper.Viper {
 	v.SetDefault("CAVEMAN_ENABLED", false)
 	v.SetDefault("PONYTAIL_ENABLED", false)
 	v.SetDefault("ADHD_ENABLED", false)
+	// Website lanes (deepseek-web, gemini-web, grok-web, perplexity-web) are an
+	// arms race against consumer sites, not APIs; disabled by default unless opted in.
+	v.SetDefault("ENABLE_WEB_LANES", false)
 	v.SetDefault("SEAT_ATTEMPT_BUDGET_MS", 0)
 
 	if configFile != "" {
@@ -243,6 +247,7 @@ func LoadConfigFromViper(v *viper.Viper) *Config {
 	cavemanEnabled := v.GetBool("CAVEMAN_ENABLED")
 	ponytailEnabled := v.GetBool("PONYTAIL_ENABLED")
 	adhdEnabled := v.GetBool("ADHD_ENABLED")
+	webLanesEnabled := v.GetBool("ENABLE_WEB_LANES")
 	seatAttemptBudgetMs := v.GetInt("SEAT_ATTEMPT_BUDGET_MS")
 
 	return &Config{
@@ -257,6 +262,7 @@ func LoadConfigFromViper(v *viper.Viper) *Config {
 		CavemanEnabled:      cavemanEnabled,
 		PonytailEnabled:     ponytailEnabled,
 		ADHDEnabled:         adhdEnabled,
+		WebLanesEnabled:     webLanesEnabled,
 		SeatAttemptBudgetMs: seatAttemptBudgetMs,
 	}
 }

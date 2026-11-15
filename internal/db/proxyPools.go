@@ -347,11 +347,12 @@ func (r *Repo) DeleteProxyPool(id string) error {
 func (r *Repo) UpdateProxyPool(id string, updates map[string]any) error {
 	var dataStr string
 	var isActive int
-	var testStatus string
-	err := r.db.QueryRow(`SELECT data, isActive, testStatus FROM proxyPools WHERE id = ?`, id).Scan(&dataStr, &isActive, &testStatus)
+	var testStatusNS sql.NullString
+	err := r.db.QueryRow(`SELECT data, isActive, testStatus FROM proxyPools WHERE id = ?`, id).Scan(&dataStr, &isActive, &testStatusNS)
 	if err != nil {
 		return err
 	}
+	testStatus := testStatusNS.String
 	var existing map[string]any
 	_ = json.Unmarshal([]byte(dataStr), &existing)
 	if existing == nil {
@@ -387,7 +388,7 @@ func (r *Repo) UpdateProxyPool(id string, updates map[string]any) error {
 func (r *Repo) SetProxyPoolStatus(id string, status string, latencyMs int64) error {
 	var dataStr string
 	var isActive int
-	var currentStatus string
+	var currentStatus sql.NullString
 	err := r.db.QueryRow(`SELECT data, isActive, testStatus FROM proxyPools WHERE id = ?`, id).Scan(&dataStr, &isActive, &currentStatus)
 	if err != nil {
 		return err

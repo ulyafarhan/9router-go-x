@@ -1044,7 +1044,6 @@ func (h *ChatHandler) handleComboFallbackWithVisited(ctx context.Context, cw *co
 			var timeoutGate *comboResponseTimeout
 			if responseTimeout > 0 && !isLastModel {
 				timeoutGate = newComboResponseTimeout(ctx, cw, responseTimeout)
-				defer timeoutGate.finish()
 				candidateCtx, candidateWriter = timeoutGate.ctx, timeoutGate
 			}
 			var entrySuccess bool
@@ -1107,6 +1106,9 @@ func (h *ChatHandler) handleComboFallbackWithVisited(ctx context.Context, cw *co
 				upstreamBodyJSON := adapterTrimmedBody(body, entry, adapterModels)
 
 				if err := json.Unmarshal(upstreamBodyJSON, &upstreamBody); err != nil {
+					if timeoutGate != nil {
+						timeoutGate.finish()
+					}
 					handlerutil.WriteJSONError(cw, http.StatusBadRequest, "failed to parse request body")
 					return
 				}
@@ -1497,7 +1499,6 @@ func (h *ChatHandler) handleMessagesComboFallbackWithVisited(ctx context.Context
 			var timeoutGate *comboResponseTimeout
 			if responseTimeout > 0 && !isLastModel {
 				timeoutGate = newComboResponseTimeout(ctx, cw, responseTimeout)
-				defer timeoutGate.finish()
 				candidateCtx, candidateWriter = timeoutGate.ctx, timeoutGate
 			}
 
@@ -1551,6 +1552,9 @@ func (h *ChatHandler) handleMessagesComboFallbackWithVisited(ctx context.Context
 
 				entryBody, err := adapterTrimmedMap(translatedReq, entry, adapterModels)
 				if err != nil {
+					if timeoutGate != nil {
+						timeoutGate.finish()
+					}
 					handlerutil.WriteJSONError(cw, http.StatusBadRequest, "failed to parse request body")
 					return
 				}
@@ -1583,7 +1587,7 @@ func (h *ChatHandler) handleMessagesComboFallbackWithVisited(ctx context.Context
 					targetWriter = streamPeeker
 				}
 				var providerCfg *providers.ProviderConfig
-				if cfg, err := h.GetProviderConfig(modelInfo.Provider, nil); err == nil {
+				if cfg, err := h.GetProviderConfig(modelInfo.Provider, connData); err == nil {
 					providerCfg = cfg
 				}
 				upstreamClaude := modelInfo.Provider == "claude" || modelInfo.Provider == "anthropic" || servesClaudeMessages(modelInfo.Provider, providerCfg)

@@ -113,6 +113,11 @@ func (h *DashboardHandler) HandleUpdateSettings(w http.ResponseWriter, r *http.R
 	}
 	normalizeProviderThinking(updates)
 
+	if err := validatePersonaUpdate(h.Repo, updates); err != nil {
+		handlerutil.WriteJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	if err := validateNumericSettings(updates); err != nil {
 		handlerutil.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return

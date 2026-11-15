@@ -74,7 +74,7 @@ func (h *DashboardHandler) resolveCodexResetCreditTarget(w http.ResponseWriter, 
 	}
 
 	if accessToken == "" {
-		writePlainError(w, http.StatusUnauthorized, "Codex OAuth access token is missing.")
+		writePlainError(w, http.StatusBadRequest, "Codex OAuth access token is missing.")
 		return codexResetCreditTarget{}, false
 	}
 

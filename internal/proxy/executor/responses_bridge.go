@@ -85,6 +85,7 @@ type ResponsesBridge struct {
 	// from its own goroutine when the upstream stalls.
 	mu       sync.Mutex
 	state    *translator.ResponsesState
+	loop     *proxy.StreamLoopDetector
 	write    func([]byte) error
 	finished bool
 	err      error
@@ -103,7 +104,7 @@ type ResponsesBridge struct {
 func NewResponsesBridge(model string, customToolNames []string, write func([]byte) error) *ResponsesBridge {
 	state := translator.InitResponsesState(model, true)
 	state.SetCustomToolNames(customToolNames)
-	b := &ResponsesBridge{state: state, write: write}
+	b := &ResponsesBridge{state: state, loop: proxy.NewStreamLoopDetector(), write: write}
 	newCompletionWatchdog(b)
 	return b
 }
@@ -124,6 +125,19 @@ func (b *ResponsesBridge) feed(payload []byte) {
 	if b.err != nil || b.finished {
 		return
 	}
+	if looped, detail := b.loop.PushSSEPayload(payload); looped {
+		log.Warn("autotune", "streaming responses repetition loop aborted", "detail", detail)
+		b.watchdog.stop()
+		b.completionPending.Store(false)
+		b.finished = true
+		if werr := b.write([]byte(translator.FormatResponsesFailedSSE(map[string]any{
+			"code":    "loop_detected",
+			"message": "upstream entered a repetition loop: " + detail,
+		}))); werr != nil {
+			b.err = werr
+		}
+		return
+	}
 	if err := b.writeEvents(translator.TranslateOpenAIToResponses(parseChatChunk(payload), b.state)); err != nil {
 		b.err = err
 		return
@@ -133,6 +147,14 @@ func (b *ResponsesBridge) feed(payload []byte) {
 	// trailer: start the deadline that stops the client waiting forever.
 	b.completionPending.Store(b.state.CompletionPending && !b.state.Completed)
 	b.watchdog.arm()
+}
+
+// Finished reports whether the bridge has emitted a terminal Responses event
+// (natural completion or repetition-loop abort).
+func (b *ResponsesBridge) Finished() bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.finished
 }
 
 // CompletionPending reports that the terminal event is owed to the client and
@@ -263,7 +285,12 @@ func StreamChatToResponses(ctx context.Context, w http.ResponseWriter, upstream 
 	)
 	defer bridge.Close()
 
-	err := proxy.ScanStreamWithDeadline(ctx, upstream, PendingCompletionFlushTimeout, bridge.CompletionPending, bridge.Feed)
+	err := proxy.ScanStreamEventsWithDeadline(ctx, upstream, PendingCompletionFlushTimeout, bridge.CompletionPending, func(ev proxy.SSEEvent) bool {
+		if len(ev.Data) > 0 {
+			bridge.Feed(ev.Data)
+		}
+		return !bridge.Finished()
+	})
 	if bridge.Err() != nil {
 		return fmt.Errorf("write to client: %w", bridge.Err())
 	}

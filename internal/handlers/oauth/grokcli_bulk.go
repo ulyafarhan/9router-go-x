@@ -261,12 +261,7 @@ func (h *OAuthHandler) HandleOAuthGrokCliBulkImport(w http.ResponseWriter, r *ht
 			continue
 		}
 
-		now := currentTimestamp()
-		_, err = h.Repo.RawDB().Exec(
-			`INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, 'grok-cli', 'oauth', ?, 1, ?, ?, ?)`,
-			connID, name, string(dataJSON), now, now,
-		)
-		if err != nil {
+		if err := h.Repo.CreateProviderConnectionFull(connID, "grok-cli", "oauth", name, nil, string(dataJSON)); err != nil {
 			log.Error("oauth", "save Grok CLI bulk connection failed", "error", err)
 			failed++
 			results = append(results, ImportResult{Index: i, Ok: false, Error: err.Error()})

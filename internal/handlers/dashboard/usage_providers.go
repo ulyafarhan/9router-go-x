@@ -59,9 +59,16 @@ func (r usageResult) toResponse() map[string]any {
 		if len(r.quotas) > 0 {
 			out["quotas"] = r.quotas
 		}
+		for k, v := range r.extra {
+			out[k] = v
+		}
 		return out
 	}
-	return map[string]any{"plan": r.plan, "quotas": map[string]any{}}
+	out := map[string]any{"plan": r.plan, "quotas": map[string]any{}}
+	for k, v := range r.extra {
+		out[k] = v
+	}
+	return out
 }
 
 // fetchProviderUsage dispatches a live quota fetch for providers with a
@@ -109,6 +116,10 @@ func fetchProviderUsage(ctx context.Context, provider string, data map[string]an
 		return fetchZcodeUsage(ctx, firstNonEmptyStr(accessToken, apiKey), psdStr(psd, "deviceId")), true
 	case "glm", "glm-cn":
 		return fetchGLMUsage(ctx, provider, firstNonEmptyStr(apiKey, accessToken)), true
+	case "synthetic", "syn", "synthetic-new":
+		return fetchSyntheticUsage(ctx, apiKey), true
+	case "clinepass", "cp":
+		return fetchClinePassUsage(ctx, accessToken, apiKey), true
 	default:
 		return usageResult{}, false
 	}

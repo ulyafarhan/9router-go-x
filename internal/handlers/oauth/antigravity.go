@@ -217,7 +217,6 @@ func (h *OAuthHandler) HandleAntigravityExchange(w http.ResponseWriter, r *http.
 
 	connName := connectionDisplayName("antigravity", "", email, "Antigravity")
 
-	now := currentTimestamp()
 	dataMap := map[string]any{
 		"apiKey":      tokenData.AccessToken,
 		"accessToken": tokenData.AccessToken,
@@ -246,12 +245,10 @@ func (h *OAuthHandler) HandleAntigravityExchange(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if h.Repo != nil && h.Repo.RawDB() != nil {
-		var existingDataStr string
-		err := h.Repo.RawDB().QueryRow("SELECT data FROM providerConnections WHERE id = ?", connID).Scan(&existingDataStr)
-		if err == nil && existingDataStr != "" {
+	if h.Repo != nil {
+		if existing, err := h.Repo.GetProviderConnectionByID(connID); err == nil && existing != nil && existing.Data != "" {
 			var existingData map[string]any
-			if err := json.Unmarshal([]byte(existingDataStr), &existingData); err == nil {
+			if err := json.Unmarshal([]byte(existing.Data), &existingData); err == nil {
 				if tokenData.RefreshToken == "" {
 					if rt, ok := existingData["refreshToken"].(string); ok && rt != "" {
 						dataMap["refreshToken"] = rt
@@ -264,23 +261,10 @@ func (h *OAuthHandler) HandleAntigravityExchange(w http.ResponseWriter, r *http.
 						dataMap["projectId"] = strings.TrimSpace(pid)
 					}
 				}
+				dataBytes, _ = json.Marshal(dataMap)
 			}
-			dataBytes, _ = json.Marshal(dataMap)
-			_, err = h.Repo.RawDB().Exec(
-				"UPDATE providerConnections SET name = ?, data = ?, updatedAt = ? WHERE id = ?",
-				connName, string(dataBytes), now, connID,
-			)
-		} else {
-			priority := 1
-			if h.Repo != nil {
-				priority = h.Repo.ResolveDefaultPriority("antigravity")
-			}
-			_, err = h.Repo.RawDB().Exec(
-				"INSERT INTO providerConnections (id, provider, authType, name, priority, isActive, data, createdAt, updatedAt) VALUES (?, 'antigravity', 'oauth', ?, ?, 1, ?, ?, ?)",
-				connID, connName, priority, string(dataBytes), now, now,
-			)
 		}
-		if err != nil {
+		if err := h.Repo.UpsertProviderConnection(connID, "antigravity", "oauth", connName, nil, string(dataBytes)); err != nil {
 			log.Error("oauth", "save antigravity connection failed", "conn", connID, "error", err)
 			handlerutil.WriteJSONError(w, http.StatusInternalServerError, "failed to save connection")
 			return

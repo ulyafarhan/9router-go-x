@@ -209,14 +209,32 @@ func (h *ChatHandler) StoreAntigravityProjectID(connectionID, pid string) {
 }
 
 func (h *ChatHandler) storeAntigravityProjectID(connectionID, pid string) {
-	if connectionID == "" || pid == "" || h.Repo == nil || h.Repo.RawDB() == nil {
+	if connectionID == "" || pid == "" || h.Repo == nil {
 		return
 	}
 	go func() {
-		if h.Repo == nil || h.Repo.RawDB() == nil {
+		if h.Repo == nil {
 			return
 		}
-		if _, err := h.Repo.RawDB().Exec("UPDATE providerConnections SET data = json_set(data, '$.projectId', ?) WHERE id = ?", pid, connectionID); err != nil {
+		err := oauth.WithRefreshLock(connectionID, func() error {
+			conn, gerr := h.Repo.GetProviderConnectionByID(connectionID)
+			if gerr != nil || conn == nil {
+				return gerr
+			}
+			fields := make(map[string]any)
+			if conn.Data != "" {
+				if uerr := json.Unmarshal([]byte(conn.Data), &fields); uerr != nil {
+					return uerr
+				}
+			}
+			fields["projectId"] = pid
+			encoded, merr := json.Marshal(fields)
+			if merr != nil {
+				return merr
+			}
+			return h.Repo.UpdateConnectionData(connectionID, string(encoded))
+		})
+		if err != nil {
 			log.Warn("gemini", "update projectId failed", "conn", connectionID, "error", err)
 		}
 	}()
@@ -316,13 +334,9 @@ func (h *ChatHandler) refreshOAuthTokenIfExpired(connectionID, currentToken stri
 	// stored accessToken before adopting anything.
 	stored, _, readErr := h.oauthRefreshNeeded(connectionID)
 	if readErr == nil && !stored {
-		db := h.Repo.RawDB()
-		row := db.QueryRowContext(context.Background(),
-			"SELECT data FROM providerConnections WHERE id = ?", connectionID)
-		var rawData string
-		if err := row.Scan(&rawData); err == nil {
+		if conn, cerr := h.Repo.GetProviderConnectionByID(connectionID); cerr == nil && conn != nil && conn.Data != "" {
 			var connMap map[string]any
-			if json.Unmarshal([]byte(rawData), &connMap) == nil {
+			if json.Unmarshal([]byte(conn.Data), &connMap) == nil {
 				at, _ := connMap["accessToken"].(string)
 				// Adopt the stored token only when it differs from the
 				// caller's own credential AND the caller's credential is not
@@ -349,13 +363,12 @@ func (h *ChatHandler) refreshOAuthTokenIfExpired(connectionID, currentToken stri
 // and a refresher exists for its provider. It also returns the project id the
 // connection carries, so a caller that skips the refresh still propagates it.
 func (h *ChatHandler) oauthRefreshNeeded(connectionID string) (needs bool, projectID string, err error) {
-	db := h.Repo.RawDB()
-	row := db.QueryRowContext(context.Background(), "SELECT provider, data FROM providerConnections WHERE id = ?", connectionID)
-	var provider string
-	var rawData string
-	if scanErr := row.Scan(&provider, &rawData); scanErr != nil {
+	conn, getErr := h.Repo.GetProviderConnectionByID(connectionID)
+	if getErr != nil || conn == nil {
 		return false, "", nil
 	}
+	provider := conn.Provider
+	rawData := conn.Data
 	var connMap map[string]any
 	if jsonErr := json.Unmarshal([]byte(rawData), &connMap); jsonErr != nil {
 		return false, "", nil
@@ -377,13 +390,12 @@ func (h *ChatHandler) oauthRefreshNeeded(connectionID string) (needs bool, proje
 // refreshOAuthLocked performs the exchange and persists the result. The caller
 // must hold the connection's refresh lock.
 func (h *ChatHandler) refreshOAuthLocked(connectionID, currentToken string) (oauthTokenResult, error) {
-	db := h.Repo.RawDB()
-	row := db.QueryRowContext(context.Background(), "SELECT provider, data FROM providerConnections WHERE id = ?", connectionID)
-	var provider string
-	var rawData string
-	if err := row.Scan(&provider, &rawData); err != nil {
+	conn, err := h.Repo.GetProviderConnectionByID(connectionID)
+	if err != nil || conn == nil {
 		return oauthTokenResult{token: currentToken, passthrough: true}, nil
 	}
+	provider := conn.Provider
+	rawData := conn.Data
 	var connMap map[string]any
 	if err := json.Unmarshal([]byte(rawData), &connMap); err != nil {
 		return oauthTokenResult{token: currentToken, passthrough: true}, nil
@@ -433,9 +445,8 @@ func (h *ChatHandler) refreshOAuthLocked(connectionID, currentToken string) (oau
 	mergedJSON, err := json.Marshal(existing)
 	if err != nil {
 		log.Error("oauth", "marshal connection data failed", "conn", connectionID, "error", err)
-	} else {
-		_, _ = db.ExecContext(context.Background(), "UPDATE providerConnections SET data = ?, updatedAt = ? WHERE id = ?",
-			string(mergedJSON), time.Now().UTC().Format(time.RFC3339), connectionID)
+	} else if uerr := h.Repo.UpdateConnectionData(connectionID, string(mergedJSON)); uerr != nil {
+		log.Warn("oauth", "persist refreshed connection data failed", "conn", connectionID, "error", uerr)
 	}
 	newPID := projectID
 	if refreshResult.ProjectID != "" {
@@ -473,13 +484,15 @@ func (h *ChatHandler) forceRefreshOAuthToken(connectionID string) (string, strin
 // forceRefreshLocked is the body of a forced refresh, run while the caller
 // holds the connection's refresh lock.
 func (h *ChatHandler) forceRefreshLocked(connectionID string) (oauthTokenResult, error) {
-	db := h.Repo.RawDB()
-	row := db.QueryRowContext(context.Background(), "SELECT provider, data FROM providerConnections WHERE id = ?", connectionID)
-	var provider string
-	var rawData string
-	if err := row.Scan(&provider, &rawData); err != nil {
+	conn, err := h.Repo.GetProviderConnectionByID(connectionID)
+	if err != nil {
 		return oauthTokenResult{}, err
 	}
+	if conn == nil {
+		return oauthTokenResult{}, fmt.Errorf("connection %s not found", connectionID)
+	}
+	provider := conn.Provider
+	rawData := conn.Data
 
 	var connMap map[string]any
 	if err := json.Unmarshal([]byte(rawData), &connMap); err != nil {
@@ -523,9 +536,8 @@ func (h *ChatHandler) forceRefreshLocked(connectionID string) (oauthTokenResult,
 		mergedJSON, err := json.Marshal(existing)
 		if err != nil {
 			log.Error("oauth", "marshal conn data failed", "conn", connectionID, "error", err)
-		} else {
-			_, _ = db.ExecContext(context.Background(), "UPDATE providerConnections SET data = ?, updatedAt = ? WHERE id = ?",
-				string(mergedJSON), time.Now().UTC().Format(time.RFC3339), connectionID)
+		} else if uerr := h.Repo.UpdateConnectionData(connectionID, string(mergedJSON)); uerr != nil {
+			log.Warn("oauth", "persist force-refreshed conn data failed", "conn", connectionID, "error", uerr)
 		}
 		newPID := oauthData.ProjectID
 		if result.ProjectID != "" {
@@ -568,9 +580,8 @@ func (h *ChatHandler) forceRefreshLocked(connectionID string) (oauthTokenResult,
 	mergedJSON, err := json.Marshal(existing)
 	if err != nil {
 		log.Error("oauth", "marshal conn data failed", "conn", connectionID, "error", err)
-	} else {
-		_, _ = db.ExecContext(context.Background(), "UPDATE providerConnections SET data = ?, updatedAt = ? WHERE id = ?",
-			string(mergedJSON), time.Now().UTC().Format(time.RFC3339), connectionID)
+	} else if uerr := h.Repo.UpdateConnectionData(connectionID, string(mergedJSON)); uerr != nil {
+		log.Warn("oauth", "persist force-refreshed conn data failed", "conn", connectionID, "error", uerr)
 	}
 
 	h.clearOAuthAccountPark(connectionID)

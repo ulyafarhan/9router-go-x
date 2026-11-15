@@ -128,6 +128,8 @@ var ProviderAliasMap = map[string]string{
 	"ps":             "poolside",
 	"qianfan":        "baidu",
 	"samba":          "sambanova",
+	"syn":            "synthetic",
+	"synthetic-new":  "synthetic",
 	// "tr" belongs to tokenrouter, not trae. Upstream publishes trae's own
 	// alias as "tr" but keeps trae out of the registry array (a hidden entry:
 	// its SOLO agent has no tool calling), and builds the alias table from that

@@ -381,22 +381,8 @@ func (h *OAuthHandler) HandleFreebuffPoll(w http.ResponseWriter, r *http.Request
 
 		log.Info("oauth", "saving freebuff connection", "connID", connID, "name", connName, "email", email)
 
-		if h.Repo != nil && h.Repo.RawDB() != nil {
-			now := currentTimestamp()
-			var exists int
-			_ = h.Repo.RawDB().QueryRow("SELECT COUNT(*) FROM providerConnections WHERE id = ?", connID).Scan(&exists)
-			if exists > 0 {
-				_, err = h.Repo.RawDB().Exec(
-					"UPDATE providerConnections SET name = ?, data = ?, updatedAt = ? WHERE id = ?",
-					connName, string(dataBytes), now, connID,
-				)
-			} else {
-				_, err = h.Repo.RawDB().Exec(
-					"INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, 'freebuff', 'oauth', ?, 1, ?, ?, ?)",
-					connID, connName, string(dataBytes), now, now,
-				)
-			}
-			if err != nil {
+		if h.Repo != nil {
+			if err := h.Repo.UpsertProviderConnection(connID, "freebuff", "oauth", connName, nil, string(dataBytes)); err != nil {
 				log.Error("oauth", "save freebuff connection failed", "conn", connID, "error", err)
 				handlerutil.WriteJSONError(w, http.StatusInternalServerError, fmt.Sprintf("failed to save connection: %v", err))
 				return

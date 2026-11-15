@@ -56,7 +56,7 @@ func (h *DashboardHandler) resolveClaudeResetTarget(w http.ResponseWriter, r *ht
 		accessToken = apiKey
 	}
 	if accessToken == "" {
-		writePlainError(w, http.StatusUnauthorized, "Claude OAuth access token is missing.")
+		writePlainError(w, http.StatusBadRequest, "Claude OAuth access token is missing.")
 		return claudeResetTarget{}, false
 	}
 

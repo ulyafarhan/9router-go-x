@@ -123,11 +123,14 @@ func HandleConsoleLogsStream(w http.ResponseWriter, r *http.Request) {
 		return true
 	}
 
-	// Buffered entries first.
-	if buffered := log.ConsoleEntries(); len(buffered) > 0 {
-		if !send(map[string]any{"type": "init", "entries": buffered}) {
-			return
-		}
+	// Always emit an initial frame immediately so net/http flushes the 200 OK
+	// headers right away even when the buffer is empty (avoids 25s ping wait).
+	buffered := log.ConsoleEntries()
+	if buffered == nil {
+		buffered = []log.ConsoleEntry{}
+	}
+	if !send(map[string]any{"type": "init", "entries": buffered}) {
+		return
 	}
 
 	ch, cancel := log.SubscribeConsole()

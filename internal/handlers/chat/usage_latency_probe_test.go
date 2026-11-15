@@ -118,22 +118,8 @@ func TestUsageWriteLatencyProbe(t *testing.T) {
 
 	t.Run("daily_blob_grown", func(t *testing.T) {
 		h := newProbeHandler(t)
-		// Accumulate a realistic busy day first: 2400 requests across
-		// 25 providers x 30 models, through the same RMW production uses.
-		providers, models := 25, 30
-		n := 0
-		for pi := 0; pi < providers; pi++ {
-			for mi := 0; mi < models; mi++ {
-				for r := 0; r < 3; r++ {
-					h.upsertDailyUsage(
-						fmt.Sprintf("prov-%02d", pi), fmt.Sprintf("model-%02d", mi),
-						"/v1/chat/completions", "conn-1", "sk-****abcd", 1000, 300, 50, 0.002)
-					n++
-				}
-			}
-		}
-		blob, _ := h.Repo.GetUsageDaily(time.Now().UTC().Format("2006-01-02"))
-		t.Logf("grown daily blob: %d requests accumulated, %.1f KB", n, float64(len(blob))/1024)
+		n, size := seedBusyDayUsage(t, h, 25, 30, 3)
+		t.Logf("grown daily blob: %d requests accumulated, %.1f KB", n, float64(size)/1024)
 
 		var p latProbe
 		for i := 0; i < 200; i++ {
@@ -146,16 +132,7 @@ func TestUsageWriteLatencyProbe(t *testing.T) {
 
 	t.Run("response_path_cost_after_busy_day", func(t *testing.T) {
 		h := newProbeHandler(t)
-		providers, models := 25, 30
-		for pi := 0; pi < providers; pi++ {
-			for mi := 0; mi < models; mi++ {
-				for r := 0; r < 3; r++ {
-					h.upsertDailyUsage(
-						fmt.Sprintf("prov-%02d", pi), fmt.Sprintf("model-%02d", mi),
-						"/v1/chat/completions", "conn-1", "sk-****abcd", 1000, 300, 50, 0.002)
-				}
-			}
-		}
+		seedBusyDayUsage(t, h, 25, 30, 3)
 		// What the response goroutine pays per request once the writes leave
 		// the path: enqueue only. The landings are flushed before returning.
 		SetUsageWritesSynchronousForTest(false)
@@ -249,4 +226,29 @@ func seedUsageHistory(repo *db.Repo, n int) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func seedBusyDayUsage(tb testing.TB, h *ChatHandler, providers, models, reps int) (int, int) {
+	tb.Helper()
+	data := make(map[string]any)
+	n := 0
+	for pi := 0; pi < providers; pi++ {
+		for mi := 0; mi < models; mi++ {
+			for r := 0; r < reps; r++ {
+				accumulateDailyUsage(data,
+					fmt.Sprintf("prov-%02d", pi), fmt.Sprintf("model-%02d", mi),
+					"/v1/chat/completions", "conn-1", "sk-****abcd", 1000, 300, 50, 0.002)
+				n++
+			}
+		}
+	}
+	raw, err := json.Marshal(data)
+	if err != nil {
+		tb.Fatalf("marshal busy day seed: %v", err)
+	}
+	dateKey := time.Now().UTC().Format("2006-01-02")
+	if err := h.Repo.UpsertUsageDaily(dateKey, string(raw)); err != nil {
+		tb.Fatalf("upsert busy day seed: %v", err)
+	}
+	return n, len(raw)
 }

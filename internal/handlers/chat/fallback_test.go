@@ -34,7 +34,7 @@ func TestApplyTokenSavers_AllOff(t *testing.T) {
 	defer cleanup()
 
 	body := []byte(`{"messages":[{"role":"user","content":"hello"}]}`)
-	got, origTokens, savedTokens, savedPct := h.applyTokenSavers(context.Background(), body, false)
+	got, origTokens, savedTokens, savedPct, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) != string(body) {
 		t.Errorf("expected unchanged body when all token savers off")
 	}
@@ -64,7 +64,7 @@ func TestApplyTokenSavers_RTKOnly(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal body: %v", err)
 	}
-	got, origTokens, savedTokens, savedPct := h.applyTokenSavers(context.Background(), body, false)
+	got, origTokens, savedTokens, savedPct, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) == string(body) {
 		t.Errorf("expected RTK to modify body")
 	}
@@ -85,7 +85,7 @@ func TestApplyTokenSavers_CavemanInjects(t *testing.T) {
 	h.TokenSaver.SetCaveman(true)
 
 	body := []byte(`{"messages":[{"role":"user","content":"hi"}]}`)
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	// Caveman prompt text should now appear in the system message.
 	if !strings.Contains(string(got), "terse") && !strings.Contains(string(got), "caveman") {
 		t.Errorf("expected caveman prompt injected, got %s", got)
@@ -98,7 +98,7 @@ func TestApplyTokenSavers_PonytailInjects(t *testing.T) {
 	h.TokenSaver.SetPonytail(true)
 
 	body := []byte(`{"messages":[{"role":"user","content":"hi"}]}`)
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if !strings.Contains(string(got), tokensaver.PonytailPrompt[:20]) {
 		t.Errorf("expected ponytail prompt injected, got %s", got)
 	}
@@ -110,7 +110,7 @@ func TestApplyTokenSavers_ADHDInjects(t *testing.T) {
 	h.TokenSaver.SetADHD(true)
 
 	body := []byte(`{"messages":[{"role":"user","content":"hi"}]}`)
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if !strings.Contains(string(got), "I have ADHD — action-first output") {
 		t.Errorf("expected ADHD full prompt injected, got %s", got)
 	}
@@ -118,7 +118,7 @@ func TestApplyTokenSavers_ADHDInjects(t *testing.T) {
 	// Test lite mode
 	h.TokenSaver.SetADHD(true, "lite")
 	bodyLite := []byte(`{"messages":[{"role":"user","content":"hi"}]}`)
-	gotLite, _, _, _ := h.applyTokenSavers(context.Background(), bodyLite, false)
+	gotLite, _, _, _, _, _ := h.applyTokenSavers(context.Background(), bodyLite, false)
 	if !strings.Contains(string(gotLite), "I have ADHD (lite)") {
 		t.Errorf("expected ADHD lite prompt injected, got %s", gotLite)
 	}
@@ -428,7 +428,7 @@ func TestApplyTokenSavers_HeadroomOffByDefault(t *testing.T) {
 	defer cleanup()
 
 	body := []byte(`{"messages":[{"role":"user","content":"a long paragraph worth compressing if it were enabled"}]}`)
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) != string(body) {
 		t.Fatalf("headroom must be off by default; body changed")
 	}
@@ -459,7 +459,7 @@ func TestApplyTokenSavers_HeadroomCompressesWhenEnabled(t *testing.T) {
 	})
 
 	body := []byte(`{"model":"m","messages":[{"role":"user","content":"a long paragraph worth compressing if it were enabled at all today"}]}`)
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if atomic.LoadInt32(&hits) == 0 {
 		t.Fatalf("enabled headroom never reached the proxy")
 	}
@@ -497,7 +497,7 @@ func TestApplyTokenSavers_HeadroomRecordsTokenSavings(t *testing.T) {
 		HeadroomTimeoutMs: 2000,
 	})
 	body := []byte(`{"model":"m","messages":[{"role":"user","content":"a long paragraph worth compressing if it were enabled at all today"}]}`)
-	got, origTokens, savedTokens, savedPct := h.applyTokenSavers(context.Background(), body, false)
+	got, origTokens, savedTokens, savedPct, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) == string(body) {
 		t.Fatalf("body was not replaced by the compressed one")
 	}
@@ -531,7 +531,7 @@ func TestApplyTokenSavers_HeadroomSavingsStackOnRTK(t *testing.T) {
 		HeadroomTimeoutMs: 2000,
 	})
 	body := []byte(`{"model":"m","messages":[{"role":"user","content":"a long paragraph worth compressing if it were enabled at all today"}]}`)
-	got, origTokens, savedTokens, savedPct := h.applyTokenSavers(context.Background(), body, false)
+	got, origTokens, savedTokens, savedPct, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) == string(body) {
 		t.Fatalf("body was not replaced by the compressed one")
 	}
@@ -563,7 +563,7 @@ func TestApplyTokenSavers_HeadroomFailsOpen(t *testing.T) {
 	})
 
 	body := []byte(`{"model":"m","messages":[{"role":"user","content":"still has to go through"}]}`)
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) != string(body) {
 		t.Fatalf("a dead proxy must leave the body untouched")
 	}
@@ -598,7 +598,7 @@ func TestApplyTokenSavers_BypassHeader(t *testing.T) {
 			}
 
 			ctx := WithTokenSaverBypass(context.Background())
-			got, orig, saved, pct := h.applyTokenSavers(ctx, body, false)
+			got, orig, saved, pct, _, _ := h.applyTokenSavers(ctx, body, false)
 			if string(got) != string(body) {
 				t.Errorf("expected body untouched under bypass (%q), got %s", val, got)
 			}
@@ -629,7 +629,7 @@ func TestApplyTokenSavers_NonBypassValueStillProcessed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal body: %v", err)
 	}
-	got, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
+	got, _, _, _, _, _ := h.applyTokenSavers(context.Background(), body, false)
 	if string(got) == string(body) {
 		t.Error("expected RTK to process body when header is not a bypass value")
 	}

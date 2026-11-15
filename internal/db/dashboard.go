@@ -16,6 +16,10 @@ import (
 // sort the row ahead of every other account (priority 0 beats every positive
 // rank) and silently promote it to the top of the rotation.
 func (r *Repo) UpdateProviderConnection(id string, name string, priority *int, isActive bool, data string) error {
+	sealed, err := r.sealOnWrite(id, data)
+	if err != nil {
+		return err
+	}
 	activeInt := 0
 	if isActive {
 		activeInt = 1
@@ -25,9 +29,9 @@ func (r *Repo) UpdateProviderConnection(id string, name string, priority *int, i
 	if name != "" {
 		nameVal = name
 	}
-	_, err := r.db.Exec(
+	_, err = r.db.Exec(
 		`UPDATE providerConnections SET name = ?, priority = ?, isActive = ?, data = ?, updatedAt = ? WHERE id = ?`,
-		nameVal, priority, activeInt, data, now, id,
+		nameVal, priority, activeInt, sealed, now, id,
 	)
 	if err != nil {
 		return fmt.Errorf("update provider connection %s: %w", id, err)
@@ -180,8 +184,9 @@ func (r *Repo) CreateCombo(id, name, kind, modelsJSON, strategy string) error {
 		return fmt.Errorf("create combo %s: %w", id, err)
 	}
 	if strategy != "" {
-		// Update strategy if column exists in the schema
-		_, _ = r.db.Exec(`UPDATE combos SET strategy = ? WHERE id = ?`, strategy, id)
+		if err := r.SetComboStrategy(name, ComboStrategy{Strategy: strategy}); err != nil {
+			return fmt.Errorf("create combo %s strategy: %w", id, err)
+		}
 	}
 	return nil
 }
@@ -201,8 +206,9 @@ func (r *Repo) UpdateCombo(id, name, kind, modelsJSON, strategy string) error {
 		return fmt.Errorf("update combo %s: %w", id, err)
 	}
 	if strategy != "" {
-		// Update strategy if column exists in the schema
-		_, _ = r.db.Exec(`UPDATE combos SET strategy = ? WHERE id = ?`, strategy, id)
+		if err := r.SetComboStrategy(name, ComboStrategy{Strategy: strategy}); err != nil {
+			return fmt.Errorf("update combo %s strategy: %w", id, err)
+		}
 	}
 	return nil
 }

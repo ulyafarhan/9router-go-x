@@ -451,12 +451,11 @@ func TestLoopStartsDisabledThenRuns(t *testing.T) {
 	waitFor(t, func() bool { return probes.Load() > 0 }, "probes to start after enabling")
 }
 
-// waitFor polls a condition for up to two seconds. A one-minute interval means
-// the loop's own cadence cannot be waited on directly, so these tests wait on
-// the observable effect instead of the tick.
+// waitFor polls a condition for up to four seconds (twice the 2s disabledPoll
+// interval) so scheduler jitter or timer slop does not fail a 2s wake-up.
 func waitFor(t *testing.T, cond func() bool, what string) {
 	t.Helper()
-	deadline := time.Now().Add(2 * time.Second)
+	deadline := time.Now().Add(4 * time.Second)
 	for time.Now().Before(deadline) {
 		if cond() {
 			return

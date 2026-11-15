@@ -15,7 +15,7 @@ func TestRouteHeaders_SingleModel(t *testing.T) {
 	resetRouteHeadersConfigForTesting()
 	os.Unsetenv("NINEROUTER_ROUTE_HEADERS")
 	rec := httptest.NewRecorder()
-	injectRouteHeaders(rec, "anthropic", "claude-3.5-sonnet", "", 1)
+	injectRouteHeaders(context.Background(), rec, "anthropic", "claude-3.5-sonnet", "", 1, "", "")
 
 	resp := rec.Result()
 	if resp.Header.Get("x-9router-provider") != "anthropic" {
@@ -36,7 +36,7 @@ func TestRouteHeaders_ComboAndAttempts(t *testing.T) {
 	resetRouteHeadersConfigForTesting()
 	os.Unsetenv("NINEROUTER_ROUTE_HEADERS")
 	rec := httptest.NewRecorder()
-	injectRouteHeaders(rec, "openai", "gpt-4o", "my-combo", 3)
+	injectRouteHeaders(context.Background(), rec, "openai", "gpt-4o", "my-combo", 3, "", "")
 
 	resp := rec.Result()
 	if resp.Header.Get("x-9router-provider") != "openai" {
@@ -57,7 +57,7 @@ func TestRouteHeaders_Disabled(t *testing.T) {
 	resetRouteHeadersConfigForTesting()
 	t.Setenv("NINEROUTER_ROUTE_HEADERS", "0")
 	rec := httptest.NewRecorder()
-	injectRouteHeaders(rec, "anthropic", "claude-3", "combo", 1)
+	injectRouteHeaders(context.Background(), rec, "anthropic", "claude-3", "combo", 1, "", "")
 
 	resp := rec.Result()
 	if resp.Header.Get("x-9router-provider") != "" {
@@ -67,7 +67,7 @@ func TestRouteHeaders_Disabled(t *testing.T) {
 	resetRouteHeadersConfigForTesting()
 	t.Setenv("NINEROUTER_ROUTE_HEADERS", "false")
 	rec2 := httptest.NewRecorder()
-	injectRouteHeaders(rec2, "anthropic", "claude-3", "combo", 1)
+	injectRouteHeaders(context.Background(), rec2, "anthropic", "claude-3", "combo", 1, "", "")
 	resp2 := rec2.Result()
 	if resp2.Header.Get("x-9router-provider") != "" {
 		t.Errorf("expected headers suppressed when NINEROUTER_ROUTE_HEADERS=false")
@@ -78,7 +78,7 @@ func TestRouteHeaders_ClearOnFailure(t *testing.T) {
 	resetRouteHeadersConfigForTesting()
 	os.Unsetenv("NINEROUTER_ROUTE_HEADERS")
 	rec := httptest.NewRecorder()
-	injectRouteHeaders(rec, "deepseek", "deepseek-chat", "combo-a", 2)
+	injectRouteHeaders(context.Background(), rec, "deepseek", "deepseek-chat", "combo-a", 2, "", "")
 
 	if rec.Header().Get("x-9router-provider") != "deepseek" {
 		t.Fatalf("expected provider header before clear")

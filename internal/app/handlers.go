@@ -1,24 +1,26 @@
 package app
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/fx"
 
+	"9router/proxy/internal/config"
 	"9router/proxy/internal/db"
 	"9router/proxy/internal/handlers"
 	"9router/proxy/internal/handlers/chat"
+	"9router/proxy/internal/log"
 	"9router/proxy/internal/middleware"
+	"9router/proxy/internal/proxy/executor"
 )
 
 // HandlersModule provides TokenSaverConfig and sets up the server router.
 var HandlersModule = fx.Module("handlers",
 	fx.Provide(
 		ProvideTokenSaverConfig,
-		ProvideRouter,
+		provideRouterFromConfig,
 		ProvideHTTPHandler,
 	),
 )
@@ -53,8 +55,15 @@ func ProvideTokenSaverConfig(repo *db.Repo, params CLIParams) *handlers.TokenSav
 		ts.SetADHD(adhd, settings.ADHDLevel)
 	}
 	ts.SetInjectionGuard(!params.NoInjectionGuard)
-	log.Printf("[config] token savers — rtk=%v caveman=%v (%s) ponytail=%v (%s) adhd=%v (%s)",
-		ts.RTKEnabled(), ts.CavemanEnabled(), ts.CavemanLevel(), ts.PonytailEnabled(), ts.PonytailLevel(), ts.ADHDEnabled(), ts.ADHDLevel())
+	log.Info("config", "token savers",
+		"rtk", ts.RTKEnabled(),
+		"caveman", ts.CavemanEnabled(),
+		"caveman_level", ts.CavemanLevel(),
+		"ponytail", ts.PonytailEnabled(),
+		"ponytail_level", ts.PonytailLevel(),
+		"adhd", ts.ADHDEnabled(),
+		"adhd_level", ts.ADHDLevel(),
+	)
 	return ts
 }
 
@@ -67,6 +76,16 @@ func ProvideTokenSaverConfig(repo *db.Repo, params CLIParams) *handlers.TokenSav
 // entries while the engine served hits, and clearing entries from the dashboard
 // would leave the engine still serving them (see handlers.SetupRoutes).
 func ProvideRouter(repo *db.Repo, ts *handlers.TokenSaverConfig) (*chi.Mux, *chat.ChatHandler) {
+	return provideRouterFromConfig(repo, ts, nil)
+}
+
+func provideRouterFromConfig(repo *db.Repo, ts *handlers.TokenSaverConfig, cfg *config.Config) (*chi.Mux, *chat.ChatHandler) {
+	if cfg != nil {
+		// Website lanes are a registration-time decision: the gate decides whether
+		// RegisterAll wires the real executors or the policy stubs (weblanes.go).
+		executor.SetWebLanesEnabled(cfg.WebLanesEnabled)
+		log.Info("config", "web lanes", "enabled", cfg.WebLanesEnabled, "env", "ENABLE_WEB_LANES")
+	}
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	// Body limits are path-aware: JSON APIs keep the 10MB ceiling, the media

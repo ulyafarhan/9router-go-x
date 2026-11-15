@@ -953,6 +953,26 @@ func (r *Repo) RollupUsageHistoryBeforeDate(ctx context.Context, cutoff string) 
 	}
 	defer func() { _ = rows.Close() }()
 
+	type rollupRow struct {
+		ts, provider, model, connID, apiKey, endpoint, tokensJSON string
+		prompt, compl                                             int
+		cost                                                      float64
+	}
+	var collected []rollupRow
+	for rows.Next() {
+		var item rollupRow
+		if err := rows.Scan(&item.ts, &item.provider, &item.model, &item.connID, &item.apiKey, &item.endpoint, &item.prompt, &item.compl, &item.cost, &item.tokensJSON); err != nil {
+			return 0, fmt.Errorf("scan usageHistory for rollup: %w", err)
+		}
+		collected = append(collected, item)
+	}
+	if err := rows.Err(); err != nil {
+		return 0, fmt.Errorf("iterate usageHistory for rollup: %w", err)
+	}
+	// Close the scan cursor before querying GetUsageDaily so we never nest
+	// queries inside an open connection from the bounded SQLite pool.
+	_ = rows.Close()
+
 	type dailyAgg struct {
 		data map[string]any
 	}
@@ -964,19 +984,12 @@ func (r *Repo) RollupUsageHistoryBeforeDate(ctx context.Context, cutoff string) 
 	// missed while the gateway was offline.
 	skipDaily := make(map[string]bool)
 
-	for rows.Next() {
-		var ts, provider, model, connID, apiKey, endpoint, tokensJSON string
-		var prompt, compl int
-		var cost float64
-		if err := rows.Scan(&ts, &provider, &model, &connID, &apiKey, &endpoint, &prompt, &compl, &cost, &tokensJSON); err != nil {
-			return 0, fmt.Errorf("scan usageHistory for rollup: %w", err)
-		}
-
+	for _, item := range collected {
 		dateKey := ""
-		if len(ts) >= 10 {
-			dateKey = ts[:10]
+		if len(item.ts) >= 10 {
+			dateKey = item.ts[:10]
 		} else {
-			parsed, pErr := time.Parse(time.RFC3339, ts)
+			parsed, pErr := time.Parse(time.RFC3339, item.ts)
 			if pErr != nil {
 				continue
 			}
@@ -1000,11 +1013,8 @@ func (r *Repo) RollupUsageHistoryBeforeDate(ctx context.Context, cutoff string) 
 			dailyMap[dateKey] = agg
 		}
 
-		cached := extractCachedTokens(tokensJSON)
-		mergeDailyUsageItem(agg.data, provider, model, endpoint, connID, apiKey, prompt, compl, cached, cost)
-	}
-	if err := rows.Err(); err != nil {
-		return 0, fmt.Errorf("iterate usageHistory for rollup: %w", err)
+		cached := extractCachedTokens(item.tokensJSON)
+		mergeDailyUsageItem(agg.data, item.provider, item.model, item.endpoint, item.connID, item.apiKey, item.prompt, item.compl, cached, item.cost)
 	}
 
 	for dateKey, agg := range dailyMap {

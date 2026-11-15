@@ -639,6 +639,9 @@ func (h *DashboardHandler) HandleCreateConnection(w http.ResponseWriter, r *http
 				handlerutil.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 				return
 			}
+			if updated, gerr := h.Repo.GetProviderConnectionByID(dup.ID); gerr == nil && updated != nil {
+				dup = updated
+			}
 			handlerutil.WriteJSON(w, http.StatusOK, map[string]any{
 				"status":     "ok",
 				"id":         dup.ID,

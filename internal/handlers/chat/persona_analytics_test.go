@@ -92,7 +92,7 @@ func TestApplyTokenSaversPersonaStackCountsEachPromptOnce(t *testing.T) {
 	stacked.TokenSaver.SetCaveman(true)
 	stacked.TokenSaver.SetPonytail(true)
 	stacked.TokenSaver.SetADHD(true)
-	gotStacked, origStacked, savedStacked, _ := stacked.applyTokenSavers(context.Background(), body, false)
+	gotStacked, origStacked, savedStacked, _, _, _ := stacked.applyTokenSavers(context.Background(), body, false)
 	if string(gotStacked) == string(body) {
 		t.Fatalf("expected the personas to add prompts to the body")
 	}
@@ -115,7 +115,7 @@ func TestApplyTokenSaversPersonaStackCountsEachPromptOnce(t *testing.T) {
 	single, singleCleanup := setupHandlerForForward(t)
 	defer singleCleanup()
 	single.TokenSaver.SetCaveman(true)
-	gotSingle, origSingle, _, _ := single.applyTokenSavers(context.Background(), body, false)
+	gotSingle, origSingle, _, _, _, _ := single.applyTokenSavers(context.Background(), body, false)
 	if wantSingle := (len(gotSingle) - len(body)) / 4; origSingle != wantSingle && origSingle != wantSingle-1 {
 		t.Errorf("single persona origTokens = %d, want %d", origSingle, wantSingle)
 	}

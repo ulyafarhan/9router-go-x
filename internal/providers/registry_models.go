@@ -247,6 +247,10 @@ var ProviderModels = map[string][]string{
 	"selfhosted-stt":       {"whisper-1"},
 	"selfhosted-tts":       {"kokoro"},
 	"sensenova":            {"sensenova-6.8-flash", "sensenova-6.8-flash-lite", "sensenova-u1.5-lite", "sensenova-u1.5-fast", "deepseek-v4-flash", "deepseek-flash", "glm-5.3", "glm-5.2", "kimi-k3"},
+	"sensenova-intl":       {"sensenova-6.8-flash", "sensenova-6.8-flash-lite", "sensenova-6.7-flash-lite", "sensenova-u1.5-lite", "sensenova-u1-fast"},
+	"syn":                  {"hf:zai-org/GLM-5.3", "hf:zai-org/GLM-5.3-Flash", "hf:zai-org/GLM-4.7-Flash", "hf:moonshotai/Kimi-K3", "hf:deepseek-ai/DeepSeek-V4.1-Flash", "hf:deepseek-ai/DeepSeek-V4.1-Flash-1017", "hf:Qwen/Qwen3.8-27B", "hf:openai/gpt-oss-120b", "hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4"},
+	"synthetic":            {"hf:zai-org/GLM-5.3", "hf:zai-org/GLM-5.3-Flash", "hf:zai-org/GLM-4.7-Flash", "hf:moonshotai/Kimi-K3", "hf:deepseek-ai/DeepSeek-V4.1-Flash", "hf:deepseek-ai/DeepSeek-V4.1-Flash-1017", "hf:Qwen/Qwen3.8-27B", "hf:openai/gpt-oss-120b", "hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4"},
+	"synthetic-new":        {"hf:zai-org/GLM-5.3", "hf:zai-org/GLM-5.3-Flash", "hf:zai-org/GLM-4.7-Flash", "hf:moonshotai/Kimi-K3", "hf:deepseek-ai/DeepSeek-V4.1-Flash", "hf:deepseek-ai/DeepSeek-V4.1-Flash-1017", "hf:Qwen/Qwen3.8-27B", "hf:openai/gpt-oss-120b", "hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4"},
 	"siliconflow":          {"deepseek-ai/DeepSeek-V4-Pro", "deepseek-ai/DeepSeek-V4-Flash", "deepseek-ai/DeepSeek-V3.2", "deepseek-ai/DeepSeek-V3.2-Exp", "deepseek-ai/DeepSeek-V3.1", "deepseek-ai/DeepSeek-V3.1-Terminus", "deepseek-ai/DeepSeek-R1", "Qwen/Qwen3.5-397B-A17B", "Qwen/Qwen3.5-122B-A10B", "zai-org/GLM-5.1", "zai-org/GLM-5", "moonshotai/Kimi-K2.6", "moonshotai/Kimi-K2.5", "openai/gpt-oss-120b", "MiniMaxAI/MiniMax-M2.5", "inclusionAI/Ling-flash-2.0"},
 	"stability":            {"stable-image-ultra", "stable-image-core", "sd3.5-large", "sd3.5-large-turbo", "sd3.5-medium"},
 	"stability-ai":         {"stable-image-ultra", "stable-image-core", "sd3.5-large", "sd3.5-large-turbo", "sd3.5-medium"},
@@ -688,6 +692,10 @@ var ProviderModelKinds = map[string]map[string]string{
 	},
 	"selfhosted-tts": {
 		"kokoro": "tts",
+	},
+	"sensenova-intl": {
+		"sensenova-u1.5-lite": "image",
+		"sensenova-u1-fast":   "image",
 	},
 	"stability": {
 		"sd3.5-large":        "image",

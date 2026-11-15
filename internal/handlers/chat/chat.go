@@ -109,6 +109,11 @@ func (h *ChatHandler) HandleChatCompletions(w http.ResponseWriter, r *http.Reque
 	if isTokenSaverBypassValue(r.Header.Get("X-9Router-Token-Saver")) {
 		ctx = WithTokenSaverBypass(ctx)
 	}
+	// X-Persona: the task instruction pack the lane injects around the system
+	// prompt. Resolved once and carried to prompt envelope resolution.
+	if id := PersonaFromHeader(r.Header.Get); id != "" {
+		ctx = WithPersona(ctx, id)
+	}
 	// Provider-scope limit state travels with the request: what one attempt
 	// learns (this provider is full) must steer the next one, and must not
 	// outlive the request (docs/provider-limits-plan.md D7).
@@ -134,10 +139,15 @@ func (h *ChatHandler) HandleChatCompletions(w http.ResponseWriter, r *http.Reque
 	// must not depend on the model resolving. resolveModel below is what turns
 	// an unknown model into a 400, and a cached answer for a model that has
 	// since been retired is still the answer this client already paid for.
+	envelopeTag := ""
+	if !reqBody.Stream && ((h.SemanticCache != nil && h.SemanticCache.Enabled()) || h.PromptCache != nil) {
+		envelopeTag = h.promptEnvelopeTag(ctx, modelName, body)
+	}
 	if !reqBody.Stream && h.SemanticCache != nil && h.SemanticCache.Enabled() {
 		var openAIReq translator.OpenAIRequest
 		if err := json.Unmarshal(body, &openAIReq); err == nil {
-			if entry, score, hit := h.SemanticCache.Lookup(ctx, &openAIReq); hit {
+			cacheReq := withEnvelopeCacheKey(&openAIReq, envelopeTag)
+			if entry, score, hit := h.SemanticCache.Lookup(ctx, cacheReq); hit {
 				w.Header().Set("Content-Type", entry.ContentType)
 				w.Header().Set("X-Cache", "HIT")
 				w.Header().Set("X-Semantic-Similarity", fmt.Sprintf("%.4f", score))
@@ -150,10 +160,10 @@ func (h *ChatHandler) HandleChatCompletions(w http.ResponseWriter, r *http.Reque
 			w = capture
 			defer func() {
 				if capture.statusCode == http.StatusOK && capture.body.Len() > 0 {
-					_ = h.SemanticCache.Store(ctx, &openAIReq, capture.body.Bytes(), "application/json")
+					_ = h.SemanticCache.Store(ctx, cacheReq, capture.body.Bytes(), "application/json")
 				}
 			}()
-			ctx = semanticcache.WithCachedRequest(ctx, &openAIReq)
+			ctx = semanticcache.WithCachedRequest(ctx, cacheReq)
 		}
 	}
 	// Exact-prompt cache: a second, cheaper layer for a byte-identical request.
@@ -166,7 +176,11 @@ func (h *ChatHandler) HandleChatCompletions(w http.ResponseWriter, r *http.Reque
 	// whole, and hashing it would mean buffering the response this layer exists
 	// to avoid.
 	if !reqBody.Stream && h.PromptCache != nil && h.SemanticCache != nil && h.SemanticCache.Enabled() {
-		if key, ok := promptcache.HashRequest(reqBody.Model, body); ok {
+		cacheModelKey := reqBody.Model
+		if envelopeTag != "" {
+			cacheModelKey += envelopeTag
+		}
+		if key, ok := promptcache.HashRequest(cacheModelKey, body); ok {
 			if entry, hit := h.PromptCache.Get(key); hit {
 				w.Header().Set("Content-Type", entry.ContentType)
 				w.Header().Set("X-Cache", "HIT")
@@ -200,17 +214,14 @@ func (h *ChatHandler) HandleChatCompletions(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// The caller's key may carry a context ceiling below the model's own
-	// window. It is applied here, once, so every attempt — single model, combo
-	// member, fusion leg — is trimmed by the same rule.
-	if limit := keyContextLimit(ctx); limit > 0 {
-		modelWindow, modelMaxOutput := modelContextLimits(modelInfo.Provider, modelInfo.Model)
-		trimmed, limitErr := applyKeyContextLimit(body, limit, modelWindow, modelMaxOutput)
-		if limitErr != nil {
-			handlerutil.WriteJSONError(w, http.StatusBadRequest, limitErr.Error())
-			return
-		}
-		body = trimmed
+	// The binding context budget: the caller's key ceiling when it carries
+	// one, otherwise the model's own window (with Prompt Envelope overhead
+	// reserved so injected presets/personas fit cleanly).
+	var limitErr error
+	body, ctx, limitErr = h.applyContextBudgetBytes(ctx, body, modelInfo, reqBody.Model)
+	if limitErr != nil {
+		handlerutil.WriteJSONError(w, http.StatusBadRequest, limitErr.Error())
+		return
 	}
 
 	requiredCaps := DetectRequiredCapabilities(body)
@@ -458,6 +469,9 @@ func (h *ChatHandler) HandleMessages(w http.ResponseWriter, r *http.Request) {
 	if isTokenSaverBypassValue(r.Header.Get("X-9Router-Token-Saver")) {
 		ctx = WithTokenSaverBypass(ctx)
 	}
+	if id := PersonaFromHeader(r.Header.Get); id != "" {
+		ctx = WithPersona(ctx, id)
+	}
 	ctx = withProviderLimitState(ctx)
 	ctx = translator.WithRequestedModel(ctx, stripModelContextMarker(modelName))
 	ctx = thinking.WithSuffixIntent(ctx, suffixIntent)
@@ -477,19 +491,13 @@ func (h *ChatHandler) HandleMessages(w http.ResponseWriter, r *http.Request) {
 		ctx = translator.WithPromptEstimate(ctx, (len(body)+3)/4)
 	}
 
-	// The caller's key may carry a context ceiling below the model's own
-	// window. It is applied here, once, so every attempt — single model, combo
-	// member, fusion leg — is trimmed by the same rule.
-	if limit := keyContextLimit(ctx); limit > 0 {
-		modelWindow, modelMaxOutput := modelContextLimits(modelInfo.Provider, modelInfo.Model)
-		trimmed, limitErr := applyKeyContextLimitMap(workingBody, limit, modelWindow, modelMaxOutput)
-		if limitErr != nil {
-			handlerutil.WriteJSONError(w, http.StatusBadRequest, limitErr.Error())
-			return
-		}
-		if trimmed != nil {
-			workingBody = trimmed
-		}
+	// The binding context budget (key ceiling, else model window rescue with
+	// Prompt Envelope overhead reserved).
+	var limitErr error
+	workingBody, ctx, limitErr = h.applyContextBudgetMap(ctx, workingBody, body, modelInfo, reqBody.Model)
+	if limitErr != nil {
+		handlerutil.WriteJSONError(w, http.StatusBadRequest, limitErr.Error())
+		return
 	}
 
 	requiredCaps := DetectRequiredCapabilities(body)
@@ -559,7 +567,7 @@ func (h *ChatHandler) handleMessagesSingleModel(ctx context.Context, w http.Resp
 		return
 	}
 
-	result := h.handleAccountFallback(ctx, cw, modelInfo.Provider, modelInfo.Model, modelInfo.ConnectionID, finalBody, isStream, translateResponse, "/v1/v1/messages")
+	result := h.handleAccountFallback(ctx, cw, modelInfo.Provider, modelInfo.Model, modelInfo.ConnectionID, finalBody, isStream, translateResponse, "/v1/messages")
 	if result != nil {
 		if cw.IsCommitted() {
 			log.Error("chat", "upstream error after headers committed", "error", result)
@@ -623,6 +631,7 @@ func (h *ChatHandler) HandleChangelog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urls := []string{
+		"https://raw.githubusercontent.com/ulyafarhan/9router-go-x/main/CHANGELOG.md",
 		"https://raw.githubusercontent.com/luqman-v1/9router-go/main/CHANGELOG.md",
 		"https://raw.githubusercontent.com/decolua/9router/refs/heads/master/CHANGELOG.md",
 	}

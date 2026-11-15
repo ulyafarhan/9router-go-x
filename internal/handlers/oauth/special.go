@@ -415,24 +415,13 @@ func (h *OAuthHandler) HandleIflowCookie(w http.ResponseWriter, r *http.Request)
 
 // saveSpecialConnection upserts an oauth-family connection and writes the standard response.
 func (h *OAuthHandler) saveSpecialConnection(w http.ResponseWriter, provider, connID, name, email string, dataMap map[string]any, _ map[string]any) {
-	now := currentTimestamp()
 	dataBytes, err := json.Marshal(dataMap)
 	if err != nil {
 		handlerutil.WriteJSONError(w, http.StatusInternalServerError, "failed to marshal connection data")
 		return
 	}
-	if h.Repo != nil && h.Repo.RawDB() != nil {
-		var existing string
-		err := h.Repo.RawDB().QueryRow("SELECT data FROM providerConnections WHERE id = ?", connID).Scan(&existing)
-		if err == nil && existing != "" {
-			_, err = h.Repo.RawDB().Exec(
-				"UPDATE providerConnections SET name = ?, data = ?, updatedAt = ? WHERE id = ?", name, string(dataBytes), now, connID)
-		} else {
-			_, err = h.Repo.RawDB().Exec(
-				"INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt) VALUES (?, ?, 'oauth', ?, 1, ?, ?, ?)",
-				connID, provider, name, string(dataBytes), now, now)
-		}
-		if err != nil {
+	if h.Repo != nil {
+		if err := h.Repo.UpsertProviderConnection(connID, provider, "oauth", name, nil, string(dataBytes)); err != nil {
 			handlerutil.WriteJSONError(w, http.StatusInternalServerError, fmt.Sprintf("failed to save connection: %v", err))
 			return
 		}

@@ -38,8 +38,13 @@ func TestRecordConnectionAccountBanFailure_EscalatesAndClears(t *testing.T) {
 		if got < wantWindow-30*time.Second || got > wantWindow+30*time.Second {
 			t.Errorf("streak %d park window = %s, want about %s", i+1, got, wantWindow)
 		}
-		if !prev.IsZero() && !until.After(prev) {
-			t.Errorf("streak %d park until %s does not outlast streak %d (%s)", i+1, until, i, prev)
+		if !prev.IsZero() {
+			if i > 0 && wantWindow > want[i-1] && !until.After(prev) {
+				t.Errorf("streak %d park until %s does not outlast streak %d (%s)", i+1, until, i, prev)
+			} else if until.Before(prev) {
+				// Same-cap streaks (e.g. 5 and 6 at 336h) may share one coarse OS clock tick.
+				t.Errorf("streak %d park until %s regressed below streak %d (%s)", i+1, until, i, prev)
+			}
 		}
 		prev = until
 	}

@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	toml "github.com/pelletier/go-toml/v2"
 	"github.com/pelletier/go-toml/v2/unstable"
 )
 
@@ -74,27 +73,35 @@ func parseableTOML(src []byte) []byte {
 	return out
 }
 
-// collectTOML is the entry gate: the strict parser first (it is the only layer
-// that catches a duplicate key or table), then the range scan.
+// collectTOML parses and semantically validates the input in a single O(n) pass.
 func collectTOML(src []byte) (*tomlDoc, error) {
-	buf := parseableTOML(src)
-	var scratch any
-	if err := toml.Unmarshal(buf, &scratch); err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrParseFailure, err)
-	}
-	return scanTOML(buf, src)
+	return scanTOMLWithValidation(parseableTOML(src), src, true)
 }
 
-// scanTOML builds the byte-range index with the unstable parser alone. It is
-// linear in the document size, which is what makes it usable as the output
-// check where the strict parser would cost another O(n²) pass.
+// scanTOML builds the byte-range index with the unstable parser alone.
 func scanTOML(buf, src []byte) (*tomlDoc, error) {
+	return scanTOMLWithValidation(buf, src, false)
+}
+
+// scanTOMLWithValidation builds the byte-range index with the unstable parser,
+// optionally validating duplicate keys, tables, and array-of-table conflicts
+// in O(n) time.
+func scanTOMLWithValidation(buf, src []byte, validate bool) (*tomlDoc, error) {
 	p := &unstable.Parser{KeepComments: true}
 	p.Reset(buf)
 	doc := &tomlDoc{}
+	var seen *tomlSeenTracker
+	if validate {
+		seen = newTOMLSeenTracker()
+	}
 	var cur []string
 	for p.NextExpression() {
 		n := p.Expression()
+		if seen != nil {
+			if err := seen.checkExpression(n); err != nil {
+				return nil, fmt.Errorf("%w: %w", ErrParseFailure, err)
+			}
+		}
 		switch n.Kind {
 		case unstable.Table, unstable.ArrayTable:
 			path, first, last := tomlKeyParts(n)

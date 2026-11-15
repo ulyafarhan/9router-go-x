@@ -338,13 +338,18 @@ func (r *Repo) sealConnectionData(id, data string) (string, error) {
 			}
 		}
 		if len(nestedPayload) > 0 {
-			secretWrapped, secretCt, _, _ := r.GetConnectionSealed(id, SlotSecret)
+			secretWrapped, secretCt, _, getErr := r.GetConnectionSealed(id, SlotSecret)
+			if getErr != nil {
+				return data, fmt.Errorf("seal connection %s/nested: read existing slot: %w", id, getErr)
+			}
 			if secretWrapped != "" && secretCt != "" {
-				if plain, err := r.Vault().Open(secretWrapped, secretCt); err == nil {
-					if existingDecoded, ok := decodeObject(plain); ok {
-						for k, v := range existingDecoded {
-							nestedPayload[k] = v
-						}
+				plain, openErr := r.Vault().Open(secretWrapped, secretCt)
+				if openErr != nil {
+					return data, fmt.Errorf("seal connection %s/nested: open existing slot: %w", id, openErr)
+				}
+				if existingDecoded, ok := decodeObject(plain); ok {
+					for k, v := range existingDecoded {
+						nestedPayload[k] = v
 					}
 				}
 			}

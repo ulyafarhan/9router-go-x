@@ -16,10 +16,11 @@ import (
 // the server folds every family past the top ones into "other" so the legend
 // stays readable (parity with techysy/10router's getChartData).
 type chartBucket struct {
-	Label   string           `json:"label"`
-	Tokens  int64            `json:"tokens"`
-	Cost    float64          `json:"cost"`
-	ByModel map[string]int64 `json:"byModel"`
+	Label       string             `json:"label"`
+	Tokens      int64              `json:"tokens"`
+	Cost        float64            `json:"cost"`
+	ByModel     map[string]int64   `json:"byModel"`
+	ByModelCost map[string]float64 `json:"byModelCost,omitempty"`
 }
 
 // codenameFamilies maps opaque or proprietary codenames to the product family
@@ -153,6 +154,18 @@ func finalizeChartBuckets(buckets []chartBucket, maxFamilies int) {
 			merged[key] += t
 		}
 		buckets[i].ByModel = merged
+
+		if len(buckets[i].ByModelCost) > 0 {
+			mergedCost := map[string]float64{}
+			for fam, c := range buckets[i].ByModelCost {
+				key := fam
+				if !top[fam] {
+					key = "other"
+				}
+				mergedCost[key] += c
+			}
+			buckets[i].ByModelCost = mergedCost
+		}
 	}
 }
 
@@ -169,6 +182,14 @@ func addFamily(byModel map[string]int64, model string, tokens int64) {
 		return
 	}
 	byModel[modelFamilyName(model)] += tokens
+}
+
+// addFamilyCost folds a row's estimated cost into a bucket's family cost map.
+func addFamilyCost(byModelCost map[string]float64, model string, cost float64) {
+	if cost <= 0 {
+		return
+	}
+	byModelCost[modelFamilyName(model)] += cost
 }
 
 // parseChartPeriod maps the ?period parameter onto a bucket kind and count.
@@ -225,7 +246,11 @@ func HandleUsageChart(repo *db.Repo) http.HandlerFunc {
 func hourlyChartBuckets(repo *db.Repo, start time.Time, count int) []chartBucket {
 	buckets := make([]chartBucket, count)
 	for i := range buckets {
-		buckets[i] = chartBucket{Label: start.Add(time.Duration(i) * time.Hour).Format("15:04"), ByModel: map[string]int64{}}
+		buckets[i] = chartBucket{
+			Label:       start.Add(time.Duration(i) * time.Hour).Format("15:04"),
+			ByModel:     map[string]int64{},
+			ByModelCost: map[string]float64{},
+		}
 	}
 	rows, err := repo.GetUsageHistoryChartSince(start.UTC().Format(time.RFC3339Nano))
 	if err != nil {
@@ -244,6 +269,7 @@ func hourlyChartBuckets(repo *db.Repo, start time.Time, count int) []chartBucket
 		buckets[idx].Tokens += tokens
 		buckets[idx].Cost += row.Cost
 		addFamily(buckets[idx].ByModel, row.Model, tokens)
+		addFamilyCost(buckets[idx].ByModelCost, row.Model, row.Cost)
 	}
 	return buckets
 }
@@ -278,7 +304,7 @@ func dailyChartBuckets(repo *db.Repo, now time.Time, count int) []chartBucket {
 		d := now.AddDate(0, 0, -(count - 1 - i))
 		key := dayKeyFor(d)
 		index[key] = i
-		buckets[i] = chartBucket{Label: d.Format("Jan 2"), ByModel: map[string]int64{}}
+		buckets[i] = chartBucket{Label: d.Format("Jan 2"), ByModel: map[string]int64{}, ByModelCost: map[string]float64{}}
 	}
 
 	for _, row := range dayRows {
@@ -314,6 +340,7 @@ func dailyChartBuckets(repo *db.Repo, now time.Time, count int) []chartBucket {
 		}
 		tokens := int64(row.PromptTokens) + int64(row.CompletionTokens)
 		addFamily(buckets[i].ByModel, row.Model, tokens)
+		addFamilyCost(buckets[i].ByModelCost, row.Model, row.Cost)
 	}
 	return buckets
 }

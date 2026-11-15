@@ -57,34 +57,14 @@ func (h *OAuthHandler) saveFreePiConnection(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if h.Repo == nil || h.Repo.RawDB() == nil {
+	if h.Repo == nil {
 		handlerutil.WriteJSON(w, http.StatusOK, map[string]any{
 			"status": "connected", "connectionId": connID,
 		})
 		return
 	}
 
-	ctx := r.Context()
-	now := currentTimestamp()
-	var exists int
-	if err := h.Repo.RawDB().QueryRowContext(ctx,
-		"SELECT COUNT(*) FROM providerConnections WHERE id = ?", connID).Scan(&exists); err != nil {
-		log.Error("oauth", "free-pi connection lookup failed", "error", err)
-		handlerutil.WriteJSONError(w, http.StatusInternalServerError, "failed to check existing connection")
-		return
-	}
-
-	if exists > 0 {
-		_, err = h.Repo.RawDB().ExecContext(ctx,
-			"UPDATE providerConnections SET data = ?, updatedAt = ?, isActive = 1 WHERE id = ?",
-			string(dataBytes), now, connID)
-	} else {
-		_, err = h.Repo.RawDB().ExecContext(ctx,
-			`INSERT INTO providerConnections (id, provider, authType, name, isActive, data, createdAt, updatedAt)
-			 VALUES (?, ?, 'oauth', ?, 1, ?, ?, ?)`,
-			connID, providers.FreePiProviderID, connName, string(dataBytes), now, now)
-	}
-	if err != nil {
+	if err := h.Repo.UpsertProviderConnection(connID, providers.FreePiProviderID, "oauth", connName, nil, string(dataBytes)); err != nil {
 		log.Error("oauth", "save free-pi connection failed", "conn", connID, "error", err)
 		handlerutil.WriteJSONError(w, http.StatusInternalServerError, fmt.Sprintf("failed to save connection: %v", err))
 		return

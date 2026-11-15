@@ -27,6 +27,9 @@ func RegisterAll() {
 	Register("cohere", func() Executor { return ForwardOpenAI })
 	Register("ollama", func() Executor { return ForwardOpenAI })
 	Register("siliconflow", func() Executor { return ForwardOpenAI })
+	Register("sensenova", func() Executor { return ForwardOpenAI })
+	Register("sensenova-intl", func() Executor { return ForwardOpenAI })
+	Register("synthetic", func() Executor { return ForwardOpenAI })
 	Register("cloudflare-ai", func() Executor { return ForwardOpenAI })
 	Register("blackbox", func() Executor { return ForwardOpenAI })
 	Register("featherless", func() Executor { return ForwardOpenAI })
@@ -67,17 +70,18 @@ func RegisterAll() {
 	Register("kiro", func() Executor { return ForwardKiro })
 	// deepseek-web authenticates with a browser-login userToken exchanged for a
 	// short-lived access token, and gates every completion on a proof of work, so
-	// it needs the full executor rather than the shared passthrough.
-	Register("deepseek-web", func() Executor { return ForwardDeepSeekWeb })
+	// it needs the full executor rather than the shared passthrough. Each website
+	// lane rides webLaneFactory so a disabled lane answers with 501.
+	Register("deepseek-web", webLaneFactory(ForwardDeepSeekWeb))
 	// gemini-web talks to gemini.google.com over plain HTTP. It is not an API,
 	// but the site answers an anonymous client, so it needs the full executor —
 	// the session tokens, the nested request array and the line stream are not
 	// anything the shared passthrough can express.
-	Register("gemini-web", func() Executor { return ForwardGeminiWeb })
+	Register("gemini-web", webLaneFactory(ForwardGeminiWeb))
 	// grok-web posts to grok.com's conversations/new behind Cloudflare with a
 	// browser Cookie header and answers NDJSON, not an OpenAI stream — the
 	// shared passthrough cannot express the handshake or the wire shape.
-	Register("grok-web", func() Executor { return ForwardGrokWeb })
+	Register("grok-web", webLaneFactory(ForwardGrokWeb))
 	// One executor serves both Bedrock entries: the registry entry's Format picks the
 	// wire shape (Anthropic Messages vs OpenAI Chat Completions), the way one Vertex
 	// executor serves vertex and vertex-partner.
@@ -105,7 +109,7 @@ func RegisterAll() {
 	// Perplexity Web is not OpenAI-compatible in either direction: the request
 	// is a query_str envelope and the answer is Perplexity's own event stream,
 	// so the passthrough cannot serve it.
-	Register("perplexity-web", func() Executor { return ForwardPerplexityWeb })
+	Register("perplexity-web", webLaneFactory(ForwardPerplexityWeb))
 	Register("freebuff", func() Executor { return ForwardFreebuff })
 	// free-pi cannot ride the shared passthrough: it must set two per-account
 	// headers (x-session-id, x-client-version) that the registry's static map

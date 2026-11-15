@@ -602,13 +602,28 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	existing, _ := h.Repo.GetUsageDaily(dateKey)
 
 	data := parseDailyData(existing)
+	accumulateDailyUsage(data, provider, model, endpoint, connectionID, apiKey, promptTokens, completionTokens, cachedTokens, cost)
 
-	data["requests"] = getJSONInt(data, "requests") + 1
-	data["promptTokens"] = getJSONInt(data, "promptTokens") + promptTokens
-	data["completionTokens"] = getJSONInt(data, "completionTokens") + completionTokens
-	data["cachedTokens"] = getJSONInt(data, "cachedTokens") + cachedTokens
-	data["cost"] = getJSONFloat(data, "cost") + cost
+	dataJSON, err := json.Marshal(data)
+	if err != nil {
+		log.Error("usage", "marshal daily usage failed", "error", err)
+		return
+	}
+	if err := h.Repo.UpsertUsageDaily(dateKey, string(dataJSON)); err != nil {
+		log.Error("usage", "upsert daily usage failed", "error", err)
+	}
+}
 
+func addDailyBucket(bucket map[string]any, promptTokens, completionTokens, cachedTokens int, cost float64) {
+	bucket["requests"] = getJSONInt(bucket, "requests") + 1
+	bucket["promptTokens"] = getJSONInt(bucket, "promptTokens") + promptTokens
+	bucket["completionTokens"] = getJSONInt(bucket, "completionTokens") + completionTokens
+	bucket["cachedTokens"] = getJSONInt(bucket, "cachedTokens") + cachedTokens
+	bucket["cost"] = getJSONFloat(bucket, "cost") + cost
+}
+
+func accumulateDailyUsage(data map[string]any, provider, model, endpoint, connectionID, apiKey string, promptTokens, completionTokens, cachedTokens int, cost float64) {
+	addDailyBucket(data, promptTokens, completionTokens, cachedTokens, cost)
 	data["totalPromptTokens"] = getJSONInt(data, "totalPromptTokens") + promptTokens
 	data["totalCompletionTokens"] = getJSONInt(data, "totalCompletionTokens") + completionTokens
 	data["totalRequests"] = getJSONInt(data, "totalRequests") + 1
@@ -616,11 +631,7 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	// byProvider
 	byProvider := getJSONMap(data, "byProvider")
 	pp := getJSONMap(byProvider, provider)
-	pp["requests"] = getJSONInt(pp, "requests") + 1
-	pp["promptTokens"] = getJSONInt(pp, "promptTokens") + promptTokens
-	pp["completionTokens"] = getJSONInt(pp, "completionTokens") + completionTokens
-	pp["cachedTokens"] = getJSONInt(pp, "cachedTokens") + cachedTokens
-	pp["cost"] = getJSONFloat(pp, "cost") + cost
+	addDailyBucket(pp, promptTokens, completionTokens, cachedTokens, cost)
 	byProvider[provider] = pp
 	data["byProvider"] = byProvider
 
@@ -628,11 +639,7 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	modelKey := model + "|" + provider
 	byModel := getJSONMap(data, "byModel")
 	mm := getJSONMap(byModel, modelKey)
-	mm["requests"] = getJSONInt(mm, "requests") + 1
-	mm["promptTokens"] = getJSONInt(mm, "promptTokens") + promptTokens
-	mm["completionTokens"] = getJSONInt(mm, "completionTokens") + completionTokens
-	mm["cachedTokens"] = getJSONInt(mm, "cachedTokens") + cachedTokens
-	mm["cost"] = getJSONFloat(mm, "cost") + cost
+	addDailyBucket(mm, promptTokens, completionTokens, cachedTokens, cost)
 	if mm["rawModel"] == nil {
 		mm["rawModel"] = model
 	}
@@ -650,11 +657,7 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	akKey := apiKeyVal + "|" + model + "|" + provider
 	byApiKey := getJSONMap(data, "byApiKey")
 	ak := getJSONMap(byApiKey, akKey)
-	ak["requests"] = getJSONInt(ak, "requests") + 1
-	ak["promptTokens"] = getJSONInt(ak, "promptTokens") + promptTokens
-	ak["completionTokens"] = getJSONInt(ak, "completionTokens") + completionTokens
-	ak["cachedTokens"] = getJSONInt(ak, "cachedTokens") + cachedTokens
-	ak["cost"] = getJSONFloat(ak, "cost") + cost
+	addDailyBucket(ak, promptTokens, completionTokens, cachedTokens, cost)
 	ak["rawModel"] = model
 	ak["provider"] = provider
 	ak["apiKey"] = apiKeyVal
@@ -665,11 +668,7 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	epKey := endpoint + "|" + model + "|" + provider
 	byEndpoint := getJSONMap(data, "byEndpoint")
 	ep := getJSONMap(byEndpoint, epKey)
-	ep["requests"] = getJSONInt(ep, "requests") + 1
-	ep["promptTokens"] = getJSONInt(ep, "promptTokens") + promptTokens
-	ep["completionTokens"] = getJSONInt(ep, "completionTokens") + completionTokens
-	ep["cachedTokens"] = getJSONInt(ep, "cachedTokens") + cachedTokens
-	ep["cost"] = getJSONFloat(ep, "cost") + cost
+	addDailyBucket(ep, promptTokens, completionTokens, cachedTokens, cost)
 	if ep["endpoint"] == nil {
 		ep["endpoint"] = endpoint
 	}
@@ -686,11 +685,7 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	if connectionID != "" {
 		byAccount := getJSONMap(data, "byAccount")
 		acc := getJSONMap(byAccount, connectionID)
-		acc["requests"] = getJSONInt(acc, "requests") + 1
-		acc["promptTokens"] = getJSONInt(acc, "promptTokens") + promptTokens
-		acc["completionTokens"] = getJSONInt(acc, "completionTokens") + completionTokens
-		acc["cachedTokens"] = getJSONInt(acc, "cachedTokens") + cachedTokens
-		acc["cost"] = getJSONFloat(acc, "cost") + cost
+		addDailyBucket(acc, promptTokens, completionTokens, cachedTokens, cost)
 		if acc["rawModel"] == nil {
 			acc["rawModel"] = model
 		}
@@ -717,15 +712,6 @@ func (h *ChatHandler) upsertDailyUsage(provider, model, endpoint, connectionID, 
 	pd["models"] = models
 	providers[provider] = pd
 	data["providers"] = providers
-
-	dataJSON, err := json.Marshal(data)
-	if err != nil {
-		log.Error("usage", "marshal daily usage failed", "error", err)
-		return
-	}
-	if err := h.Repo.UpsertUsageDaily(dateKey, string(dataJSON)); err != nil {
-		log.Error("usage", "upsert daily usage failed", "error", err)
-	}
 }
 
 // parseDailyData parses an existing daily JSON string into a mutable map.

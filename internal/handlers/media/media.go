@@ -27,6 +27,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // MediaHandler handles embeddings, responses, audio, video, image, and web tool endpoints.
@@ -779,15 +781,26 @@ func (h *MediaHandler) HandleVideoExtensions(w http.ResponseWriter, r *http.Requ
 
 // HandleVideoGet handles GET /v1/videos/{id}.
 func (h *MediaHandler) HandleVideoGet(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		id = r.PathValue("id")
+	}
+	if id != "" && r.PathValue("id") == "" {
+		r.SetPathValue("id", id)
+	}
+	if id == "" {
+		handlerutil.WriteJSONError(w, http.StatusBadRequest, "missing video request ID")
+		return
+	}
 	if strings.Contains(id, "..") || strings.Contains(id, "/") || strings.Contains(id, "\\") {
 		handlerutil.WriteJSONError(w, http.StatusBadRequest, "invalid video job id")
 		return
 	}
-	handlerutil.WriteJSON(w, http.StatusOK, map[string]any{
-		"id":     id,
-		"status": "completed",
-	})
+	if h.ChatH != nil {
+		h.ChatH.HandleVideoGet(w, r)
+		return
+	}
+	handlerutil.WriteJSONError(w, http.StatusNotImplemented, "video status polling requires chat handler")
 }
 
 // defaultWebSearchModel returns "search-combo" if available, then any webSearch combo, then falls back to tavily/search.

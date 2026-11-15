@@ -210,22 +210,29 @@ func (h *ChatHandler) handleClaudeUpstreamStream(ctx context.Context, w http.Res
 	// A Messages stream that omits `model` still has to echo one back, and the
 	// model the client asked for is the value that is actually true.
 	state := &translator.ClaudeToOpenAIStreamState{Model: translator.RequestedModelFromContext(ctx)}
+	streamLoop := internalproxy.NewStreamLoopDetector()
 	done := false
-	err := internalproxy.ScanStream(upstream, func(payload []byte) {
-		if done {
-			return
+	err := internalproxy.ScanStreamEvents(upstream, func(ev internalproxy.SSEEvent) bool {
+		payload := ev.Data
+		if len(payload) == 0 || done {
+			return !done
 		}
 		if string(bytes.TrimSpace(payload)) == "[DONE]" {
 			done = true
-			return
+			return false
+		}
+		if looped, detail := streamLoop.PushSSEPayload(payload); looped {
+			writeStreamLoopAbort(hw, flusher, metrics, detail)
+			done = true
+			return false
 		}
 		out, terr := translator.TranslateClaudeChunkToOpenAI(payload, state)
 		if terr != nil {
 			log.Error("stream", "claude chunk translate error", "error", terr)
-			return
+			return true
 		}
 		if len(out) == 0 {
-			return
+			return true
 		}
 		if metrics.TTFT == 0 {
 			metrics.TTFT = time.Since(startTime).Milliseconds()
@@ -233,14 +240,16 @@ func (h *ChatHandler) handleClaudeUpstreamStream(ctx context.Context, w http.Res
 		_, _ = metrics.ResponseBuf.Write(out)
 		metrics.NoteOutput(time.Now())
 		if _, werr := hw.Write(out); werr != nil {
-			return
+			return false
 		}
 		if flusher != nil {
 			flusher.Flush()
 		}
 		if bytes.Contains(out, []byte("[DONE]")) {
 			done = true
+			return false
 		}
+		return true
 	})
 	if state.Usage != nil {
 		translator.SetUsage(ctx, state.Usage)
@@ -296,8 +305,17 @@ func (h *ChatHandler) handleStreamResponse(ctx context.Context, w http.ResponseW
 		// opening a new tool-call index without an id aborts strict
 		// OpenAI-compatible clients mid-turn (upstream 95c9d03e).
 		toolFill := internalproxy.NewStreamToolCallIDFill()
+		streamLoop := internalproxy.NewStreamLoopDetector()
 		var streamUsage *translator.OpenAIUsage
-		err := internalproxy.ScanStream(upstream, func(payload []byte) {
+		err := internalproxy.ScanStreamEvents(upstream, func(ev internalproxy.SSEEvent) bool {
+			payload := ev.Data
+			if len(payload) == 0 {
+				return true
+			}
+			if looped, detail := streamLoop.PushSSEPayload(payload); looped {
+				writeStreamLoopAbort(hw, flusher, metrics, detail)
+				return false
+			}
 			if patched, changed := toolFill.Fill(payload); changed {
 				payload = patched
 			}
@@ -318,6 +336,7 @@ func (h *ChatHandler) handleStreamResponse(ctx context.Context, w http.ResponseW
 				streamUsage = acc
 				translator.SetUsage(ctx, streamUsage)
 			}
+			return true
 		})
 		if err != nil {
 			return err
@@ -346,14 +365,28 @@ func (h *ChatHandler) handleStreamResponse(ctx context.Context, w http.ResponseW
 		translator.ClearStreamState(sessionKey)
 	}()
 	finished := false
-	err := internalproxy.ScanStream(upstream, func(chunk []byte) {
+	streamLoop := internalproxy.NewStreamLoopDetector()
+	err := internalproxy.ScanStreamEvents(upstream, func(ev internalproxy.SSEEvent) bool {
+		chunk := ev.Data
+		if len(chunk) == 0 {
+			return true
+		}
+		if looped, detail := streamLoop.PushSSEPayload(chunk); looped {
+			if endChunk := translator.EnsureStreamClosed(sessionKey); len(endChunk) > 0 {
+				metrics.ResponseBuf.Write(endChunk)
+				_, _ = hw.Write(endChunk)
+			}
+			writeStreamLoopAbort(hw, flusher, metrics, detail)
+			finished = true
+			return false
+		}
 		translated, err := translator.TranslateOpenAIToClaudeStreamSession(sessionKey, chunk)
 		if err != nil {
 			log.Error("stream", "translate error", "error", err)
-			return
+			return true
 		}
 		if translated == nil {
-			return
+			return true
 		}
 		if bytes.Contains(translated, []byte("[DONE]")) {
 			finished = true
@@ -367,6 +400,7 @@ func (h *ChatHandler) handleStreamResponse(ctx context.Context, w http.ResponseW
 		if flusher != nil {
 			flusher.Flush()
 		}
+		return !finished
 	})
 	// A shutdown abort cuts the stream mid-way. End it with the same terminator
 	// a natural finish emits, so the client sees a clean [DONE] instead of a
@@ -388,6 +422,26 @@ func (h *ChatHandler) handleStreamResponse(ctx context.Context, w http.ResponseW
 		translator.SetUsage(ctx, usage)
 	}
 	return err
+}
+
+func writeStreamLoopAbort(hw io.Writer, flusher http.Flusher, metrics *streamMetrics, detail string) {
+	log.Warn("autotune", "streaming repetition loop aborted", "detail", detail)
+	errJSON, _ := json.Marshal(map[string]any{
+		"error": map[string]any{
+			"type":    "loop_detected",
+			"message": "upstream entered a repetition loop: " + detail,
+		},
+	})
+	frame := append([]byte("data: "), errJSON...)
+	frame = append(frame, '\n', '\n')
+	frame = append(frame, []byte("data: [DONE]\n\n")...)
+	if metrics != nil {
+		_, _ = metrics.ResponseBuf.Write(frame)
+	}
+	_, _ = hw.Write(frame)
+	if flusher != nil {
+		flusher.Flush()
+	}
 }
 
 // sseToClaudeJSON aggregates OpenAI SSE chunks into a single chat.completion JSON for forced-SSE handling.
@@ -570,6 +624,17 @@ func (h *ChatHandler) handleJSONResponse(ctx context.Context, w http.ResponseWri
 		// The last member of a combo serves its zero-content response normally (FR3).
 	} else if err := internalproxy.EmptyUpstreamError(body); err != nil && !internalproxy.EmptyCompletionAllowed(ctx) {
 		return err
+	}
+
+	// Loop probe (auto-tuner): same arm-and-fallback contract as the
+	// zero-content probe. A 2xx body whose text repeats itself is a failure
+	// the combo advances past, not garbage the client reads. Passive when no
+	// probe is armed (direct dispatch, last combo member).
+	if armed, canFallback := internalproxy.ZeroContentProbe(ctx); armed && canFallback {
+		if looped, detail := internalproxy.DetectChatCompletionLoop(body); looped {
+			log.Warn("autotune", "repetition loop detected, falling back", "detail", detail)
+			return internalproxy.UpstreamFailure(http.StatusServiceUnavailable, "upstream entered a repetition loop: "+detail)
+		}
 	}
 
 	if metrics != nil {

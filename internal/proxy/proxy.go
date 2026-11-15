@@ -120,7 +120,14 @@ func InsecureClientFor(proxyURL string) *http.Client {
 
 func isProxyFailure(err error, resp *http.Response) bool {
 	if resp != nil && resp.StatusCode == http.StatusForbidden {
-		if resp.Header.Get("X-Proxy-Error") != "" || strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "text/plain") {
+		if resp.Header.Get("X-Proxy-Error") != "" {
+			return true
+		}
+		// Plain-text 403 on an HTTPS request (without X-Proxy-Error) came from
+		// the decrypted origin TLS peer (e.g. WAF / API gateway), not an HTTP proxy
+		// refusing a CONNECT tunnel (which surfaces as err != nil).
+		isHTTPS := resp.Request != nil && resp.Request.URL != nil && strings.EqualFold(resp.Request.URL.Scheme, "https")
+		if !isHTTPS && strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "text/plain") {
 			return true
 		}
 	}

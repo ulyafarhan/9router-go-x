@@ -41,44 +41,18 @@ func setupEmbeddingsTestDB(t *testing.T) (*sql.DB, func()) {
 		os.Remove(tmpFile.Name())
 	}
 
-	schemas := []string{
-		`CREATE TABLE apiKeys (
-			id TEXT PRIMARY KEY,
-			key TEXT UNIQUE NOT NULL,
-			name TEXT,
-			machineId TEXT,
-			isActive INTEGER DEFAULT 1,
-			createdAt TEXT NOT NULL
-		)`,
-		`CREATE TABLE providerConnections (
-			id TEXT PRIMARY KEY,
-			provider TEXT NOT NULL,
-			authType TEXT NOT NULL,
-			name TEXT,
-			email TEXT,
-			priority INTEGER,
-			isActive INTEGER DEFAULT 1,
-			data TEXT NOT NULL,
-			createdAt TEXT NOT NULL,
-			updatedAt TEXT NOT NULL
-		)`,
-		`CREATE TABLE kv (
-			scope TEXT NOT NULL,
-			key TEXT NOT NULL,
-			value TEXT NOT NULL,
-			PRIMARY KEY (scope, key)
-		)`,
-	}
-
-	for _, query := range schemas {
-		if _, err := database.Exec(query); err != nil {
-			cleanup()
-			t.Fatalf("failed to create table: %v", err)
-		}
-	}
-	if err := db.EnsureAdditiveColumns(database); err != nil {
+	if err := db.EnsureCoreSchema(database); err != nil {
 		cleanup()
-		t.Fatalf("additive columns: %v", err)
+		t.Fatalf("ensure core schema: %v", err)
+	}
+	if _, err := database.Exec(`CREATE TABLE IF NOT EXISTS kv (
+		scope TEXT NOT NULL,
+		key TEXT NOT NULL,
+		value TEXT NOT NULL,
+		PRIMARY KEY (scope, key)
+	)`); err != nil {
+		cleanup()
+		t.Fatalf("failed to create kv table: %v", err)
 	}
 
 	_, err = database.Exec(`INSERT INTO apiKeys (id, key, name, isActive, createdAt) VALUES

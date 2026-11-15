@@ -25,8 +25,10 @@ type ProviderConfig struct {
 	FetchURL      string            // override /web/fetch endpoint (Jina, Firecrawl, etc.)
 	FetchMethod   string            // HTTP method for fetch: GET or POST (default POST)
 	SearchURL     string            // /v1/search endpoint. Empty means the provider has no search lane.
-	SearchMethod  string            // HTTP method for search: GET or POST (default POST)
-	UsageURL      string            // override /usage endpoint (quota tracker)
+	SearchMethod         string            // HTTP method for search: GET or POST (default POST)
+	UsageURL             string            // override /usage endpoint (quota tracker)
+	ValidateURL          string            // explicit key validation URL (e.g. /v2/quotas when /models is public)
+	ReasoningAliasFields bool              // upstream quirks.reasoningAliasFields: lift alias fields on SSE deltas
 	// ThinkingFormat mirrors the upstream registry's transport.thinkingFormat:
 	// the wire dialect this provider expects for reasoning fields ("" = the
 	// model's capability decides). Consumed by internal/thinking.resolveFormat.
@@ -658,6 +660,21 @@ var KnownProviders = map[string]ProviderConfig{
 		AuthHeader: "Authorization",
 		AuthScheme: "bearer",
 		ImageURL:   "https://token.sensenova.cn/v1/images/generations",
+	},
+	"sensenova-intl": {
+		BaseURL:              "https://token.sensenova.ai/v1/chat/completions",
+		AuthHeader:           "Authorization",
+		AuthScheme:           "bearer",
+		ImageURL:             "https://token.sensenova.ai/v1/images/generations",
+		ValidateURL:          "https://token.sensenova.ai/v1/models",
+		ReasoningAliasFields: true,
+	},
+	"synthetic": {
+		BaseURL:     "https://api.synthetic.new/openai/v1/chat/completions",
+		AuthHeader:  "Authorization",
+		AuthScheme:  "bearer",
+		ValidateURL: "https://api.synthetic.new/v2/quotas",
+		UsageURL:    "https://api.synthetic.new/v2/quotas",
 	},
 	"cloudflare-ai": {
 		BaseURL:        "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/v1/chat/completions",

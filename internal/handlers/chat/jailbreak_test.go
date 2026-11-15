@@ -586,3 +586,80 @@ func TestComboLegKeywordInjectsIntoUpstream(t *testing.T) {
 		t.Errorf("combo leg keyword did not reach upstream body: %s", got)
 	}
 }
+
+func TestPrependSystemPrompt_ResponsesInstructionsAndInput(t *testing.T) {
+	t.Run("instructions string", func(t *testing.T) {
+		body := map[string]any{
+			"instructions": "existing instr",
+			"input":        []any{map[string]any{"type": "message", "role": "user", "content": "hi"}},
+		}
+		prependSystemPrompt(body, "PRESET")
+		if _, hasMsgs := body["messages"]; hasMsgs {
+			t.Fatal("Responses payload must never gain a messages[] field")
+		}
+		got, _ := body["instructions"].(string)
+		if got != "PRESET\n\nexisting instr" {
+			t.Fatalf("instructions = %q, want %q", got, "PRESET\n\nexisting instr")
+		}
+	})
+
+	t.Run("input array without instructions", func(t *testing.T) {
+		body := map[string]any{
+			"input": []any{map[string]any{"type": "message", "role": "user", "content": "hi"}},
+		}
+		prependSystemPrompt(body, "PRESET")
+		if _, hasMsgs := body["messages"]; hasMsgs {
+			t.Fatal("Responses payload must never gain a messages[] field")
+		}
+		in, _ := body["input"].([]any)
+		if len(in) != 2 {
+			t.Fatalf("len(input) = %d, want 2", len(in))
+		}
+		first, _ := in[0].(map[string]any)
+		if first["role"] != "developer" {
+			t.Errorf("first item role = %v, want developer", first["role"])
+		}
+	})
+}
+
+func TestHandleResponses_SingleModelAppliesJailbreak(t *testing.T) {
+	var gotBody atomic.Value
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		gotBody.Store(string(raw))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"id":"chatcmpl-1","object":"chat.completion","choices":[{"index":0,"message":{"role":"assistant","content":"ok"},"finish_reason":"stop"}],"usage":{"prompt_tokens":1,"completion_tokens":1}}`))
+	}))
+	defer srv.Close()
+
+	database, cleanup := setupChatTestDB(t)
+	defer cleanup()
+	if _, err := database.Exec(`DELETE FROM providerConnections WHERE id IN ('conn-1','conn-2')`); err != nil {
+		t.Fatalf("clear seeded connections: %v", err)
+	}
+	seedConnDB(t, database, "deepseek", "conn-resp-jb", "sk-resp-jb", srv.URL)
+
+	repo := db.NewRepo(database)
+	h := NewChatHandler(repo)
+
+	if err := repo.SaveJailbreakPreset(&db.JailbreakDoc{ID: "resp-jb", Name: "Resp", Prompt: "RESPONSES PRESET"}); err != nil {
+		t.Fatalf("save preset: %v", err)
+	}
+	if err := repo.SetJailbreakModelPreset("deepseek/deepseek-chat", "resp-jb", true); err != nil {
+		t.Fatalf("arm model: %v", err)
+	}
+
+	reqBody := `{"model":"deepseek/deepseek-chat","input":"hello","stream":false}`
+	req := httptest.NewRequest(http.MethodPost, "/v1/responses", strings.NewReader(reqBody))
+	rec := httptest.NewRecorder()
+	h.HandleResponses(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
+	}
+	got, _ := gotBody.Load().(string)
+	if !strings.Contains(got, "RESPONSES PRESET") {
+		t.Errorf("jailbreak preset did not reach single-model /v1/responses upstream: %s", got)
+	}
+}
