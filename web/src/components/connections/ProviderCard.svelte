@@ -30,7 +30,9 @@
   let isProviderTogglePersistent = $state(readProviderTogglePersistent())
   let isAllDisabled = $derived(stats.allDisabled)
   let toggleClass = $derived(
-    isProviderTogglePersistent ? 'opacity-100 transition-opacity' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity'
+    isProviderTogglePersistent
+      ? 'opacity-100 transition-opacity'
+      : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity'
   )
 </script>
 
@@ -44,7 +46,7 @@
   }}
   role="button"
   tabindex="0"
-  class="group min-w-0 cursor-pointer text-left focus:outline-none"
+  class="group min-w-0 cursor-pointer text-left rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
 >
   <Card
     padding="xs"
@@ -100,22 +102,13 @@
 
       <div class="flex shrink-0 items-center gap-2">
         {#if stats.total > 0}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
             class={toggleClass}
-            onclick={(e) => {
-              e.stopPropagation()
-              onToggleAll?.(isAllDisabled)
-            }}
-            onkeydown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.stopPropagation()
-                onToggleAll?.(isAllDisabled)
-              }
-            }}
-            role="button"
-            tabindex="0"
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => e.stopPropagation()}
           >
-            <Toggle size="sm" checked={!isAllDisabled} onChange={() => {}} />
+            <Toggle size="sm" checked={!isAllDisabled} onChange={() => onToggleAll?.(isAllDisabled)} />
           </div>
         {/if}
       </div>

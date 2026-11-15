@@ -3,7 +3,6 @@
   import { Loader2 } from 'lucide-svelte'
   import {
     api,
-    getStoredAPIKey,
     onUnauthorized,
     type APIKey,
     type Combo,
@@ -28,7 +27,6 @@
   import MediaWebView from './components/media/MediaWebView.svelte'
   import QuotaTrackerView from './components/QuotaTrackerView.svelte'
   import SkillsView from './components/SkillsView.svelte'
-  import SettingsView from './components/SettingsView.svelte'
   import SecurityPanel from './components/security/SecurityPanel.svelte'
   import PlansView from './components/plans/PlansView.svelte'
   import Sidebar from './components/Sidebar.svelte'
@@ -38,6 +36,7 @@
   import { notifications } from './lib/notifications'
   import TerminalView from './components/TerminalView.svelte'
   import TokenSaverView from './components/TokenSaverView.svelte'
+  import PersonaView from './components/PersonaView.svelte'
   import JailbreakView from './components/JailbreakView.svelte'
   import TopBar from './components/TopBar.svelte'
   import CommandPalette from './components/CommandPalette.svelte'
@@ -177,7 +176,7 @@
         api.getProviderNodes().catch(() => []),
         api.getCombos().catch(() => []),
         api.getApiKeys().catch(() => []),
-        api.getSettings().catch(() => ({})),
+        api.getSettings().catch((): Settings => ({})),
       ])
       connections = connsRes
       providerNodes = nodesRes
@@ -354,6 +353,7 @@
   const pageMeta: Record<ActiveTab, { title: string; description: string }> = {
     login: { title: 'Login', description: 'Authenticate to access 9router-go' },
     endpoint: { title: 'Endpoint & Key', description: 'API endpoint and key configuration' },
+    keys: { title: 'Endpoint & Key', description: 'API endpoint and key configuration' },
     connections: { title: 'Providers & Endpoints', description: 'Manage your AI provider connections' },
     combos: { title: 'Combo & Routing', description: 'Model combos and failover strategies' },
     // The two moved tabs are sections of the Usage page, so the TopBar keeps
@@ -366,12 +366,13 @@
     'cli-tools': { title: 'CLI Tools', description: 'Configure CLI tools and API keys' },
     'media-embedding': { title: 'Embedding Models', description: 'Vector embeddings and semantic retrieval' },
     'media-image': { title: 'Text to Image', description: 'Image generation and transformation models' },
+    'media-video': { title: 'Text to Video', description: 'Video generation and transformation models' },
     'media-tts': { title: 'Text to Speech', description: 'Voice synthesis and audio generation models' },
     'media-stt': { title: 'Speech to Text', description: 'Audio transcription and speech recognition models' },
     'media-systemone': { title: 'System One', description: 'Structured state evaluation models' },
     'media-web': { title: 'Web Fetch & Search', description: 'Configure web search and scrape tools' },
     'proxy-pools': { title: 'Proxy Pools', description: 'Manage your proxy pool configurations' },
-    skills: { title: 'Agent Skills', description: 'Copy a link and paste to your AI to use 9router-go — no install needed' },
+    skills: { title: 'Agent Skills', description: 'Copy a link and paste to your AI to use 9router-go (no install needed)' },
     'console-log': { title: 'Console Log', description: 'Live server console output' },
     terminal: { title: 'Console Log', description: 'Live server console output' },
     settings: { title: 'Settings', description: 'Manage your preferences and configuration' },
@@ -380,13 +381,16 @@
       description: 'Encrypt provider credentials at rest, and scan prompts for personal data and injection attempts before they leave the gateway',
     },
     plans: { title: 'Plans', description: 'Per-key quota plans and policy resolution' },
-    jailbreak: { title: 'Persona', description: 'Per-model system-prompt injection and Gemini safety bypass' },
+    persona: {
+      title: 'Task Persona',
+      description: 'Apply built-in or custom task rule packs uniformly across every model lane',
+    },
+    jailbreak: {
+      title: 'Instruction Presets',
+      description: 'Per-model .md system-prompt presets and official Gemini API safety thresholds',
+    },
   }
 
-  function handleOpenNewCombo() {
-    navigate('combos')
-    isCreateComboOpen = true
-  }
   let isUpdateModalOpen = $state(false)
   let systemUpdateInfo = $state<SystemVersionInfo | null>(null)
   let systemVersion = $state(typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '')
@@ -533,7 +537,7 @@
         onOpenSearch={() => (isPaletteOpen = true)}
       />
 
-      <main class="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10">
+      <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-10">
         <div class="max-w-7xl mx-auto">
           {#if isLoading}
             <div class="flex flex-col items-center justify-center h-[70vh] gap-3 text-text-muted">
@@ -749,6 +753,8 @@
               <SecurityPanel />
             {:else if activeTab === 'plans'}
               <PlansView />
+            {:else if activeTab === 'persona'}
+              <PersonaView {settings} onRefresh={loadData} />
             {:else if activeTab === 'jailbreak'}
               <JailbreakView />
             {/if}

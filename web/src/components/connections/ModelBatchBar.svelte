@@ -33,13 +33,13 @@
 
   function actionClass(danger = false): string {
     const base =
-      'inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-2 py-1 text-[11px] font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
-    return danger ? `${base} hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-500` : base
+      'inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 min-h-8 rounded-md border border-border bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60'
+    return danger ? `${base} hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400` : base
   }
 </script>
 
-<div class="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface-2/60 px-3 py-2">
-  <label class="flex items-center gap-1.5 text-[11px] font-medium text-text-main cursor-pointer select-none">
+<div class="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface-2/60 px-3 py-2.5">
+  <label class="flex items-center gap-1.5 text-xs font-medium text-text-main cursor-pointer select-none">
     <input
       type="checkbox"
       checked={selection.allSelected}
@@ -82,7 +82,7 @@
       </button>
     {/if}
 
-    <button type="button" class="ml-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-text-muted transition-colors hover:text-text-main cursor-pointer" onclick={onClear}>
+    <button type="button" class="ml-auto inline-flex items-center gap-1 whitespace-nowrap min-h-8 rounded-md px-2.5 py-1 text-xs text-text-muted transition-colors hover:text-text-main hover:bg-surface-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60" onclick={onClear}>
       Clear
     </button>
   {/if}

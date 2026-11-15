@@ -22,6 +22,7 @@
   let rotateStrategy = $state('none')
   let saving = $state(false)
   let savedFlash = $state(false)
+  let saveError = $state<string | null>(null)
 
   onMount(() => {
     let cancelled = false
@@ -34,17 +35,19 @@
       const override = (settingsData?.providerStrategies || {})[providerId] || {}
       proxyPoolId = override.proxyPoolId || NONE_PROXY_POOL_VALUE
       rotateStrategy = override.rotateStrategy || 'none'
-    }).catch(() => {})
+    }).catch((e) => {
+      if (!cancelled) saveError = e instanceof Error ? e.message : 'Failed to load proxy settings'
+    })
 
     return () => { cancelled = true }
   })
 
   async function save(poolId: string, strategy: string) {
     saving = true
+    saveError = null
     try {
-      const res = await fetch('/api/settings', { cache: 'no-store' })
-      const data = res.ok ? await res.json() : {}
-      const current = data.providerStrategies || {}
+      const data = await api.getSettings()
+      const current = (data?.providerStrategies || {}) as Record<string, { proxyPoolId?: string; rotateStrategy?: string }>
       const override = { ...(current[providerId] || {}) }
       if (poolId === NONE_PROXY_POOL_VALUE) delete override.proxyPoolId
       else override.proxyPoolId = poolId
@@ -53,15 +56,11 @@
       const updated = { ...current }
       if (Object.keys(override).length === 0) delete updated[providerId]
       else updated[providerId] = override
-      await fetch('/api/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providerStrategies: updated }),
-      })
+      await api.updateSettings({ providerStrategies: updated })
       savedFlash = true
       setTimeout(() => { savedFlash = false }, 1500)
     } catch (e) {
-      console.error('Save proxy config error:', e)
+      saveError = e instanceof Error ? e.message : 'Failed to save proxy config'
     } finally {
       saving = false
     }
@@ -95,13 +94,18 @@
     {/if}
   </div>
 
+  {#if saveError}
+    <p class="mb-3 text-xs text-error" role="alert">{saveError}</p>
+  {/if}
+
   <div class="flex flex-col gap-1.5 mb-4">
-    <label class="text-sm font-medium text-text-main">Proxy Pool</label>
+    <label for="noauth-proxy-pool" class="text-sm font-medium text-text-main">Proxy Pool</label>
     <select
+      id="noauth-proxy-pool"
       value={proxyPoolId}
       onchange={(e) => handlePoolChange(e.currentTarget.value)}
       disabled={saving || isRotation}
-      class="py-2 px-3 text-sm text-text-main bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-md focus:ring-1 focus:ring-primary/30 focus:border-primary/50 focus:outline-none transition-all disabled:opacity-50"
+      class="min-h-9 py-2 px-3 text-[16px] sm:text-sm text-text-main bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-md focus:border-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-all disabled:opacity-50"
     >
       <option value={NONE_PROXY_POOL_VALUE}>None (direct)</option>
       {#each proxyPools as pool}
@@ -109,17 +113,18 @@
       {/each}
     </select>
     {#if isRotation}
-      <p class="text-xs text-text-muted">Pool selector is ignored when rotation is active — all active pools are used.</p>
+      <p class="text-xs text-text-muted">Pool selector is ignored when rotation is active; all active pools are used.</p>
     {/if}
   </div>
 
   <div class="flex flex-col gap-2">
-    <label class="text-sm font-medium text-text-main">Rotation Strategy</label>
+    <label for="noauth-rotation-strategy" class="text-sm font-medium text-text-main">Rotation Strategy</label>
     <select
+      id="noauth-rotation-strategy"
       value={rotateStrategy}
       onchange={(e) => handleStrategyChange(e.currentTarget.value)}
       disabled={saving}
-      class="py-2 px-3 text-sm text-text-main bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-md focus:ring-1 focus:ring-primary/30 focus:border-primary/50 focus:outline-none transition-all disabled:opacity-50"
+      class="min-h-9 py-2 px-3 text-[16px] sm:text-sm text-text-main bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-md focus:border-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-all disabled:opacity-50"
     >
       {#each STRATEGIES as s}
         <option value={s.value} disabled={s.value !== 'none' && !canRotate}>

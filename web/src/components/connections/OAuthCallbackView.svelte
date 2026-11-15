@@ -21,7 +21,7 @@
     const parsed = parseCallbackURL(window.location.href)
     if (parsed.error) {
       status = 'error'
-      message = `Login failed: ${parsed.error}${parsed.errorDesc ? ` — ${parsed.errorDesc}` : ''}`
+      message = `Login failed: ${parsed.error}${parsed.errorDesc ? `: ${parsed.errorDesc}` : ''}`
       // Tetap teruskan ke dashboard agar modal menampilkan errornya.
       if (ls) writeCallback(ls, { state: parsed.state, raw: '', error: parsed.error, errorDesc: parsed.errorDesc })
     } else if (parsed.raw) {
@@ -76,7 +76,7 @@
     {#if status === 'working'}
       <p class="text-text-muted">Memproses callback…</p>
     {:else if status === 'ok'}
-      <p class="text-lg font-semibold text-green-500">Login successful!</p>
+      <p class="text-lg font-semibold text-emerald-700 dark:text-emerald-400">Login successful!</p>
       <p class="text-sm text-text-muted mt-2">{message}</p>
       <p class="text-xs text-text-muted mt-1">
         This tab {countdown > 0 ? `closes automatically in ${countdown}…` : 'can be closed.'} The connection is processed automatically in the dashboard tab.
@@ -85,13 +85,13 @@
         <button
           type="button"
           onclick={copyRaw}
-          class="mt-4 px-4 py-2 text-xs font-semibold rounded-lg bg-surface-2 hover:bg-surface-3 border border-border cursor-pointer"
+          class="mt-4 min-h-9 px-4 py-2 text-xs font-semibold rounded-lg bg-surface-2 hover:bg-surface-3 border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           Copy manually (if auto-submit fails)
         </button>
       {/if}
     {:else}
-      <p class="text-lg font-semibold text-red-500">Callback failed</p>
+      <p class="text-lg font-semibold text-red-600 dark:text-red-400">Callback failed</p>
       <p class="text-sm text-text-muted mt-2">{message}</p>
       <p class="text-xs text-text-muted mt-1">Close this tab and repeat the login from the dashboard.</p>
     {/if}

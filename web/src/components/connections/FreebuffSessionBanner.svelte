@@ -143,7 +143,7 @@
       case 'unauthorized':
         return 'Freebuff rejected this account’s token. Re-connect the account, or pick another one from the connections list.'
       case 'banned':
-        return 'Freebuff banned this account. Add a different account — re-authenticating this one will not help.'
+        return 'Freebuff banned this account. Add a different account (re-authenticating this one will not help).'
       case 'country_blocked':
         return 'Freebuff does not serve this region for this account.'
       default:
@@ -173,7 +173,7 @@
       if (res.switched === false) {
         refundNotice = `Already on ${switchModel}.`
       } else if (res.freebucksRefund && res.freebucksRefund > 0) {
-        refundNotice = `Ended your previous session — ${res.freebucksRefund} Freebucks refunded. Now on ${res.currentModel}.`
+        refundNotice = `Ended your previous session (${res.freebucksRefund} Freebucks refunded). Now on ${res.currentModel}.`
       } else {
         refundNotice = isActive
           ? `Ended your previous session and switched to ${res.currentModel}.`
@@ -232,7 +232,7 @@
       <p class="mt-1 font-medium">
         Region flagged{session?.countryCode ? ` (${session.countryCode})` : ''}: {session?.countryBlockReason ??
           'country_not_allowed'}. Only a short list of countries (US, CA, GB, and parts of the EU/APAC) gets Freebuff's
-        full-access tier — elsewhere the account runs on limited access and some requests can be refused.
+        full-access tier; elsewhere the account runs on limited access and some requests can be refused.
       </p>
     {/if}
 
@@ -262,15 +262,15 @@
             <button
               type="button"
               onclick={() => onSelectConnection?.(conn.id)}
-              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer {selectedConnectionId === conn.id ? 'bg-primary text-white border-primary shadow-xs' : 'border-border bg-surface-2 hover:bg-surface-3 text-text-main'}"
+              class="inline-flex items-center gap-1.5 min-h-8 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {selectedConnectionId === conn.id ? 'bg-primary text-white border-primary shadow-xs' : 'border-border bg-surface-2 hover:bg-surface-3 text-text-main'}"
             >
               <span>{conn.name}</span>
               {#if conn.currentModel}
-                <span class="font-mono text-[10px] {selectedConnectionId === conn.id ? 'text-white/90 bg-black/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'} px-1 py-0.5 rounded">
+                <span class="font-mono text-[10px] {selectedConnectionId === conn.id ? 'text-white/90 bg-black/20' : 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10'} px-1 py-0.5 rounded">
                   {conn.currentModel.split('/').pop()}
                 </span>
               {:else if conn.status === 'banned'}
-                <span class="text-[10px] text-red-500 font-semibold">(banned)</span>
+                <span class="text-[10px] text-red-600 dark:text-red-400 font-semibold">(banned)</span>
               {/if}
             </button>
           {/each}
@@ -284,7 +284,7 @@
         <select
           bind:value={selectedModel}
           disabled={isSwitching}
-          class="min-w-0 max-w-full px-2 py-1 text-xs rounded-md border {tone.button} bg-background text-text-main focus:outline-none font-mono cursor-pointer disabled:opacity-50"
+          class="min-w-0 max-w-full min-h-8 px-2 py-1 text-[16px] sm:text-xs rounded-md border {tone.button} bg-background text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 font-mono cursor-pointer disabled:opacity-50"
         >
           {#each models as model (model.id)}
             <option value={model.id}>{model.id}</option>
@@ -297,7 +297,7 @@
           type="button"
           disabled={!canSwitch}
           onclick={handleSwitch}
-          class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border {tone.button} transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          class="inline-flex items-center gap-1.5 min-h-8 px-2.5 py-1 text-xs font-semibold rounded-md border {tone.button} transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ArrowLeftRight class="w-3.5 h-3.5 {isSwitching ? 'animate-pulse' : ''}" />
           {isSwitching ? 'Working…' : actionLabel}
@@ -307,7 +307,7 @@
 
     {#if switchError}
       <p class="mt-1.5 text-red-600 dark:text-red-400">
-        Failed: {switchError}{isActive ? ' — the current session is still active.' : ''}
+        Failed: {switchError}{isActive ? ' (the current session is still active).' : ''}
       </p>
     {/if}
     {#if refundNotice}

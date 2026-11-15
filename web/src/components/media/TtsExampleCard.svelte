@@ -24,7 +24,6 @@
   let config = $derived(TTS_PROVIDER_CONFIG[providerId] || TTS_PROVIDER_CONFIG['edge-tts'])
 
   let selectedVoice = $state('')
-  let selectedVoiceName = $state('')
   let voiceId = $state('')
   let countryVoices = $state<Array<{ id: string; name: string }>>([])
   let selectedLang = $state('')
@@ -128,7 +127,6 @@
     countryVoices = voices
     if (voices.length > 0) {
       selectedVoice = voices[0].id
-      selectedVoiceName = voices[0].name
       if (config.hasVoiceIdInput) voiceId = voices[0].id
     }
   }
@@ -274,7 +272,7 @@
           <input
             bind:value={selectedModel}
             placeholder="e.g. kokoro or Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16"
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
           />
         </div>
       </div>
@@ -284,7 +282,7 @@
         <div class="w-full min-w-0 flex-1">
           <select
             bind:value={selectedModel}
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           >
             {#each getModelsByProviderId(config.modelKey || providerId).filter((m) => getModelKind(m) === 'tts') as m (m.id)}
               <option value={m.id}>{m.name || m.id}</option>
@@ -302,7 +300,7 @@
           <button
             type="button"
             onclick={openModal}
-            class="w-full min-w-0 flex-1 px-3 py-1.5 text-sm border border-border rounded-lg bg-background font-mono truncate text-left hover:border-primary/40 transition-colors cursor-pointer"
+            class="w-full min-h-9 min-w-0 flex-1 px-3 py-1.5 text-sm border border-border rounded-lg bg-background font-mono truncate text-left hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors cursor-pointer"
           >
             {#if selectedLang}
               <span class="text-text-main">{languages.find((l) => l.code === selectedLang)?.name || selectedLang}</span>
@@ -313,7 +311,7 @@
           <button
             type="button"
             onclick={openModal}
-            class="flex w-full items-center justify-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-border text-text-muted hover:text-primary hover:border-primary/40 transition-colors sm:w-auto sm:shrink-0 cursor-pointer"
+            class="flex min-h-9 w-full items-center justify-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-border text-text-muted hover:text-primary hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors sm:w-auto sm:shrink-0 cursor-pointer"
           >
             <span class="material-symbols-outlined text-[14px]">language</span>
             Select language
@@ -332,10 +330,9 @@
               type="button"
               onclick={() => {
                 selectedVoice = v.id
-                selectedVoiceName = v.name
                 if (config.hasVoiceIdInput) voiceId = v.id
               }}
-              class="text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer {activeVoiceId === v.id ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border text-text-muted hover:border-primary/40 hover:text-text-main'}"
+              class="min-h-8 text-xs px-2.5 py-1 rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer {activeVoiceId === v.id ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border text-text-muted hover:border-primary/40 hover:text-text-main'}"
             >
               {v.name}
             </button>
@@ -352,7 +349,7 @@
           <input
             bind:value={voiceId}
             placeholder={providerId === 'selfhosted-tts' ? 'e.g. af_heart or vivian (optional)' : 'Custom voice ID or name...'}
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
           />
         </div>
       </div>
@@ -364,13 +361,14 @@
       <div class="w-full min-w-0 flex-1 relative">
         <input
           bind:value={input}
-          class="w-full px-3 py-1.5 pr-7 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+          class="w-full min-h-9 px-3 py-1.5 pr-8 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
         />
         {#if input}
           <button
             type="button"
+            aria-label="Clear input"
             onclick={() => (input = '')}
-            class="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors cursor-pointer"
+            class="min-h-7 min-w-7 inline-flex items-center justify-center rounded absolute right-1 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors cursor-pointer"
           >
             <span class="material-symbols-outlined text-[14px]">close</span>
           </button>
@@ -384,7 +382,7 @@
       <div class="w-full min-w-0 flex-1">
         <select
           bind:value={responseFormat}
-          class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+          class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
         >
           <option value="mp3">MP3 (Binary)</option>
           <option value="json">JSON (base64 audio)</option>
@@ -465,27 +463,28 @@
 <!-- Select Language Modal -->
 {#if modalOpen}
   <div
-    class="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+    class="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4"
     style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);"
     onclick={() => (modalOpen = false)}
     onkeydown={(e) => { if (e.key === 'Escape') modalOpen = false }}
     role="dialog"
+    aria-modal="true"
     tabindex="-1"
   >
     <div
-      class="border border-border rounded-xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[80vh] bg-surface"
+      class="border border-border rounded-xl shadow-[var(--shadow-elevated)] w-full max-w-md flex flex-col max-h-[85vh] bg-surface"
       onclick={(e) => e.stopPropagation()}
       onkeydown={(e) => e.stopPropagation()}
       role="document"
-      tabindex="0"
     >
       <!-- Header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0 rounded-t-xl">
         <h3 class="text-sm font-semibold text-text-main">Select Language</h3>
         <button
           type="button"
+          aria-label="Close"
           onclick={() => (modalOpen = false)}
-          class="text-text-muted hover:text-primary transition-colors cursor-pointer"
+          class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted hover:text-primary hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors cursor-pointer"
         >
           <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
@@ -496,14 +495,14 @@
         <input
           bind:value={modalSearch}
           placeholder="Search language..."
-          class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+          class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
         />
       </div>
 
       <!-- Language list -->
-      <div class="overflow-y-auto flex-1 p-2">
+      <div class="overflow-y-auto custom-scrollbar flex-1 p-2">
         {#if modalError}
-          <p class="text-xs text-red-500 px-2 py-1">{modalError}</p>
+          <p class="text-xs text-red-600 dark:text-red-400 px-2 py-1">{modalError}</p>
         {/if}
         {#if modalLoading}
           <p class="text-xs text-text-muted px-2 py-3">Loading voices...</p>
@@ -513,7 +512,7 @@
               <button
                 type="button"
                 onclick={() => handlePickLanguage(c)}
-                class="flex items-center justify-between w-full px-3 py-2 rounded-lg text-left hover:bg-sidebar transition-colors cursor-pointer {selectedLang === c.code ? 'bg-primary/10 text-primary' : 'text-text-main'}"
+                class="flex min-h-9 items-center justify-between w-full px-3 py-2 rounded-lg text-left hover:bg-sidebar focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors cursor-pointer {selectedLang === c.code ? 'bg-primary/10 text-primary' : 'text-text-main'}"
               >
                 <span class="text-sm font-medium">{c.name}</span>
                 <div class="flex items-center gap-2 shrink-0">

@@ -350,7 +350,7 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Reuse Ratio</span>
-          <span class="material-symbols-outlined text-[20px] text-blue-400">savings</span>
+          <span class="material-symbols-outlined text-[20px] text-blue-600 dark:text-blue-400">savings</span>
         </div>
         <div class="mt-3">
           <div class="text-2xl font-bold text-text-main">{reuseRatio.toFixed(1)}%</div>
@@ -362,7 +362,7 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Cached Tokens</span>
-          <span class="material-symbols-outlined text-[20px] text-cyan-400">token</span>
+          <span class="material-symbols-outlined text-[20px] text-cyan-700 dark:text-cyan-400">token</span>
         </div>
         <div class="mt-3">
           <div class="text-2xl font-bold text-text-main">
@@ -376,7 +376,7 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Creation Tokens</span>
-          <span class="material-symbols-outlined text-[20px] text-purple-400">upload</span>
+          <span class="material-symbols-outlined text-[20px] text-purple-700 dark:text-purple-400">upload</span>
         </div>
         <div class="mt-3">
           <div class="text-2xl font-bold text-text-main">
@@ -390,10 +390,10 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Cost Saved</span>
-          <span class="material-symbols-outlined text-[20px] text-emerald-400">attach_money</span>
+          <span class="material-symbols-outlined text-[20px] text-emerald-700 dark:text-emerald-400">attach_money</span>
         </div>
         <div class="mt-3">
-          <div class="text-2xl font-bold text-emerald-500">
+          <div class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
             {costIn(pc?.estimatedCostSaved ?? 0)}
           </div>
           <p class="text-xs text-text-subtle mt-1 truncate">Estimated savings</p>
@@ -424,9 +424,9 @@
             <span class="text-border">|</span>
             <span class="text-text-muted">Total: <strong class="text-text-main font-mono">{hoveredTrendPoint.requests}</strong></span>
             <span class="text-border">|</span>
-            <span class="text-emerald-500">Cached: <strong class="font-mono">{hoveredTrendPoint.cachedRequests}</strong> ({hoveredTrendPoint.requests > 0 ? ((hoveredTrendPoint.cachedRequests / hoveredTrendPoint.requests) * 100).toFixed(0) : 0}%)</span>
+            <span class="text-emerald-700 dark:text-emerald-400">Cached: <strong class="font-mono">{hoveredTrendPoint.cachedRequests}</strong> ({hoveredTrendPoint.requests > 0 ? ((hoveredTrendPoint.cachedRequests / hoveredTrendPoint.requests) * 100).toFixed(0) : 0}%)</span>
             <span class="text-border">|</span>
-            <span class="text-cyan-400">Tokens: <strong class="font-mono">{hoveredTrendPoint.cachedTokens.toLocaleString()}</strong></span>
+            <span class="text-cyan-700 dark:text-cyan-400">Tokens: <strong class="font-mono">{hoveredTrendPoint.cachedTokens.toLocaleString()}</strong></span>
           </div>
         {:else}
           <div class="text-[11px] text-text-subtle hidden sm:block">
@@ -518,13 +518,13 @@
                   <td class="py-2.5 px-3 text-right text-text-muted">
                     <span class="text-text-main font-medium">{row.cachedRequests}</span> / {row.totalRequests}
                   </td>
-                  <td class="py-2.5 px-3 text-right text-cyan-400 font-mono font-medium">
+                  <td class="py-2.5 px-3 text-right text-cyan-700 dark:text-cyan-400 font-mono font-medium">
                     {row.cachedTokens.toLocaleString()}
                   </td>
-                  <td class="py-2.5 px-3 text-right text-purple-400 font-mono font-medium">
+                  <td class="py-2.5 px-3 text-right text-purple-700 dark:text-purple-400 font-mono font-medium">
                     {row.cacheCreationTokens.toLocaleString()}
                   </td>
-                  <td class="py-2.5 px-3 text-right font-medium text-emerald-500">
+                  <td class="py-2.5 px-3 text-right font-medium text-emerald-700 dark:text-emerald-400">
                     {row.rate.toFixed(1)}%
                   </td>
                 </tr>
@@ -575,13 +575,13 @@
                   <td class="py-2.5 px-3 text-right text-text-muted">
                     <span class="text-text-main font-medium">{row.cachedRequests}</span> / {row.totalRequests}
                   </td>
-                  <td class="py-2.5 px-3 text-right text-cyan-400 font-mono font-medium">
+                  <td class="py-2.5 px-3 text-right text-cyan-700 dark:text-cyan-400 font-mono font-medium">
                     {row.cachedTokens.toLocaleString()}
                   </td>
-                  <td class="py-2.5 px-3 text-right text-purple-400 font-mono font-medium">
+                  <td class="py-2.5 px-3 text-right text-purple-700 dark:text-purple-400 font-mono font-medium">
                     {row.cacheCreationTokens.toLocaleString()}
                   </td>
-                  <td class="py-2.5 px-3 text-right font-medium text-emerald-500">
+                  <td class="py-2.5 px-3 text-right font-medium text-emerald-700 dark:text-emerald-400">
                     {row.rate.toFixed(1)}%
                   </td>
                 </tr>
@@ -606,7 +606,7 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Memory Entries</span>
-          <span class="material-symbols-outlined text-[20px] text-blue-400">memory</span>
+          <span class="material-symbols-outlined text-[20px] text-blue-600 dark:text-blue-400">memory</span>
         </div>
         <div class="mt-3">
           <div class="text-2xl font-bold text-text-main">{sc?.memoryEntries ?? 0}</div>
@@ -618,10 +618,10 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Hit Rate</span>
-          <span class="material-symbols-outlined text-[20px] text-emerald-500">percent</span>
+          <span class="material-symbols-outlined text-[20px] text-emerald-700 dark:text-emerald-400">percent</span>
         </div>
         <div class="mt-3">
-          <div class="text-2xl font-bold text-emerald-500">{sc?.hitRate ?? '0.0'}%</div>
+          <div class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{sc?.hitRate ?? '0.0'}%</div>
           <p class="text-xs text-text-subtle mt-1">{sc?.hits ?? 0} hits / {(sc?.hits ?? 0) + (sc?.misses ?? 0)} total</p>
         </div>
       </div>
@@ -630,7 +630,7 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Hits / Misses</span>
-          <span class="material-symbols-outlined text-[20px] text-purple-400">sync_alt</span>
+          <span class="material-symbols-outlined text-[20px] text-purple-700 dark:text-purple-400">sync_alt</span>
         </div>
         <div class="mt-3">
           <div class="text-2xl font-bold text-text-main">{sc?.hits ?? 0} / {sc?.misses ?? 0}</div>
@@ -642,10 +642,10 @@
       <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm">
         <div class="flex items-center justify-between text-text-muted">
           <span class="text-xs font-medium uppercase tracking-wider">Tokens Saved</span>
-          <span class="material-symbols-outlined text-[20px] text-emerald-400">savings</span>
+          <span class="material-symbols-outlined text-[20px] text-emerald-700 dark:text-emerald-400">savings</span>
         </div>
         <div class="mt-3">
-          <div class="text-2xl font-bold text-emerald-400">{(sc?.tokensSaved ?? 0).toLocaleString()}</div>
+          <div class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{(sc?.tokensSaved ?? 0).toLocaleString()}</div>
           <p class="text-xs text-text-subtle mt-1">From cached responses</p>
         </div>
       </div>
@@ -667,7 +667,7 @@
           <button
             type="button"
             onclick={handleClearAll}
-            class="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/20 transition-colors"
+            class="flex items-center gap-1.5 min-h-9 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50 cursor-pointer"
           >
             <span class="material-symbols-outlined text-[16px]">delete_sweep</span>
             Clear All Cache
@@ -681,12 +681,12 @@
           type="text"
           placeholder="Invalidate by model (e.g. gpt-4o, claude-3-5)"
           bind:value={invalidateModelInput}
-          class="flex-1 min-w-[240px] rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs text-text-main focus:outline-none focus:border-brand-500"
+          class="flex-1 min-w-[200px] min-h-9 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
         <button
           type="button"
           onclick={handleInvalidateByModel}
-          class="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-main hover:bg-surface-2 transition-colors"
+          class="min-h-9 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-main hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           Invalidate Model
         </button>
@@ -719,7 +719,7 @@
               placeholder="Search signature/key..."
               value={search}
               oninput={handleSearchInput}
-              class="w-48 sm:w-64 rounded-xl border border-border bg-surface-2 pl-8 pr-3 py-1.5 text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-48 sm:w-64 min-h-9 rounded-xl border border-border bg-surface-2 pl-8 pr-3 py-1.5 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           </div>
         </div>
@@ -736,7 +736,7 @@
         </div>
       {:else}
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
+          <table class="w-full min-w-[600px] text-left text-xs">
             <thead>
               <tr class="border-b border-border text-text-muted">
                 <th class="py-2.5 px-3 font-semibold">Signature / Key</th>
@@ -756,8 +756,9 @@
                       <button
                         type="button"
                         onclick={() => copyToClipboard(entry.signature)}
-                        class="text-text-subtle hover:text-text-main shrink-0"
+                        class="min-h-7 min-w-7 inline-flex items-center justify-center rounded text-text-subtle hover:text-text-main shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                         title="Copy signature"
+                        aria-label="Copy signature"
                       >
                         <span class="material-symbols-outlined text-[14px]">content_copy</span>
                       </button>

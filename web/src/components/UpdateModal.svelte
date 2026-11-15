@@ -184,15 +184,17 @@
     ></div>
 
     <div
-      class="relative w-full max-w-2xl bg-surface border border-border-subtle rounded-2xl shadow-2xl p-6 flex flex-col gap-4 z-10 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto custom-scrollbar"
+      role="dialog"
+      aria-modal="true"
+      class="relative w-full max-w-2xl bg-surface border border-border-subtle rounded-2xl shadow-2xl p-5 sm:p-6 flex flex-col gap-4 z-10 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto custom-scrollbar"
     >
       <div class="flex items-center justify-between pb-3 border-b border-border-subtle">
-        <div class="flex items-center gap-2.5">
-          <div class="size-9 rounded-full flex items-center justify-center bg-amber-500/10 text-amber-500">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="size-9 rounded-full flex items-center justify-center bg-amber-500/10 text-amber-700 dark:text-amber-400 shrink-0">
             <span class="material-symbols-outlined text-[20px]">upgrade</span>
           </div>
-          <div>
-            <h2 class="text-base font-semibold text-text-main">
+          <div class="min-w-0">
+            <h2 class="text-base font-semibold text-text-main truncate">
               Update 9router-go{updateInfo?.latestVersion ? ` to v${updateInfo.latestVersion}` : ''}
             </h2>
             <p class="text-xs text-text-muted">
@@ -203,7 +205,7 @@
         <button
           type="button"
           onclick={dismiss}
-          class="p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center min-h-9 min-w-9 p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           aria-label="Close"
         >
           <span class="material-symbols-outlined text-[20px]">close</span>
@@ -265,12 +267,12 @@
       {/if}
 
       <!-- Action buttons -->
-      <div class="flex items-center justify-end gap-2 pt-2 border-t border-border-subtle">
+      <div class="flex flex-wrap items-center justify-end gap-2.5 pt-3 border-t border-border-subtle">
         <button
           type="button"
           onclick={dismiss}
           disabled={isUpdating}
-          class="px-3.5 py-2 text-xs font-medium rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer"
+          class="px-3.5 py-2 min-h-9 text-xs font-medium rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           Cancel
         </button>
@@ -278,7 +280,7 @@
           type="button"
           onclick={handleCopyAndShutdown}
           disabled={isUpdating || shutdownCountdown > 0}
-          class="px-3.5 py-2 text-xs font-medium rounded-lg border border-border-subtle text-text-main hover:bg-surface-2 transition-colors cursor-pointer"
+          class="px-3.5 py-2 min-h-9 text-xs font-medium rounded-lg border border-border-subtle text-text-main hover:bg-surface-2 transition-colors cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           {shutdownCountdown > 0 ? `Stopping in ${shutdownCountdown}s...` : 'Copy & Shutdown'}
         </button>
@@ -286,7 +288,7 @@
           type="button"
           onclick={handleAutoUpdate}
           disabled={isUpdating}
-          class="px-4 py-2 text-xs font-semibold rounded-lg bg-primary hover:bg-primary-hover text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+          class="px-4 py-2 min-h-9 text-xs font-semibold rounded-lg bg-primary hover:bg-primary-hover text-white transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <span class="material-symbols-outlined text-[16px]">autorenew</span>
           <span>{isUpdating ? 'Updating...' : 'Auto Update'}</span>

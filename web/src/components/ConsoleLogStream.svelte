@@ -117,10 +117,10 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="flex flex-col">
-  <div class="flex flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2.5">
+  <div class="flex flex-wrap items-center gap-3 border-b border-border-subtle px-5 py-3.5">
     <!-- Level counts double as filters: the operator's first question on this
          page is "how many of these went wrong". -->
-    <div class="flex flex-wrap items-center gap-1.5">
+    <div class="flex flex-wrap items-center gap-2">
       {#each LEVEL_ORDER as level (level)}
         {@const meta = LEVEL_META[level]}
         {@const muted = mutedLevels.has(level)}
@@ -129,7 +129,7 @@
           aria-pressed={!muted}
           title={muted ? `Show ${meta.label} lines` : `Hide ${meta.label} lines`}
           onclick={() => toggleLevel(level)}
-          class="inline-flex h-6 items-center gap-1.5 rounded-full border px-2 text-[11px] font-semibold transition-colors duration-150 {meta.chip} {muted
+          class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors duration-150 {meta.chip} {muted
             ? 'opacity-40'
             : ''}"
         >
@@ -141,20 +141,20 @@
     </div>
 
     <div class="relative ml-auto w-full sm:w-64">
-      <Search class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
+      <Search class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" />
       <input
         type="search"
         bind:value={query}
         placeholder="Search lines…"
         aria-label="Search console log lines"
-        class="w-full rounded-[8px] border border-border bg-surface py-1.5 pl-8 pr-7 text-xs text-text-main placeholder:text-text-muted focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+        class="h-9 sm:h-8 w-full rounded-[8px] border border-border bg-surface py-1.5 pl-8 pr-8 text-[16px] sm:text-xs text-text-main placeholder:text-text-muted focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       />
       {#if query}
         <button
           type="button"
           aria-label="Clear search"
           onclick={() => (query = '')}
-          class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-text-muted hover:text-text-main"
+          class="min-h-7 min-w-7 inline-flex items-center justify-center rounded absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer text-text-muted hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           <X class="h-3.5 w-3.5" />
         </button>
@@ -166,7 +166,7 @@
       aria-pressed={wrap}
       title={wrap ? 'Disable line wrap' : 'Wrap long lines'}
       onclick={() => (wrap = !wrap)}
-      class="h-7 cursor-pointer rounded-[8px] border border-border px-2.5 text-xs text-text-main transition-colors duration-150 hover:bg-surface-2 {wrap
+      class="min-h-8 h-8 cursor-pointer rounded-[8px] border border-border px-3 text-xs text-text-main transition-colors duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {wrap
         ? 'border-brand-500/40 bg-brand-500/10 text-brand-600 dark:text-brand-400'
         : ''}"
     >
@@ -223,7 +223,7 @@
         {#each visible as entry (entry.seq)}
           {@const meta = LEVEL_META[entry.level]}
           {@const parts = splitTag(entry.line)}
-          <div class="flex items-baseline gap-3 px-3 py-1 hover:bg-surface-3/40">
+          <div class="flex items-baseline gap-3 px-4 py-1.5 hover:bg-surface-3/40">
             <time class="shrink-0 tabular-nums text-[11px] text-text-muted">{formatClock(entry.time)}</time>
             <span class="w-8 shrink-0 text-[11px] font-bold {meta.text}">{meta.label}</span>
             <span class="min-w-0 flex-1 {wrap ? 'break-words' : 'whitespace-pre'} {meta.text}">
@@ -249,7 +249,7 @@
     {/if}
   </div>
 
-  <div class="flex items-center justify-between border-t border-border-subtle px-4 py-2 text-[11px] text-text-muted">
+  <div class="flex flex-wrap items-center justify-between gap-2 border-t border-border-subtle px-5 py-3 text-[11px] text-text-muted">
     <span class="tabular-nums">
       Showing {visible.length} of {entries.length} buffered {entries.length === 1 ? 'line' : 'lines'}
     </span>

@@ -154,10 +154,10 @@
     disabled={disabled}
     onclick={() => (open = !open)}
     onkeydown={onKeydown}
-    class="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-text-main shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-50 sm:px-3 sm:text-sm {fullWidth
+    class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-border bg-surface px-2.5 py-1.5 min-h-9 text-xs font-medium text-text-main shadow-sm transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer disabled:opacity-50 sm:px-3 sm:text-sm {fullWidth
       ? 'w-full justify-center py-2.5 text-sm'
       : iconOnly
-        ? 'w-9 justify-center bg-transparent px-0 py-0 shadow-none'
+        ? 'h-9 w-9 justify-center bg-transparent px-0 py-0 shadow-none'
         : ''}"
   >
     <span class="material-symbols-outlined text-[18px] text-text-muted" aria-hidden="true">
@@ -196,7 +196,7 @@
         // plain buttons that do not need to know about the menu above them.
         if ((e.target as HTMLElement).closest('button')) close()
       }}
-      class="fixed z-50 w-max max-w-[calc(100vw-1rem)] rounded-xl border border-border bg-surface p-1.5 shadow-[var(--shadow-elev)]"
+      class="fixed z-50 w-max max-w-[calc(100vw-1rem)] rounded-xl border border-border bg-surface p-1.5 shadow-[var(--shadow-elevated)]"
     >
       {@render children?.()}
     </div>

@@ -560,7 +560,7 @@
 
 </script>
 
-<div class="flex min-w-0 flex-col gap-6 px-1 sm:px-0">
+<div class="flex min-w-0 flex-col gap-6">
   <CombosHeader onCreateClick={openCreateModal} />
   <div class="flex flex-wrap items-center justify-end gap-2">
     <div class="relative w-full sm:w-64">
@@ -570,14 +570,14 @@
         bind:value={searchQuery}
         placeholder="Search combos…"
         aria-label="Search combos"
-        class="w-full rounded-[10px] border border-transparent bg-surface-2 py-2 pl-9 pr-9 text-sm text-text-main transition-all duration-150 ease-out placeholder-text-muted/70 focus:border-brand-500/40 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+        class="w-full min-h-9 rounded-[10px] border border-transparent bg-surface-2 py-2 pl-9 pr-9 text-[16px] sm:text-sm text-text-main transition-all duration-150 ease-out placeholder-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       />
       {#if searchQuery}
         <button
           type="button"
           onclick={() => (searchQuery = '')}
           aria-label="Clear search"
-          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-text-muted transition-colors hover:text-text-main"
+          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-text-muted transition-colors hover:text-text-main cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <X class="h-4 w-4" />
         </button>
@@ -621,7 +621,7 @@
             <div class="w-full min-w-[160px] sm:w-[200px]">
               <select
                 bind:value={bulkStrategy}
-                class="w-full bg-surface-2 border border-border rounded-lg px-2.5 py-1.5 text-xs text-text-main focus:outline-none focus:ring-brand-500 focus:border-brand-500 cursor-pointer"
+                class="w-full min-h-8 bg-surface-2 border border-border rounded-lg px-2.5 py-1.5 text-xs text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus:border-brand-500 cursor-pointer"
               >
                 <option value="" disabled>Set strategy…</option>
                 {#each comboStrategyOptions(globalComboStrategy) as strategy (strategy.value)}

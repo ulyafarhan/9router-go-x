@@ -64,32 +64,34 @@
     ></div>
 
     <div
-      class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] fade-in {sizes[size]} {klass}"
+      role="dialog"
+      aria-modal="true"
+      class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] fade-in overflow-hidden {sizes[size]} {klass}"
     >
       {#if title || showTrafficLights}
-        <div class="flex items-center justify-between p-2 border-b border-border-subtle">
-          <div class="flex items-center">
+        <div class="flex items-center justify-between gap-3 px-5 py-3.5 sm:px-6 border-b border-border-subtle">
+          <div class="flex min-w-0 items-center">
             {#if showTrafficLights}
-              <div class="hidden md:flex items-center gap-2 mr-4 ml-2">
+              <div class="hidden md:flex items-center gap-2 mr-4 shrink-0">
                 <button
                   type="button"
                   onclick={() => onClose?.()}
                   aria-label="Close"
                   title="Close"
-                  class="w-4 h-4 rounded-full bg-[#FF5F56] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center"
+                  class="w-3.5 h-3.5 rounded-full bg-[#FF5F56] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                 >
                   <span class="text-[9px] font-bold text-white leading-none">✕</span>
                 </button>
-                <div class="w-4 h-4 rounded-full bg-[#3a3a3a]/20 dark:bg-white/15 cursor-not-allowed"></div>
-                <div class="w-4 h-4 rounded-full bg-[#3a3a3a]/20 dark:bg-white/15 cursor-not-allowed"></div>
+                <span class="w-3.5 h-3.5 rounded-full bg-[#3a3a3a]/20 dark:bg-white/15" aria-hidden="true"></span>
+                <span class="w-3.5 h-3.5 rounded-full bg-[#3a3a3a]/20 dark:bg-white/15" aria-hidden="true"></span>
               </div>
             {/if}
             {#if title}
-              <h2 class="flex items-center gap-2 text-lg font-semibold text-text-main">
+              <h2 class="flex min-w-0 items-center gap-2 text-lg font-semibold text-text-main truncate">
                 {#if icon}
-                  <span class="material-symbols-outlined text-[20px] text-brand-500">{icon}</span>
+                  <span class="material-symbols-outlined text-[20px] text-brand-500 shrink-0">{icon}</span>
                 {/if}
-                {title}
+                <span class="truncate">{title}</span>
               </h2>
             {/if}
           </div>
@@ -97,19 +99,19 @@
             type="button"
             onclick={() => onClose?.()}
             aria-label="Close"
-            class="md:hidden p-1.5 rounded-[10px] text-text-muted hover:bg-surface-2 hover:text-text-main transition-colors"
+            class="inline-flex items-center justify-center min-h-9 min-w-9 p-1.5 rounded-[10px] text-text-muted hover:bg-surface-2 hover:text-text-main transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
       {/if}
 
-      <div class="p-6 max-h-[calc(85vh-100px)] overflow-y-auto custom-scrollbar">
+      <div class="p-5 sm:p-6 max-h-[calc(85vh-110px)] overflow-y-auto custom-scrollbar">
         {@render children?.()}
       </div>
 
       {#if footer}
-        <div class="flex items-center justify-end gap-3 p-6 border-t border-border-subtle">
+        <div class="flex flex-wrap items-center justify-end gap-3 px-5 py-4 sm:px-6 border-t border-border-subtle">
           {@render footer()}
         </div>
       {/if}

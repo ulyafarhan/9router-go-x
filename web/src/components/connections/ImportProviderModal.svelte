@@ -104,8 +104,8 @@
         <textarea
           bind:value={pasted}
           rows={5}
-          placeholder={'9router://…\n— or —\nhttps://gateway/add#prov=…'}
-          class="w-full rounded-[10px] border border-border-subtle bg-surface-2 px-3 py-2 font-mono text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+          placeholder={'9router://…\n- or -\nhttps://gateway/add#prov=…'}
+          class="w-full rounded-[10px] border border-border-subtle bg-surface-2 px-3 py-2 font-mono text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         ></textarea>
       </label>
 
@@ -126,7 +126,7 @@
       >
         <p class="text-xs text-text-muted">
           Drop a <span class="font-mono">.9router.json</span> file here, or
-          <button type="button" onclick={() => fileInput?.click()} class="cursor-pointer text-brand-500 underline">
+          <button type="button" onclick={() => fileInput?.click()} class="cursor-pointer rounded px-0.5 text-brand-600 dark:text-brand-400 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50">
             browse
           </button>
         </p>
@@ -146,9 +146,9 @@
       <div class="rounded-lg border border-border-subtle bg-surface-2/40 p-3 text-xs text-text-muted">
         <p class="mb-1 font-medium text-text-main">Accepted forms</p>
         <ul class="flex list-disc flex-col gap-0.5 pl-4">
-          <li><span class="font-mono">9router://&lt;base64url&gt;</span> — one token, best for chat</li>
-          <li><span class="font-mono">/add#prov=…</span> — the original URL form</li>
-          <li><span class="font-mono">.9router.json</span> — for many providers or a block of keys</li>
+          <li><span class="font-mono">9router://&lt;base64url&gt;</span>: one token, best for chat</li>
+          <li><span class="font-mono">/add#prov=…</span>: the original URL form</li>
+          <li><span class="font-mono">.9router.json</span>: for many providers or a block of keys</li>
         </ul>
       </div>
     </div>

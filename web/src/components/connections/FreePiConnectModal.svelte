@@ -168,7 +168,7 @@
       // amount of retrying brings it back, so say so and offer the only real fix.
       if (status === 410) {
         stopPolling()
-        error = 'This sign-in attempt expired before it completed. Start again — the code is still valid only until it expires.'
+        error = 'This sign-in attempt expired before it completed. Start again (the code is still valid only until it expires).'
         phase = 'consent'
         accepted = false
         return
@@ -239,7 +239,7 @@
       </div>
 
       {#if error}
-        <div class="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-400">
+        <div class="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-400">
           {error}
         </div>
       {/if}
@@ -270,7 +270,7 @@
             <button
               type="button"
               onclick={cancel}
-              class="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-2"
+              class="min-h-9 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
             >
               Decline
             </button>
@@ -278,7 +278,7 @@
               type="button"
               onclick={start}
               disabled={!accepted || busy}
-              class="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+              class="min-h-9 rounded-lg bg-brand-600 hover:bg-brand-700 px-3 py-1.5 text-xs font-medium text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? 'Starting…' : 'Accept and sign in'}
             </button>
@@ -308,20 +308,20 @@
             href={verificationUriComplete || verificationUri}
             target="_blank"
             rel="noreferrer"
-            class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary-hover"
+            class="flex w-full min-h-9 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <span class="material-symbols-outlined text-[16px]" aria-hidden="true">open_in_new</span>
             Open GitHub and approve
           </a>
           <p class="flex items-center gap-2 text-xs text-text-muted">
             <span class="material-symbols-outlined animate-spin text-[16px]" aria-hidden="true">progress_activity</span>
-            Waiting for authorisation… {#if waitedSeconds > 45}<span class="text-amber-500">({waitedSeconds}s — make sure you approved code {userCode}, not an earlier one)</span>{/if}
+            Waiting for authorisation… {#if waitedSeconds > 45}<span class="text-amber-700 dark:text-amber-300">({waitedSeconds}s; make sure you approved code {userCode}, not an earlier one)</span>{/if}
           </p>
           <div class="flex justify-end">
             <button
               type="button"
               onclick={restart}
-              class="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-2"
+              class="min-h-9 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
             >
               Start over
             </button>

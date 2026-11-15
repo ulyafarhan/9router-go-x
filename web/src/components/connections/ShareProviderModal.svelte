@@ -367,7 +367,7 @@
             {:else}
               <select
                 bind:value={pickedKeyId}
-                class="w-full rounded-[10px] border border-transparent bg-surface-2 px-3 py-2 text-sm text-text-main focus:border-brand-500/40 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                class="w-full min-h-9 rounded-[10px] border border-transparent bg-surface-2 px-3 py-2 text-[16px] sm:text-sm text-text-main focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 {#each keyedConnections as c (c.id)}
                   <option value={c.id}>{c.name || c.id}</option>
@@ -391,8 +391,8 @@
               <button
                 type="button"
                 onclick={() => (modelMode = opt.v as typeof modelMode)}
-                class="rounded-[8px] border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer {modelMode === opt.v
-                  ? 'border-brand-500 bg-brand-500/10 text-brand-500'
+                class="min-h-8 rounded-[8px] border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {modelMode === opt.v
+                  ? 'border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-400'
                   : 'border-border bg-surface-2 text-text-muted hover:text-text-main'}"
               >
                 {opt.l}
@@ -404,17 +404,17 @@
               <input
                 bind:value={modelFilter.caps}
                 placeholder="capability, e.g. vision"
-                class="rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+                class="min-h-9 rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
               <input
                 bind:value={modelFilter.ctxAtLeast}
                 placeholder="min context, e.g. 128k"
-                class="rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+                class="min-h-9 rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
               <input
                 bind:value={modelFilter.limit}
                 placeholder="limit, e.g. 50"
-                class="rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+                class="min-h-9 rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
           {/if}
@@ -423,7 +423,7 @@
               bind:value={modelIDs}
               rows={4}
               placeholder="model-id, model-id (one per line or comma-separated)"
-              class="w-full rounded-[8px] border border-transparent bg-surface-2 px-3 py-2 font-mono text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+              class="w-full rounded-[8px] border border-transparent bg-surface-2 px-3 py-2 font-mono text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             ></textarea>
           {/if}
         </div>
@@ -463,7 +463,7 @@
                   <input
                     bind:value={row.name}
                     aria-label="Connection name"
-                    class="min-w-0 flex-1 rounded-[8px] border border-transparent bg-surface-2 px-2 py-1 text-xs text-text-main focus:border-brand-500/40 focus:outline-none"
+                    class="min-w-0 min-h-8 flex-1 rounded-[8px] border border-transparent bg-surface-2 px-2 py-1 text-[16px] sm:text-xs text-text-main focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <span class="shrink-0 font-mono text-[10px] text-text-muted">#{index + 1}</span>
                 </div>
@@ -496,7 +496,7 @@
           {/if}
           <p class="text-xs text-text-muted">
             Each checked provider is added on the receiver with its model catalogue auto-fetched. Credentials are not
-            carried — the receiver pastes them.
+            carried; the receiver pastes them.
           </p>
         </div>
       {/if}
@@ -509,7 +509,7 @@
           bind:value={note}
           maxlength="200"
           placeholder="e.g. prod account, do not rotate"
-          class="w-full rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+          class="w-full min-h-9 rounded-[8px] border border-transparent bg-surface-2 px-3 py-1.5 text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </div>
 
@@ -521,12 +521,12 @@
       {/if}
       {#if scope === 'set'}
         <p class="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-text-main">
-          A multi-provider link is encoded, not encrypted — anyone who obtains it can read everything in it.
+          A multi-provider link is encoded, not encrypted: anyone who obtains it can read everything in it.
         </p>
       {/if}
       {#if shownTier === 'split'}
         <p class="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-text-main">
-          This link is {shownURL.length} characters — too long for many chat clients and browser history. Use
+          This link is {shownURL.length} characters, which is too long for many chat clients and browser history. Use
           <strong>Copy in two parts</strong> and send the credentials separately.
         </p>
       {/if}
@@ -546,8 +546,8 @@
             <button
               type="button"
               onclick={() => (outputFormat = opt.v as typeof outputFormat)}
-              class="rounded-[8px] border px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer {outputFormat === opt.v
-                ? 'border-brand-500 bg-brand-500/10 text-brand-500'
+              class="min-h-8 rounded-[8px] border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {outputFormat === opt.v
+                ? 'border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-400'
                 : 'border-border bg-surface-2 text-text-muted hover:text-text-main'}"
             >
               {opt.l}
@@ -559,13 +559,13 @@
             readonly
             rows={5}
             value={fileBody}
-            class="w-full rounded-[8px] border border-border-subtle bg-surface-2 px-3 py-2 font-mono text-xs text-text-main"
+            class="w-full rounded-[8px] border border-border-subtle bg-surface-2 px-3 py-2 font-mono text-[16px] sm:text-xs text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
           ></textarea>
         {:else}
           <input
             readonly
             value={shownOutput}
-            class="w-full rounded-[8px] border border-border-subtle bg-surface-2 px-3 py-2 font-mono text-xs text-text-main"
+            class="w-full min-h-9 rounded-[8px] border border-border-subtle bg-surface-2 px-3 py-2 font-mono text-[16px] sm:text-xs text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
           />
         {/if}
         <div class="flex items-center justify-between gap-2">
@@ -585,7 +585,7 @@
                 <img src={dataURL} alt="QR code for this share link" width={168} height={168} class="rounded" />
               {/if}
             {:catch}
-              <p class="text-xs text-text-muted">QR unavailable — copy the token instead.</p>
+              <p class="text-xs text-text-muted">QR unavailable; copy the token instead.</p>
             {/await}
             <p class="text-xs text-text-muted">Scan to import on another device</p>
           </div>

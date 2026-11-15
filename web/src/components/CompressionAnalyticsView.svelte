@@ -272,7 +272,7 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
       <div class="flex items-center justify-between text-text-muted">
         <span class="text-xs font-medium uppercase tracking-wider">Avg Savings</span>
-        <span class="material-symbols-outlined text-[20px] text-blue-400">percent</span>
+        <span class="material-symbols-outlined text-[20px] text-blue-600 dark:text-blue-400">percent</span>
       </div>
       <div class="mt-3">
         <div class="text-2xl font-bold text-text-main">
@@ -286,7 +286,7 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
       <div class="flex items-center justify-between text-text-muted">
         <span class="text-xs font-medium uppercase tracking-wider">Avg Duration</span>
-        <span class="material-symbols-outlined text-[20px] text-purple-400">timer</span>
+        <span class="material-symbols-outlined text-[20px] text-purple-700 dark:text-purple-400">timer</span>
       </div>
       <div class="mt-3">
         <div class="text-2xl font-bold text-text-main">
@@ -300,7 +300,7 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
       <div class="flex items-center justify-between text-text-muted">
         <span class="text-xs font-medium uppercase tracking-wider">Receipts</span>
-        <span class="material-symbols-outlined text-[20px] text-cyan-400">receipt_long</span>
+        <span class="material-symbols-outlined text-[20px] text-cyan-700 dark:text-cyan-400">receipt_long</span>
       </div>
       <div class="mt-3">
         <div class="text-2xl font-bold text-text-main">
@@ -316,10 +316,10 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between">
       <div class="flex items-center justify-between text-text-muted">
         <span class="text-xs font-medium uppercase tracking-wider">Est. Saved</span>
-        <span class="material-symbols-outlined text-[20px] text-emerald-400">attach_money</span>
+        <span class="material-symbols-outlined text-[20px] text-emerald-700 dark:text-emerald-400">attach_money</span>
       </div>
       <div class="mt-3">
-        <div class="text-2xl font-bold text-emerald-500">
+        <div class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
           {costIn(stats?.realUsage?.estimatedUsdSaved ?? 0)}
         </div>
         <p class="text-xs text-text-subtle mt-1 truncate">Estimated USD saved</p>
@@ -329,10 +329,10 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
       <div class="flex items-center justify-between text-text-muted">
         <span class="text-xs font-medium uppercase tracking-wider">ROI Speed</span>
-        <span class="material-symbols-outlined text-[20px] text-emerald-400">bolt</span>
+        <span class="material-symbols-outlined text-[20px] text-emerald-700 dark:text-emerald-400">bolt</span>
       </div>
       <div class="mt-3">
-        <div class="text-2xl font-bold text-emerald-500">
+        <div class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
           {(stats?.roiTokensPerMs ?? 0).toLocaleString()} <span class="text-xs font-normal text-text-muted">tok/ms</span>
         </div>
         <p class="text-xs text-text-subtle mt-1 truncate">
@@ -484,7 +484,7 @@
                 </span>
                 <span class="text-text-muted">
                   <span class="text-text-main font-medium">{p.count}</span> runs •
-                  <span class="text-cyan-400 font-mono font-medium">{p.tokensSaved.toLocaleString()}</span> tokens
+                  <span class="text-cyan-700 dark:text-cyan-400 font-mono font-medium">{p.tokensSaved.toLocaleString()}</span> tokens
                 </span>
               </div>
               <div class="h-2 w-full rounded-full bg-surface-2 overflow-hidden">
@@ -529,7 +529,7 @@
                 </span>
                 <span class="text-text-muted text-[11px]">
                   <span class="text-text-main font-medium">{m.count}</span> runs •
-                  <span class="text-cyan-400 font-mono font-medium">{m.tokensSaved.toLocaleString()}</span> tokens
+                  <span class="text-cyan-700 dark:text-cyan-400 font-mono font-medium">{m.tokensSaved.toLocaleString()}</span> tokens
                   {#if m.avgSavingsPct > 0}
                     • {m.avgSavingsPct}%
                   {/if}
@@ -617,16 +617,16 @@
                 <td class="py-2.5 px-3 text-right font-mono text-text-muted">
                   {s.originalTokens.toLocaleString()} &rarr; {s.compressedTokens.toLocaleString()}
                 </td>
-                <td class="py-2.5 px-3 text-right font-mono font-semibold text-cyan-400">
+                <td class="py-2.5 px-3 text-right font-mono font-semibold text-cyan-700 dark:text-cyan-400">
                   {s.tokensSaved.toLocaleString()}
                 </td>
-                <td class="py-2.5 px-3 text-right font-medium text-emerald-500">
+                <td class="py-2.5 px-3 text-right font-medium text-emerald-700 dark:text-emerald-400">
                   {s.savingsPct}%
                 </td>
-                <td class="py-2.5 px-3 text-right text-purple-400 font-mono">
+                <td class="py-2.5 px-3 text-right text-purple-700 dark:text-purple-400 font-mono">
                   {s.durationMs}ms
                 </td>
-                <td class="py-2.5 px-3 text-right font-medium text-emerald-400">
+                <td class="py-2.5 px-3 text-right font-medium text-emerald-700 dark:text-emerald-400">
                   {costIn(s.estimatedUsd, 3)}
                 </td>
               </tr>
@@ -667,7 +667,7 @@
       </div>
       <div class="p-3 rounded-xl bg-surface-2/60 border border-border-subtle">
         <div class="text-[11px] font-medium text-text-muted uppercase">Cache Read Tokens</div>
-        <div class="text-lg font-bold text-cyan-400 mt-1 font-mono">
+        <div class="text-lg font-bold text-cyan-700 dark:text-cyan-400 mt-1 font-mono">
           {(stats?.realUsage?.cacheReadTokens ?? 0).toLocaleString()}
         </div>
       </div>

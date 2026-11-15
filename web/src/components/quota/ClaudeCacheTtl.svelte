@@ -49,14 +49,14 @@
       value={ttl}
       onchange={onChange}
       disabled={saving}
-      class="rounded-md border border-border bg-background px-2 py-1 text-xs focus:border-primary focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+      class="min-h-8 rounded-md border border-border bg-background px-2.5 py-1 text-[16px] sm:text-xs focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
     >
       <option value="5m">5 minutes (default)</option>
       <option value="1h">1 hour</option>
     </select>
   </div>
   {#if error}
-    <p class="mt-2 text-[11px] text-red-500">{error}</p>
+    <p class="mt-2 text-[11px] text-red-600 dark:text-red-400">{error}</p>
   {/if}
   <div class="mt-3 grid gap-2 text-[11px] leading-relaxed sm:grid-cols-2">
     <div
@@ -64,7 +64,7 @@
         ? 'border-primary/40 bg-primary/5'
         : 'border-border-subtle bg-surface-2'}"
     >
-      <p class="font-semibold text-text-main">5 minutes — cache write 1.25x</p>
+      <p class="font-semibold text-text-main">5 minutes (cache write 1.25x)</p>
       <p class="mt-1 text-text-muted">
         Cheapest per written token. Choose this when you work in bursts: nearly every turn lands
         inside 5 minutes, so the prefix is read back instead of written again. A pause longer than 5
@@ -76,7 +76,7 @@
         ? 'border-primary/40 bg-primary/5'
         : 'border-border-subtle bg-surface-2'}"
     >
-      <p class="font-semibold text-text-main">1 hour — cache write 2x</p>
+      <p class="font-semibold text-text-main">1 hour (cache write 2x)</p>
       <p class="mt-1 text-text-muted">
         Costs 60% more per written token but survives an idle break of up to an hour. Choose this
         only if you routinely stop for 5–60 minutes between turns: the resumed turn then reads the

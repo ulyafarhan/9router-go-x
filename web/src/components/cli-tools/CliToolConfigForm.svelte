@@ -363,19 +363,19 @@
     <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
       <!-- Target Config File Indicator -->
       {#if targetFiles.length > 0}
-        <div class="p-2.5 rounded-lg bg-surface-2 border border-border/70 flex items-center justify-between text-xs">
-          <div class="flex items-center gap-2 text-text-muted truncate">
+        <div class="p-2.5 rounded-lg bg-surface-2 border border-border/70 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2 text-text-muted min-w-0 flex-1">
             <FileText class="w-3.5 h-3.5 text-brand-500 shrink-0" />
-            <span class="font-medium text-text-main">Config File:</span>
-            <span class="font-mono text-[11px] truncate text-text-subtle" title={targetFiles[0].path}>
+            <span class="font-medium text-text-main shrink-0">Config File:</span>
+            <span class="font-mono text-[11px] truncate text-text-muted" title={targetFiles[0].path}>
               {targetFiles[0].path}
             </span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded border {has9Router ? 'bg-success/10 text-success border-success/20' : installed ? 'bg-warning/10 text-warning border-warning/20' : 'bg-surface-2 text-text-subtle border-border'}">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded border whitespace-nowrap {has9Router ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25' : installed ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25' : 'bg-surface-2 text-text-muted border-border'}">
               {has9Router ? 'Connected' : installed ? 'Not configured' : 'Not installed'}
             </span>
-            <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-surface border border-border text-text-subtle">
+            <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-surface border border-border text-text-muted">
               {targetFiles[0].format}
             </span>
           </div>
@@ -392,7 +392,7 @@
             type="text"
             bind:value={baseUrl}
             placeholder={localOrigin}
-            class="w-full px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </div>
 
@@ -404,7 +404,7 @@
             <div class="flex gap-1.5">
               <select
                 bind:value={selectedApiKey}
-                class="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+                class="w-full min-h-9 px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 {#if hasStoredApiKey}
                   <option value="">(Keep saved token)</option>
@@ -422,7 +422,7 @@
                 type="password"
                 bind:value={customApiKey}
                 placeholder="sk-9router-..."
-                class="w-full mt-1.5 px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+                class="w-full mt-1.5 min-h-9 px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             {/if}
           {:else}
@@ -433,7 +433,7 @@
               type="password"
               bind:value={customApiKey}
               placeholder={hasStoredApiKey ? "Leave empty to keep saved token..." : "sk-9router-..."}
-              class="w-full px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           {/if}
         </div>
@@ -452,70 +452,70 @@
 
           <!-- Primary Default Model -->
           <div class="space-y-1">
-            <div class="text-xs font-medium text-text-main flex items-center justify-between">
+            <div class="text-xs font-medium text-text-main flex flex-wrap items-center justify-between gap-1">
               <span>Primary / Default Model</span>
-              <span class="text-[10px] font-mono text-text-subtle">"model" key</span>
+              <span class="text-[10px] font-mono text-text-muted">"model" key</span>
             </div>
             <input
               type="text"
               list="cli-tool-models-datalist"
               bind:value={model}
               placeholder="e.g. sonnet, opus, or custom combo/model ID"
-              class="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           </div>
 
           <!-- Sonnet Tier -->
           <div class="space-y-1">
-            <div class="text-xs font-medium text-text-main flex items-center justify-between">
+            <div class="text-xs font-medium text-text-main flex flex-wrap items-center justify-between gap-1">
               <span class="flex items-center gap-1.5">
                 <span class="size-2 rounded-full bg-amber-500"></span>
                 <span>Sonnet Tier Override</span>
               </span>
-              <span class="text-[10px] font-mono text-text-subtle">ANTHROPIC_DEFAULT_SONNET_MODEL</span>
+              <span class="text-[10px] font-mono text-text-muted">ANTHROPIC_DEFAULT_SONNET_MODEL</span>
             </div>
             <input
               type="text"
               list="cli-tool-models-datalist"
               bind:value={tierSonnet}
               placeholder="e.g. claude-sonnet-5-5[1m], sonnet, or oc/deepseek-v4.1-flash-free"
-              class="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           </div>
 
           <!-- Opus Tier -->
           <div class="space-y-1">
-            <div class="text-xs font-medium text-text-main flex items-center justify-between">
+            <div class="text-xs font-medium text-text-main flex flex-wrap items-center justify-between gap-1">
               <span class="flex items-center gap-1.5">
                 <span class="size-2 rounded-full bg-purple-500"></span>
                 <span>Opus Tier Override</span>
               </span>
-              <span class="text-[10px] font-mono text-text-subtle">ANTHROPIC_DEFAULT_OPUS_MODEL</span>
+              <span class="text-[10px] font-mono text-text-muted">ANTHROPIC_DEFAULT_OPUS_MODEL</span>
             </div>
             <input
               type="text"
               list="cli-tool-models-datalist"
               bind:value={tierOpus}
               placeholder="e.g. claude-opus-5-5[1m], opus, or combo-opus"
-              class="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           </div>
 
           <!-- Haiku Tier -->
           <div class="space-y-1">
-            <div class="text-xs font-medium text-text-main flex items-center justify-between">
+            <div class="text-xs font-medium text-text-main flex flex-wrap items-center justify-between gap-1">
               <span class="flex items-center gap-1.5">
                 <span class="size-2 rounded-full bg-teal-500"></span>
                 <span>Haiku Tier Override</span>
               </span>
-              <span class="text-[10px] font-mono text-text-subtle">ANTHROPIC_DEFAULT_HAIKU_MODEL</span>
+              <span class="text-[10px] font-mono text-text-muted">ANTHROPIC_DEFAULT_HAIKU_MODEL</span>
             </div>
             <input
               type="text"
               list="cli-tool-models-datalist"
               bind:value={tierHaiku}
               placeholder="e.g. claude-haiku-5-5, haiku, or oc/deepseek-v4.1-flash-free"
-              class="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           </div>
 
@@ -526,11 +526,11 @@
                 <span class="text-xs font-medium text-text-main">Auto-Compact Window Threshold</span>
                 <p class="text-[11px] text-text-muted">Compact context before token limit (e.g. 330k for DeepSeek, 200k for Claude)</p>
               </div>
-              <div class="flex items-center gap-1 bg-surface p-1 rounded-lg border border-border">
+              <div class="flex flex-wrap items-center gap-1 bg-surface p-1 rounded-lg border border-border">
                 {#each ['default', '100000', '180000', '200000', '330000', 'custom'] as opt}
                   <button
                     type="button"
-                    class="px-2 py-0.5 text-[10px] font-medium rounded transition-colors {autoCompactWindow === opt
+                    class="min-h-7 px-2.5 py-1 text-[11px] font-medium rounded whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {autoCompactWindow === opt
                       ? 'bg-brand-500 text-white'
                       : 'text-text-muted hover:text-text-main'}"
                     onclick={() => (autoCompactWindow = opt)}
@@ -557,7 +557,7 @@
                   type="number"
                   bind:value={customCompactWindow}
                   placeholder="330000"
-                  class="w-48 px-3 py-1 rounded-lg bg-surface border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+                  class="w-48 min-h-9 px-3 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 />
                 <span class="text-xs text-text-muted">tokens</span>
               </div>
@@ -567,12 +567,12 @@
       {:else}
         <!-- GENERIC CLI TOOLS MODEL SELECTOR (Codex, OpenCode, Droid, Cline, Pi, OMP...) -->
         <div class="p-3.5 rounded-xl bg-surface-2/70 border border-border/80 space-y-2">
-          <div class="text-xs font-bold text-text-main flex items-center justify-between">
+          <div class="text-xs font-bold text-text-main flex flex-wrap items-center justify-between gap-2">
             <span class="flex items-center gap-1.5">
               <Cpu class="w-4 h-4 text-brand-500" />
               <span>Configured Default Model</span>
             </span>
-            <span class="text-[10px] font-mono text-text-subtle">
+            <span class="text-[10px] font-mono text-text-muted">
               {toolId === 'codex' ? 'config.toml' : 'settings file'}
             </span>
           </div>
@@ -581,7 +581,7 @@
             list="cli-tool-models-datalist"
             bind:value={model}
             placeholder="e.g. codex-combo, gemini-2.5-pro, or gpt-4.5"
-            class="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-text-main font-mono focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
           <p class="text-[11px] text-text-muted">
             Select a combo or model ID configured in 9Router. Writes to the client's official config file.
@@ -595,7 +595,7 @@
           type="button"
           onclick={handleReset}
           disabled={resetting || applying}
-          class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-error/10 hover:bg-error/20 text-error border border-error/20 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+          class="w-full sm:w-auto min-h-9 flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-error/10 hover:bg-error/20 text-error border border-error/20 text-xs font-semibold whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/50 disabled:opacity-50"
         >
           {#if resetting}
             <Loader2 class="w-3.5 h-3.5 animate-spin" />
@@ -610,7 +610,7 @@
           type="button"
           onclick={handleApply}
           disabled={applying || resetting}
-          class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-md transition cursor-pointer disabled:opacity-50"
+          class="w-full sm:w-auto min-h-9 flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold whitespace-nowrap shadow-md transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-50"
         >
           {#if applying}
             <Loader2 class="w-3.5 h-3.5 animate-spin" />
@@ -627,7 +627,7 @@
     <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
       {#if envVars}
         <div class="space-y-2">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="text-xs font-bold text-text-main">One-Click Environment Setup</span>
             <button
               type="button"
@@ -637,10 +637,10 @@
                   .join('\n')
                 copyText(lines, 'all-env')
               }}
-              class="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:opacity-80 cursor-pointer"
+              class="min-h-7 px-2 rounded flex items-center gap-1 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {#if copiedSnippetId === 'all-env'}
-                <Check class="w-3.5 h-3.5 text-success" />
+                <Check class="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                 <span>Copied!</span>
               {:else}
                 <Copy class="w-3.5 h-3.5" />
@@ -649,18 +649,19 @@
             </button>
           </div>
 
-          <div class="p-3 rounded-xl bg-bg border border-border font-mono text-xs text-text-main space-y-1.5 select-all">
+          <div class="p-3 rounded-xl bg-bg border border-border font-mono text-xs text-text-main space-y-1.5 select-all overflow-x-auto">
             {#each Object.entries(envVars) as [key, val]}
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-text-muted">export {key}="<span class="text-brand-400">{key.includes('KEY') || key.includes('TOKEN') ? manualApiKey : val}</span>"</span>
+              <div class="flex items-center justify-between gap-2 min-w-0">
+                <span class="text-text-muted break-all">export {key}="<span class="text-brand-600 dark:text-brand-400">{key.includes('KEY') || key.includes('TOKEN') ? manualApiKey : val}</span>"</span>
                 <button
                   type="button"
                   onclick={() => copyText(`export ${key}="${key.includes('KEY') || key.includes('TOKEN') ? manualApiKey : val}"`, key)}
-                  class="p-1 text-text-subtle hover:text-text-main cursor-pointer"
+                  class="min-h-7 min-w-7 flex items-center justify-center rounded text-text-subtle hover:text-text-main hover:bg-surface-2 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   title="Copy single variable"
+                  aria-label={`Copy ${key}`}
                 >
                   {#if copiedSnippetId === key}
-                    <Check class="w-3 h-3 text-success" />
+                    <Check class="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
                   {:else}
                     <Copy class="w-3 h-3" />
                   {/if}

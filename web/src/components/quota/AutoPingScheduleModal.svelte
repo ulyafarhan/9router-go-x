@@ -125,8 +125,7 @@
 <Modal isOpen={open} title="Auto-ping settings" size="lg" onClose={onClose}>
   <div class="flex flex-col gap-4">
     <p class="text-sm text-text-muted">
-      Configure automated quota pings{connectionName ? ` for ${connectionName}` : ''} — pick one
-      mode.
+      Configure automated quota pings{connectionName ? ` for ${connectionName}` : ''}. Pick one mode.
     </p>
 
     <div class="grid grid-cols-3 gap-1 rounded-[10px] bg-surface-2 p-1">
@@ -136,7 +135,7 @@
           type="button"
           onclick={() => (mode = option.value)}
           aria-pressed={isSelected}
-          class="flex h-9 items-center justify-center gap-1.5 rounded-[8px] px-3 text-sm font-medium transition-all cursor-pointer {isSelected
+          class="flex min-h-9 items-center justify-center gap-1.5 rounded-[8px] px-3 text-sm font-medium whitespace-nowrap transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {isSelected
             ? 'bg-surface text-text-main shadow-sm'
             : 'text-text-muted hover:text-text-main'}"
         >
@@ -198,11 +197,11 @@
   </div>
 
   {#snippet footer()}
-    <div class="flex justify-end gap-2">
+    <div class="flex flex-wrap justify-end gap-2">
       <button
         type="button"
         onclick={onClose}
-        class="rounded-lg border border-border-subtle px-3 py-1.5 text-sm font-medium text-text-main transition-colors hover:bg-surface-2 cursor-pointer"
+        class="min-h-9 rounded-lg border border-border-subtle px-3.5 py-1.5 text-sm font-medium text-text-main transition-colors hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
         Cancel
       </button>
@@ -210,7 +209,7 @@
         type="button"
         onclick={handleSave}
         disabled={!canSave}
-        class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+        class="min-h-9 rounded-lg bg-primary px-3.5 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
         Save
       </button>

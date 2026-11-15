@@ -40,21 +40,21 @@
     outline:
       'border border-border text-text-main hover:bg-surface-2 hover:border-brand-500/40',
     ghost: 'text-text-muted hover:bg-surface-2 hover:text-text-main',
-    danger: 'bg-danger hover:bg-danger/80 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted',
-    success: 'bg-success hover:bg-success/80 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted',
+    danger: 'bg-red-600 hover:bg-red-700 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted',
+    success: 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted',
   }
 
   const sizes: Record<Size, string> = {
-    sm: 'h-7 px-3 text-xs rounded-[8px]',
-    md: 'h-9 px-4 text-sm rounded-[10px]',
-    lg: 'h-11 px-6 text-sm rounded-[10px]',
+    sm: 'min-h-8 h-auto px-3 py-1 text-xs rounded-[8px]',
+    md: 'min-h-9 h-auto px-4 py-1.5 text-sm rounded-[10px]',
+    lg: 'min-h-11 h-auto px-6 py-2 text-sm rounded-[10px]',
   }
 </script>
 
 <button
   {type}
   {title}
-  class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 {variants[variant]} {sizes[size]} {fullWidth ? 'w-full' : ''} {klass}"
+  class="inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 {variants[variant]} {sizes[size]} {fullWidth ? 'w-full' : ''} {klass}"
   disabled={disabled || loading}
   {onclick}
 >

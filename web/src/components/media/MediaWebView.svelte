@@ -137,7 +137,7 @@
             tabindex="0"
             onclick={() => openManageDialog(combo)}
             onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && openManageDialog(combo)}
-            class="group cursor-pointer text-left focus:outline-none"
+            class="group cursor-pointer rounded-xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <div class="p-2.5 rounded-xl border border-border bg-surface hover:border-brand-500/40 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all flex min-w-0 items-center gap-3">
               <div class="size-6 rounded-md bg-brand-500/10 flex items-center justify-center shrink-0">
@@ -179,7 +179,7 @@
             e.preventDefault()
             onSelectProvider(kind, p.id)
           }}
-          class="group block text-left focus:outline-none"
+          class="group block rounded-xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <div class="p-3 rounded-xl border border-border bg-surface hover:border-brand-500/40 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all {stats.allDisabled ? 'opacity-50' : ''}">
             <div class="flex min-w-0 items-center gap-3">
@@ -223,15 +223,21 @@
 </div>
 
 {#if creatingKind}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-    <div class="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4">
-      <div class="flex items-center justify-between">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    onkeydown={(e) => e.key === 'Escape' && (creatingKind = null)}
+  >
+    <div class="w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-elevated)] space-y-4">
+      <div class="flex items-center justify-between gap-2">
         <h3 class="text-base font-semibold text-text-main">Create {creatingKind === 'webSearch' ? 'Web Search' : 'Web Fetch'} Combo</h3>
-        <button onclick={() => (creatingKind = null)} class="text-text-muted hover:text-text-main cursor-pointer"><X class="w-5 h-5" /></button>
+        <button type="button" aria-label="Close" onclick={() => (creatingKind = null)} class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"><X class="w-5 h-5" /></button>
       </div>
       <div>
         <label for="new-combo-name" class="block text-xs font-medium text-text-muted mb-1">Combo Name</label>
-        <input id="new-combo-name" type="text" bind:value={newComboName} class="w-full px-3 py-2 text-sm rounded-lg border border-border bg-bg text-text-main focus:outline-none focus:border-brand-500" placeholder="e.g. search-combo-1" />
+        <input id="new-combo-name" type="text" bind:value={newComboName} class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm rounded-lg border border-border bg-bg text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50" placeholder="e.g. search-combo-1" />
       </div>
       <div class="flex justify-end gap-2 pt-2">
         <Button variant="secondary" size="sm" onclick={() => (creatingKind = null)}>Cancel</Button>
@@ -242,15 +248,21 @@
 {/if}
 
 {#if managingCombo}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-    <div class="w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    onkeydown={(e) => e.key === 'Escape' && (managingCombo = null)}
+  >
+    <div class="w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-elevated)] space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between gap-2">
         <h3 class="text-base font-semibold text-text-main">Manage Combo</h3>
-        <button onclick={() => (managingCombo = null)} class="text-text-muted hover:text-text-main cursor-pointer"><X class="w-5 h-5" /></button>
+        <button type="button" aria-label="Close" onclick={() => (managingCombo = null)} class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"><X class="w-5 h-5" /></button>
       </div>
       <div>
         <label for="edit-combo-name" class="block text-xs font-medium text-text-muted mb-1">Combo Name</label>
-        <input id="edit-combo-name" type="text" bind:value={manageName} class="w-full px-3 py-2 text-sm rounded-lg border border-border bg-bg text-text-main focus:outline-none focus:border-brand-500" />
+        <input id="edit-combo-name" type="text" bind:value={manageName} class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm rounded-lg border border-border bg-bg text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50" />
       </div>
       <div>
         <span class="block text-xs font-medium text-text-muted mb-2">Provider Models in Combo</span>
@@ -259,9 +271,9 @@
         {:else}
           <div class="space-y-1.5 mb-3">
             {#each manageModels as model, idx}
-              <div class="flex items-center justify-between px-3 py-1.5 rounded-lg border border-border bg-bg text-xs">
-                <span class="font-mono">{model}</span>
-                <button type="button" onclick={() => removeModelFromManage(idx)} class="text-red-500 hover:text-red-600 cursor-pointer" title="Remove"><X class="w-4 h-4" /></button>
+              <div class="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg border border-border bg-bg text-xs">
+                <span class="font-mono truncate">{model}</span>
+                <button type="button" onclick={() => removeModelFromManage(idx)} class="min-h-7 min-w-7 inline-flex items-center justify-center rounded text-red-600 dark:text-red-400 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50 cursor-pointer" title="Remove" aria-label="Remove {model}"><X class="w-4 h-4" /></button>
               </div>
             {/each}
           </div>
@@ -274,7 +286,7 @@
               type="button"
               onclick={() => addModelToManage(p)}
               disabled={isAdded}
-              class="px-2.5 py-1 text-xs rounded-lg border border-border bg-surface-2 hover:bg-surface-3 text-text-main flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              class="min-h-8 px-2.5 py-1 text-xs rounded-lg border border-border bg-surface-2 hover:bg-surface-3 text-text-main flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Plus class="w-3.5 h-3.5" /> {p.name}
             </button>

@@ -49,9 +49,16 @@ describe('nav model', () => {
     }
   })
 
-  it('uses every id exactly once', () => {
+  it('uses every id exactly once and keeps persona/jailbreak labels distinct', () => {
     expect(new Set(NAV_ORDER).size).toBe(NAV_ORDER.length)
     expect(NAV_ORDER.length).toBeGreaterThan(0)
+    expect(NAV_ORDER).toContain('persona')
+    const flatLinks = NAV_GROUPS.flatMap((g) => g.entries).filter((e) => e.kind === 'link')
+    const personaEntry = flatLinks.find((e) => e.id === 'persona')
+    const presetEntry = flatLinks.find((e) => e.id === 'jailbreak')
+    expect(personaEntry?.label).toBe('Task Persona')
+    expect(presetEntry?.label).toBe('Instruction Presets')
+    expect(personaEntry?.label).not.toBe(presetEntry?.label)
   })
 
   it('hides only the defaults, and offers every row to the arrangement', () => {

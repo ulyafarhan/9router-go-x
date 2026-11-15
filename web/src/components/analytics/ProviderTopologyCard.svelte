@@ -29,6 +29,8 @@
     onRefresh
   }: Props = $props()
 
+  let selectedNodeId = $state<string | null>(null)
+
   // Upstream parity (#4615): an empty list renders an empty state, it does not
   // fall back to a hardcoded free-provider roster. Those nodes have no
   // connection behind them, and upstream #4615 exists precisely because
@@ -407,9 +409,13 @@
     </div>
     <!-- HTML Provider Nodes -->
     {#each geometry.nodes as node (node.id)}
-      <div
-        class="absolute flex items-center gap-2.5 px-4 py-2.5 rounded-lg border-2 transition-all duration-300 bg-bg shadow-sm pointer-events-auto {node.isActive ? 'topology-node-active-bounce' : ''}"
-        style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%); border-color: {node.isActive ? node.color : node.isLast ? '#f59e0b' : 'var(--color-border)'}; box-shadow: {node.isActive ? `0 0 0 2px ${node.color}33` : node.isLast ? '0 0 8px rgba(245, 158, 11, 0.25)' : 'none'}; min-width: 150px;"
+      {@const isSelected = selectedNodeId === node.id}
+      <button
+        type="button"
+        onclick={() => (selectedNodeId = isSelected ? null : node.id)}
+        aria-pressed={isSelected}
+        class="absolute flex items-center gap-2.5 px-4 py-2.5 rounded-lg border-2 transition-all duration-300 bg-bg shadow-sm pointer-events-auto cursor-pointer text-left hover:border-brand-500/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 {node.isActive ? 'topology-node-active-bounce' : ''}"
+        style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%); border-color: {isSelected ? 'var(--color-brand-500, #3b82f6)' : node.isActive ? node.color : node.isLast ? '#f59e0b' : 'var(--color-border)'}; box-shadow: {node.isActive ? `0 0 0 2px ${node.color}33` : node.isLast ? '0 0 8px rgba(245, 158, 11, 0.25)' : 'none'}; min-width: 150px;"
       >
         <div
           class="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
@@ -449,7 +455,7 @@
             </span>
           </div>
         {/if}
-      </div>
+      </button>
     {/each}
   </div>
   <!-- Upstream empty state: nothing has been used in the period, so there is
@@ -490,5 +496,38 @@
     >
       <span class="material-symbols-outlined text-[16px]">crop_free</span>
     </button>
+    {#if onRefresh}
+      <button
+        type="button"
+        onclick={onRefresh}
+        class="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors border-t border-border cursor-pointer flex items-center justify-center"
+        title="Refresh topology"
+        aria-label="Refresh topology"
+      >
+        <span class="material-symbols-outlined text-[16px]">refresh</span>
+      </button>
+    {/if}
   </div>
+
+  {#if selectedNodeId}
+    {@const selected = geometry.nodes.find((n) => n.id === selectedNodeId)}
+    {#if selected}
+      <div class="absolute bottom-4 right-4 z-20 flex items-center gap-3 rounded-lg border border-border bg-surface/95 px-3.5 py-2 shadow-md backdrop-blur text-xs">
+        <div class="flex flex-col gap-0.5">
+          <span class="font-semibold text-text-main">{selected.name}</span>
+          <span class="text-text-muted font-mono text-[11px]">
+            {selected.id} · {selected.isActive ? 'Live' : selected.isError ? 'Error' : selected.isLast ? 'Recent' : 'Idle'}
+          </span>
+        </div>
+        <button
+          type="button"
+          onclick={() => (selectedNodeId = null)}
+          class="p-1 rounded text-text-muted hover:text-text-main hover:bg-surface-2 cursor-pointer"
+          aria-label="Clear selected provider"
+        >
+          <span class="material-symbols-outlined text-[14px]">close</span>
+        </button>
+      </div>
+    {/if}
+  {/if}
 </div>

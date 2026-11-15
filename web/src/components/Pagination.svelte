@@ -12,8 +12,8 @@
   let { page, pageCount, total, noun = 'preset', onPage }: Props = $props()
 </script>
 
-<div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border-subtle">
-  <span class="text-[11px] text-text-subtle">
+<div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border-subtle">
+  <span class="text-xs text-text-muted">
     Page {page} of {pageCount} · {total} {noun}{total === 1 ? '' : 's'}
   </span>
   <div class="flex items-center gap-2">
@@ -22,7 +22,7 @@
       onclick={() => onPage(Math.max(1, page - 1))}
       disabled={page <= 1}
       aria-label="Previous page"
-      class="px-3 py-1.5 rounded-[8px] bg-surface-3 border border-border-subtle text-text-main text-sm font-medium disabled:opacity-40 hover:bg-brand-500 hover:text-white transition-colors"
+      class="inline-flex items-center justify-center min-h-9 min-w-9 px-3 py-1.5 rounded-[8px] bg-surface-3 border border-border-subtle text-text-main text-sm font-medium cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-500 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
     >
       ‹
     </button>
@@ -31,7 +31,7 @@
       onclick={() => onPage(Math.min(pageCount, page + 1))}
       disabled={page >= pageCount}
       aria-label="Next page"
-      class="px-3 py-1.5 rounded-[8px] bg-surface-3 border border-border-subtle text-text-main text-sm font-medium disabled:opacity-40 hover:bg-brand-500 hover:text-white transition-colors"
+      class="inline-flex items-center justify-center min-h-9 min-w-9 px-3 py-1.5 rounded-[8px] bg-surface-3 border border-border-subtle text-text-main text-sm font-medium cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-500 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
     >
       ›
     </button>

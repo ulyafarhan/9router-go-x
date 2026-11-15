@@ -65,7 +65,7 @@
             type="button"
             onclick={() => remove(rule.text)}
             aria-label={`Remove ${rule.text}`}
-            class="text-text-subtle hover:text-error leading-none"
+            class="min-h-6 min-w-6 inline-flex items-center justify-center rounded text-text-subtle hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 leading-none cursor-pointer"
           >
             ×
           </button>
@@ -81,11 +81,11 @@
       onkeydown={(e) => {
         if (e.key === 'Enter') add()
       }}
-      class="flex-1 px-3 py-2 rounded-[10px] bg-surface-2 border border-border text-text-main text-sm outline-none focus:border-brand-500"
+      class="flex-1 min-h-9 px-3 py-2 rounded-[10px] bg-surface-2 border border-border text-text-main text-[16px] sm:text-sm outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
     />
     <select
       bind:value={mode}
-      class="px-3 py-2 rounded-[10px] bg-surface-2 border border-border text-text-main text-sm outline-none focus:border-brand-500"
+      class="min-h-9 px-3 py-2 rounded-[10px] bg-surface-2 border border-border text-text-main text-[16px] sm:text-sm outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
     >
       <option value={JAILBREAK_KEYWORD_WORD}>word</option>
       <option value={JAILBREAK_KEYWORD_PARTIAL}>partial</option>
@@ -94,7 +94,7 @@
     <button
       type="button"
       onclick={add}
-      class="px-3 py-2 rounded-[10px] border border-border text-text-main text-sm font-medium hover:bg-surface-2"
+      class="min-h-9 px-3 py-2 rounded-[10px] border border-border text-text-main text-sm font-medium hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
     >
       Add
     </button>

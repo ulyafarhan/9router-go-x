@@ -1,25 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import {
-    AlertCircle,
     Check,
-    Code2,
     Copy,
     ExternalLink,
-    FolderKanban,
-    HelpCircle,
     Key,
-    Layers,
-    Loader2,
     RefreshCw,
     Search,
-    Shield,
     Terminal,
-    Wrench,
-    X,
-    Zap
+    X
   } from 'lucide-svelte'
-  import Card from '../lib/ui/Card.svelte'
   import { copyToClipboard } from '../lib/clipboard'
   import { api, type APIKey } from '../api/client'
   import HermesToolCard from './cli-tools/HermesToolCard.svelte'
@@ -31,8 +21,7 @@
   }
 
   let {
-    apiKeys = [],
-    onRefresh
+    apiKeys = []
   }: Props = $props()
 
   let statuses = $state<Record<string, { installed?: boolean; version?: string | null; has9Router?: boolean } | null>>({})
@@ -99,7 +88,7 @@
     defaultKey?: string
   }
 
-  let toolsCatalog: ToolItem[] = $derived.by(() => [
+  let toolsCatalog: ToolItem[] = $derived.by((): ToolItem[] => [
     {
       id: 'claude',
       name: 'Claude Code',
@@ -394,7 +383,7 @@
       category: 'cli',
       image: '/providers/qwen.png',
       color: '#10B981',
-      description: 'Alibaba Qwen Code CLI — supports OpenAI, Anthropic & Gemini providers',
+      description: 'Alibaba Qwen Code CLI: supports OpenAI, Anthropic & Gemini providers',
       configType: 'guide',
       instructions: [
         `Configure ~/.qwen/settings.json:`,
@@ -433,7 +422,7 @@
       category: 'cli',
       image: '/providers/opendesign.png',
       color: '#7C3AED',
-      description: 'OpenDesign — claude.ai/design open-sourced! Agent-native design skills pack',
+      description: 'OpenDesign (claude.ai/design open-sourced). Agent-native design skills pack',
       configType: 'guide',
       instructions: [
         `/plugin marketplace add manalkaff/opendesign`,
@@ -447,14 +436,14 @@
       category: 'cli',
       image: '/providers/pi.png',
       color: '#111827',
-      description: 'pi coding agent — point ~/.pi/agent/models.json at the 9router-go gateway',
+      description: 'pi coding agent: point ~/.pi/agent/models.json at the 9router-go gateway',
       configType: 'guide',
       instructions: [
         `Add a 9router-go provider to ~/.pi/agent/models.json (Windows: %USERPROFILE%\\.pi\\agent\\models.json):`,
         `{"providers":{"9router":{"baseUrl":"${localOrigin}/v1","api":"openai-completions","apiKey":"${snippetApiKey}","models":[{"id":"kr/claude-sonnet-4.5","name":"9router kr/claude-sonnet-4.5","reasoning":true,"contextWindow":200000,"maxTokens":64000}]}}}`,
         noApiKey
-          ? `No API key exists yet — open API Keys, create one, then reopen this card. Pasting the line as-is will send "<your-9router-api-key>" upstream and get 401.`
-          : `Run 'pi', then /model to pick the model — models.json is re-read without a restart.`,
+          ? `No API key exists yet; open API Keys, create one, then reopen this card. Pasting the line as-is will send "<your-9router-api-key>" upstream and get 401.`
+          : `Run 'pi', then /model to pick the model; models.json is re-read without a restart.`,
         `If the model does not show up, set "api" to "openai-responses"; the gateway serves both lanes.`,
         `List every routable id with: curl -s ${localOrigin}/v1/models -H "Authorization: Bearer ${snippetApiKey}"`,
       ],
@@ -465,14 +454,14 @@
       category: 'cli',
       color: '#7C3AED',
       image: '/providers/omp.png',
-      description: 'omp coding agent — register the gateway in ~/.omp/agent/models.yml',
+      description: 'omp coding agent: register the gateway in ~/.omp/agent/models.yml',
       configType: 'guide',
       instructions: [
         `Add a 9router-go provider to ~/.omp/agent/models.yml (profiles live in ~/.omp/profiles/<name>/agent/):`,
         `providers:\n  9router:\n    baseUrl: ${localOrigin}/v1\n    api: openai-completions\n    authHeader: true\n    apiKey: 9ROUTER_API_KEY\n    models:\n      - id: kr/claude-sonnet-4.5\n        name: 9router kr/claude-sonnet-4.5\n        reasoning: true\n        contextWindow: 200000\n        maxTokens: 64000`,
         noApiKey
-          ? `No API key exists yet — open API Keys, create one, then reopen this card; 9ROUTER_API_KEY has to be set to that key before 'omp' can authenticate.`
-          : `export 9ROUTER_API_KEY="${snippetApiKey}" before starting 'omp' — the key is read from the environment first, and an unset variable is sent as its literal name.`,
+          ? `No API key exists yet; open API Keys, create one, then reopen this card; 9ROUTER_API_KEY has to be set to that key before 'omp' can authenticate.`
+          : `export 9ROUTER_API_KEY="${snippetApiKey}" before starting 'omp'; the key is read from the environment first, and an unset variable is sent as its literal name.`,
         `Run 'omp', then /model to select the model. 'omp models' lists everything the gateway exposes.`,
         `Use api: openai-responses instead if a model does not stream correctly over Chat Completions.`,
       ],
@@ -483,13 +472,13 @@
       category: 'cli',
       image: '/providers/crush.png',
       color: '#8B5CF6',
-      description: 'Crush AI terminal agent — configure ~/.config/crush/crush.json',
+      description: 'Crush AI terminal agent: configure ~/.config/crush/crush.json',
       configType: 'guide',
       instructions: [
         `Add 9router-go to your Crush config in ~/.config/crush/crush.json:`,
         `{"providers":{"9router":{"type":"openai-compat","base_url":"${localOrigin}/v1","api_key":"${snippetApiKey}","models":["claude-sonnet-4-6"]}}}`,
         noApiKey
-          ? `No API key exists yet — create one in API Keys first, then update "api_key".`
+          ? `No API key exists yet; create one in API Keys first, then update "api_key".`
           : `Point your active model to 9router in crush.json or pass --provider 9router on startup.`,
         `List available models: curl -s ${localOrigin}/v1/models -H "Authorization: Bearer ${snippetApiKey}"`,
       ],
@@ -500,13 +489,13 @@
       category: 'cli',
       image: '/providers/forge.png',
       color: '#F97316',
-      description: 'Forge AI coding CLI — configure ~/.forge/config.toml',
+      description: 'Forge AI coding CLI: configure ~/.forge/config.toml',
       configType: 'guide',
       instructions: [
         `Configure 9router-go endpoint under the [openai] section in ~/.forge/config.toml:`,
         `[openai]\nbase_url = "${localOrigin}/v1"\napi_key = "${snippetApiKey}"`,
         noApiKey
-          ? `No API key exists yet — create one in API Keys first, then update api_key.`
+          ? `No API key exists yet; create one in API Keys first, then update api_key.`
           : `Run 'forge' to start working with models routed through 9router-go.`,
         `Optionally override model via --model flag or config.toml default_model setting.`,
       ],
@@ -517,13 +506,13 @@
       category: 'cli',
       image: '/providers/smelt.svg',
       color: '#E11D48',
-      description: 'Smelt terminal coding agent — configure ~/.smelt/config.json',
+      description: 'Smelt terminal coding agent: configure ~/.smelt/config.json',
       configType: 'guide',
       instructions: [
         `Add 9router-go gateway configuration to ~/.smelt/config.json:`,
         `{"baseUrl":"${localOrigin}/v1","apiKey":"${snippetApiKey}","_managedBy":"9router"}`,
         noApiKey
-          ? `No API key exists yet — create one in API Keys first, then update "apiKey".`
+          ? `No API key exists yet; create one in API Keys first, then update "apiKey".`
           : `Launch 'smelt' in your workspace directory to begin.`,
         `Compatible with standard OpenAI completions and Responses endpoints.`,
       ],
@@ -534,13 +523,13 @@
       category: 'cli',
       image: '/providers/codewhale.svg',
       color: '#06B6D4',
-      description: 'CodeWhale terminal developer suite — configure ~/.codewhale/config.toml',
+      description: 'CodeWhale terminal developer suite: configure ~/.codewhale/config.toml',
       configType: 'guide',
       instructions: [
         `Add 9router-go endpoint under [openai] in ~/.codewhale/config.toml:`,
         `[openai]\nbase_url = "${localOrigin}/v1"\napi_key = "${snippetApiKey}"`,
         noApiKey
-          ? `No API key exists yet — create one in API Keys first, then update api_key.`
+          ? `No API key exists yet; create one in API Keys first, then update api_key.`
           : `Run 'codewhale' to begin terminal-assisted coding workflows.`,
         `Verify connection with: codewhale check`,
       ],
@@ -605,7 +594,7 @@
       type="button"
       onclick={loadStatuses}
       disabled={isLoading}
-      class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main font-semibold text-xs border border-border transition cursor-pointer self-start sm:self-auto"
+      class="flex items-center gap-1.5 min-h-9 px-3.5 py-2 rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main font-semibold text-xs whitespace-nowrap shrink-0 border border-border transition cursor-pointer self-start sm:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-50"
     >
       <RefreshCw class="w-3.5 h-3.5 {isLoading ? 'animate-spin text-brand-500' : 'text-text-muted'}" />
       <span>Scan Installed Tools</span>
@@ -613,14 +602,14 @@
   </div>
 
   <!-- SEARCH & CATEGORY FILTER TABS -->
-  <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <!-- Category Tabs -->
-    <div class="flex items-center gap-1.5 bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-auto">
+    <div class="flex flex-wrap items-center gap-1.5 bg-surface-2 p-1 rounded-xl border border-border w-full sm:w-auto">
       <button
         type="button"
         onclick={() => (activeCategory = 'all')}
-        class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {activeCategory === 'all'
-          ? 'bg-surface text-brand-500 shadow-sm'
+        class="flex-1 sm:flex-initial min-h-8 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {activeCategory === 'all'
+          ? 'bg-surface text-brand-600 dark:text-brand-400 shadow-sm'
           : 'text-text-muted hover:text-text-main'}"
       >
         All Tools ({toolsCatalog.length})
@@ -628,8 +617,8 @@
       <button
         type="button"
         onclick={() => (activeCategory = 'cli')}
-        class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {activeCategory === 'cli'
-          ? 'bg-surface text-brand-500 shadow-sm'
+        class="flex-1 sm:flex-initial min-h-8 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {activeCategory === 'cli'
+          ? 'bg-surface text-brand-600 dark:text-brand-400 shadow-sm'
           : 'text-text-muted hover:text-text-main'}"
       >
         CLI Agents
@@ -637,8 +626,8 @@
       <button
         type="button"
         onclick={() => (activeCategory = 'ide')}
-        class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {activeCategory === 'ide'
-          ? 'bg-surface text-brand-500 shadow-sm'
+        class="flex-1 sm:flex-initial min-h-8 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {activeCategory === 'ide'
+          ? 'bg-surface text-brand-600 dark:text-brand-400 shadow-sm'
           : 'text-text-muted hover:text-text-main'}"
       >
         IDE & Editors
@@ -646,8 +635,8 @@
       <button
         type="button"
         onclick={() => (activeCategory = 'mitm')}
-        class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {activeCategory === 'mitm'
-          ? 'bg-surface text-brand-500 shadow-sm'
+        class="flex-1 sm:flex-initial min-h-8 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {activeCategory === 'mitm'
+          ? 'bg-surface text-brand-600 dark:text-brand-400 shadow-sm'
           : 'text-text-muted hover:text-text-main'}"
       >
         MITM Proxies
@@ -656,26 +645,31 @@
 
     <!-- Search Input -->
     <div class="relative w-full sm:w-64">
-      <Search class="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+      <Search class="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
       <input
         type="text"
         bind:value={searchQuery}
         placeholder="Filter tools..."
-        class="w-full pl-9 pr-3 py-1.5 rounded-xl bg-surface-2 border border-border text-xs text-text-main focus:outline-none focus:border-brand-500"
+        class="w-full min-h-9 pl-9 pr-3 py-1.5 rounded-xl bg-surface-2 border border-border text-[16px] sm:text-xs text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
       />
     </div>
   </div>
 
   <!-- TOOLS GRID -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {#each filteredTools as tool (tool.id)}
       {@const status = getToolStatus(tool.id)}
       <div
         role="button"
         tabindex="0"
         onclick={() => (selectedTool = tool)}
-        onkeydown={(e) => e.key === 'Enter' && (selectedTool = tool)}
-        class="group p-4 rounded-xl bg-surface border border-border hover:border-brand-500/40 hover:shadow-lg transition cursor-pointer flex flex-col justify-between space-y-3"
+        onkeydown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            selectedTool = tool
+          }
+        }}
+        class="group p-4 rounded-xl bg-surface border border-border hover:border-brand-500/40 hover:shadow-lg transition cursor-pointer flex flex-col justify-between space-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
         <div class="space-y-2">
           <!-- Top Row: Icon, Name, Status Badge -->
@@ -753,10 +747,20 @@
 <!-- MODAL: Tool Configuration Detail -->
 {#if selectedTool}
   {@const status = getToolStatus(selectedTool.id)}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-xl p-6 rounded-2xl bg-surface border border-border shadow-2xl space-y-5">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+    role="presentation"
+    onclick={(e) => { if (e.target === e.currentTarget) selectedTool = null }}
+    onkeydown={(e) => { if (e.key === 'Escape') selectedTool = null }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${selectedTool.name} configuration`}
+      class="w-full max-w-xl max-h-[85vh] overflow-y-auto custom-scrollbar p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] space-y-5"
+    >
       <!-- Modal Header -->
-      <div class="flex items-start justify-between pb-3 border-b border-border">
+      <div class="flex items-start justify-between gap-3 pb-3 border-b border-border">
         <div class="flex items-center gap-3">
           <div class="size-12 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-surface-2 border border-border/50 p-1.5">
             {#if selectedTool.image}
@@ -806,7 +810,8 @@
         <button
           type="button"
           onclick={() => (selectedTool = null)}
-          class="text-text-muted hover:text-text-main cursor-pointer"
+          aria-label="Close modal"
+          class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           <X class="w-4 h-4" />
         </button>
@@ -852,15 +857,16 @@
               </button>
             </div>
 
-            <div class="p-3 rounded-xl bg-bg border border-border font-mono text-xs text-text-main space-y-1.5 select-all">
+            <div class="p-3 rounded-xl bg-bg border border-border font-mono text-xs text-text-main space-y-1.5 select-all overflow-x-auto">
               {#each Object.entries(selectedTool.envVars) as [key, val]}
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-text-muted">export {key}="<span class="text-brand-400">{key.includes('KEY') ? snippetApiKey : val}</span>"</span>
+                <div class="flex items-center justify-between gap-2 min-w-0">
+                  <span class="text-text-muted break-all">export {key}="<span class="text-brand-600 dark:text-brand-400">{key.includes('KEY') ? snippetApiKey : val}</span>"</span>
                   <button
                     type="button"
                     onclick={() => copyText(`export ${key}="${key.includes('KEY') ? snippetApiKey : val}"`, key)}
-                    class="p-1 text-text-subtle hover:text-text-main cursor-pointer"
+                    class="min-h-7 min-w-7 flex items-center justify-center rounded text-text-subtle hover:text-text-main cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     title="Copy single variable"
+                    aria-label={`Copy ${key}`}
                   >
                     {#if copiedSnippetId === key}
                       <Check class="w-3 h-3 text-success" />
@@ -895,16 +901,16 @@
       {/if}
 
       <!-- Footer -->
-      <div class="flex items-center justify-between pt-3 border-t border-border">
-        <div class="flex items-center gap-1.5 text-xs text-text-subtle font-mono">
-          <Key class="w-3.5 h-3.5 text-brand-500" />
-          <span>Active Token: {noApiKey ? 'none created' : `${effectiveApiKey.slice(0, 10)}••••`}</span>
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border">
+        <div class="flex items-center gap-1.5 text-xs text-text-muted font-mono min-w-0 truncate">
+          <Key class="w-3.5 h-3.5 text-brand-500 shrink-0" />
+          <span class="truncate">Active Token: {noApiKey ? 'none created' : `${effectiveApiKey.slice(0, 10)}••••`}</span>
         </div>
 
         <button
           type="button"
           onclick={() => (selectedTool = null)}
-          class="py-2 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-semibold text-xs transition cursor-pointer"
+          class="min-h-9 py-2 px-5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs whitespace-nowrap shrink-0 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           Done
         </button>

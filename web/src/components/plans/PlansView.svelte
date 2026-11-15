@@ -6,7 +6,7 @@
     { id: 'daily', label: 'Daily', hint: 'Resets every day (UTC)' },
     { id: 'weekly', label: 'Weekly', hint: 'Resets every Monday (UTC)' },
     { id: 'monthly', label: 'Monthly', hint: 'Resets on the 1st (UTC)' },
-    { id: 'total', label: 'Total', hint: 'Never resets — a lifetime budget' },
+    { id: 'total', label: 'Total', hint: 'Never resets; a lifetime budget' },
   ]
 
   let plans = $state<Plan[]>([])
@@ -171,7 +171,7 @@
   }
 
   function usd(micros: number): string {
-    if (!micros) return '—'
+    if (!micros) return '-'
     return `$${(micros / 1_000_000).toFixed(2)}`
   }
 
@@ -236,6 +236,7 @@
     </div>
   {:else}
     <div class="rounded-[14px] border border-border-subtle bg-surface overflow-hidden">
+      <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-surface-2 text-text-muted">
           <tr>
@@ -277,16 +278,20 @@
               <td class="px-4 py-3">
                 <div class="flex items-center justify-end gap-1">
                   <button
+                    type="button"
                     onclick={() => openEdit(plan)}
                     title="Edit plan"
-                    class="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2"
+                    aria-label={`Edit ${plan.name}`}
+                    class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
                     <Pencil size={15} />
                   </button>
                   <button
+                    type="button"
                     onclick={() => remove(plan)}
                     title="Delete plan"
-                    class="p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-error/10"
+                    aria-label={`Delete ${plan.name}`}
+                    class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted hover:text-error hover:bg-error/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/50"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -296,6 +301,7 @@
           {/each}
         </tbody>
       </table>
+      </div>
     </div>
   {/if}
 
@@ -314,8 +320,9 @@
         <button
           type="button"
           onclick={() => (isEditorOpen = false)}
-          class="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2"
+          class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
           title="Close"
+          aria-label="Close"
         >
           <X size={16} />
         </button>
@@ -327,14 +334,14 @@
           <input
             bind:value={formName}
             placeholder="Pro"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
         <label class="flex flex-col gap-1">
           <span class="text-xs text-text-muted">Budget period</span>
           <select
             bind:value={formPeriod}
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             {#each PERIODS as p (p.id)}
               <option value={p.id}>{p.label}</option>
@@ -351,8 +358,8 @@
         <span class="text-xs text-text-muted">Description</span>
         <input
           bind:value={formDescription}
-          placeholder="Paid tier — 120 RPM, $5 monthly budget"
-          class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+          placeholder="Paid tier: 120 RPM, $5 monthly budget"
+          class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </label>
 
@@ -362,7 +369,7 @@
           <input
             bind:value={formRpm}
             inputmode="numeric"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
         <label class="flex flex-col gap-1">
@@ -370,7 +377,7 @@
           <input
             bind:value={formTpm}
             inputmode="numeric"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
         <label class="flex flex-col gap-1">
@@ -378,7 +385,7 @@
           <input
             bind:value={formConcurrency}
             inputmode="numeric"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
       </div>
@@ -389,7 +396,7 @@
           <input
             bind:value={formBudgetUsd}
             inputmode="decimal"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
         <label class="flex flex-col gap-1">
@@ -397,7 +404,7 @@
           <input
             bind:value={formTokens}
             inputmode="numeric"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
         <label class="flex flex-col gap-1">
@@ -405,41 +412,41 @@
           <input
             bind:value={formAlertPct}
             inputmode="numeric"
-            class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main"
+            class="min-h-9 px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </label>
       </div>
 
       <label class="flex items-center gap-2 text-sm text-text-main">
-        <input type="checkbox" bind:checked={formHardCutoff} class="rounded" />
-        Hard cutoff — refuse requests once the budget is exhausted
+        <input type="checkbox" bind:checked={formHardCutoff} class="rounded accent-brand-500 cursor-pointer" />
+        Hard cutoff: refuse requests once the budget is exhausted
       </label>
 
       <label class="flex flex-col gap-1">
         <span class="text-xs text-text-muted">
-          Allowed models — one pattern per line, empty means every model. A trailing * is a
+          Allowed models: one pattern per line (empty means every model). A trailing * is a
           wildcard. A key's own list is added to this one.
         </span>
         <textarea
           bind:value={formModels}
           rows="4"
           placeholder={'gpt-4o\nclaude-*'}
-          class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-sm text-text-main font-mono"
+          class="px-3 py-2 rounded-[10px] border border-border bg-surface-2 text-[16px] sm:text-sm text-text-main font-mono focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         ></textarea>
       </label>
 
-      <div class="flex items-center justify-end gap-2">
+      <div class="flex flex-wrap items-center justify-end gap-2">
         <button
           type="button"
           onclick={() => (isEditorOpen = false)}
-          class="px-3 py-2 rounded-[10px] border border-border-subtle text-sm text-text-muted hover:text-text-main"
+          class="min-h-9 px-3.5 py-2 rounded-[10px] border border-border-subtle text-sm text-text-muted hover:text-text-main hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSaving}
-          class="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-primary text-white hover:bg-primary-hover text-sm font-medium disabled:opacity-60"
+          class="min-h-9 flex items-center gap-2 px-3.5 py-2 rounded-[10px] bg-primary text-white hover:bg-primary-hover text-sm font-medium whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-60"
         >
           {#if isSaving}<Loader2 size={15} class="animate-spin" />{/if}
           Save plan

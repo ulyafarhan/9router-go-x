@@ -195,9 +195,8 @@
       await api.createConnection({
         provider: provider.id,
         authType: 'apikey',
-        key: newConnKey.trim(),
+        apiKey: newConnKey.trim(),
         name: newConnName.trim() || undefined,
-        isActive: 1
       })
       showAddConnModal = false
       newConnKey = ''
@@ -397,8 +396,6 @@
   let isTestingExample = $state(false)
   let exampleResponse = $state<string | null>(null)
   let exampleLatency = $state<number | null>(null)
-
-  const ttsVoices = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer']
 
   $effect(() => {
     if (kind === 'video') {
@@ -608,6 +605,8 @@
           headers,
           body: JSON.stringify(reqObj),
         })
+      } else {
+        throw new Error(`Unsupported media kind: ${kind}`)
       }
 
       exampleLatency = Math.round(performance.now() - start)
@@ -698,14 +697,14 @@
   <!-- 2. Notice Banner (Free tier / sign up) -->
   {#if provider.notice?.text}
     <div class="flex flex-col gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2 sm:flex-row sm:items-center">
-      <span class="material-symbols-outlined text-[16px] text-blue-500 shrink-0">info</span>
-      <p class="min-w-0 flex-1 text-xs leading-relaxed text-blue-600 dark:text-blue-400">{provider.notice.text}</p>
+      <span class="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400 shrink-0">info</span>
+      <p class="min-w-0 flex-1 text-xs leading-relaxed text-blue-700 dark:text-blue-300">{provider.notice.text}</p>
       {#if provider.notice.apiKeyUrl}
         <a
           href={provider.notice.apiKeyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex justify-center rounded bg-blue-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-600 sm:py-0.5"
+          class="inline-flex items-center justify-center min-h-8 rounded bg-blue-700 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 sm:py-0.5"
         >
           Get API Key →
         </a>
@@ -727,21 +726,23 @@
               type="button"
               role="switch"
               aria-checked={isRoundRobin}
+              aria-label="Toggle round robin"
               onclick={toggleRoundRobin}
-              class="relative inline-flex shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/30 {isRoundRobin ? 'bg-brand-500' : 'bg-surface-3'} w-11 h-6"
+              class="relative inline-flex shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {isRoundRobin ? 'bg-brand-500' : 'bg-surface-3'} w-11 h-6"
             >
               <span class="pointer-events-none inline-block rounded-full bg-white shadow-sm transform transition duration-200 ease-in-out {isRoundRobin ? 'translate-x-5' : 'translate-x-0.5'} size-5 mt-0.5"></span>
             </button>
           </div>
           {#if isRoundRobin}
-            <div class="flex flex-wrap items-center gap-1.5 ml-2">
+            <div class="flex flex-wrap items-center gap-1.5 sm:ml-2">
               <span class="text-xs text-text-muted">Sticky:</span>
               <input
                 type="number"
                 min="1"
+                aria-label="Sticky limit"
                 bind:value={stickyLimit}
                 onchange={handleStickyLimitChange}
-                class="w-16 px-2 py-1 text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-brand-500"
+                class="w-16 min-h-8 px-2 py-1 text-[16px] sm:text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
           {/if}
@@ -839,7 +840,7 @@
   {#if kind !== 'tts' && kind !== 'webSearch' && kind !== 'webFetch'}
     <div class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-6">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-text-main">Models — {kind.toUpperCase()}</h2>
+        <h2 class="text-lg font-semibold text-text-main">Models ({kind.toUpperCase()})</h2>
       </div>
       {#if mediaModels.length === 0}
         <p class="text-xs text-text-muted italic">No models registered for this kind.</p>
@@ -960,7 +961,7 @@
           <div class="w-full min-w-0 flex-1">
             <select
               bind:value={selectedModelId}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
             >
               {#each mediaModels as m}
                 <option value={m.id}>{m.name || m.id}</option>
@@ -1000,7 +1001,7 @@
         <div class="w-full min-w-0 flex-1">
           <select
             bind:value={selectedConnId}
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           >
             <option value="">Auto (by priority)</option>
             {#each providerConns as conn}
@@ -1017,66 +1018,18 @@
           <div class="w-full min-w-0 flex-1 relative">
             <input
               bind:value={exampleInput}
-              class="w-full px-3 py-1.5 pr-7 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 pr-8 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
             {#if exampleInput}
               <button
                 type="button"
+                aria-label="Clear prompt"
                 onclick={() => (exampleInput = '')}
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors cursor-pointer"
+                class="min-h-7 min-w-7 inline-flex items-center justify-center rounded absolute right-1 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors cursor-pointer"
               >
                 <span class="material-symbols-outlined text-[14px]">close</span>
               </button>
             {/if}
-          </div>
-        </div>
-      {:else if kind === 'tts'}
-        <div class="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-          <span class="w-full text-xs font-medium text-text-muted sm:w-20 sm:shrink-0">Voice</span>
-          <div class="w-full min-w-0 flex-1">
-            <select
-              bind:value={selectedVoice}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
-            >
-              {#each ttsVoices as v}
-                <option value={v}>{v.charAt(0).toUpperCase() + v.slice(1)}</option>
-              {/each}
-            </select>
-          </div>
-        </div>
-        <div class="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-          <span class="w-full text-xs font-medium text-text-muted sm:w-20 sm:shrink-0">Input</span>
-          <div class="w-full min-w-0 flex-1 relative">
-            <input
-              bind:value={exampleInput}
-              class="w-full px-3 py-1.5 pr-7 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
-            />
-            {#if exampleInput}
-              <button
-                type="button"
-                onclick={() => (exampleInput = '')}
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors cursor-pointer"
-              >
-                <span class="material-symbols-outlined text-[14px]">close</span>
-              </button>
-            {/if}
-          </div>
-        </div>
-        <div class="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-          <span class="w-full text-xs font-medium text-text-muted sm:w-20 sm:shrink-0">Format</span>
-          <div class="w-full min-w-0 flex-1">
-            <select
-              bind:value={ttsResponseFormat}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
-            >
-              <option value="json">json (base64 preview)</option>
-              <option value="mp3">mp3 (direct audio)</option>
-              <option value="opus">opus</option>
-              <option value="aac">aac</option>
-              <option value="flac">flac</option>
-              <option value="wav">wav</option>
-              <option value="pcm">pcm</option>
-            </select>
           </div>
         </div>
       {:else if kind === 'embedding'}
@@ -1085,43 +1038,18 @@
           <div class="w-full min-w-0 flex-1 relative">
             <input
               bind:value={exampleInput}
-              class="w-full px-3 py-1.5 pr-7 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 pr-8 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
             {#if exampleInput}
               <button
                 type="button"
+                aria-label="Clear input"
                 onclick={() => (exampleInput = '')}
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors cursor-pointer"
+                class="min-h-7 min-w-7 inline-flex items-center justify-center rounded absolute right-1 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors cursor-pointer"
               >
                 <span class="material-symbols-outlined text-[14px]">close</span>
               </button>
             {/if}
-          </div>
-        </div>
-      {:else if kind === 'stt'}
-        <div class="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-          <span class="w-full text-xs font-medium text-text-muted sm:w-20 sm:shrink-0">Audio File</span>
-          <div class="w-full min-w-0 flex-1">
-            <input
-              type="text"
-              bind:value={exampleInput}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
-            />
-          </div>
-        </div>
-        <div class="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-          <span class="w-full text-xs font-medium text-text-muted sm:w-20 sm:shrink-0">Response Format</span>
-          <div class="w-full min-w-0 flex-1">
-            <select
-              bind:value={sttResponseFormat}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
-            >
-              <option value="json">json</option>
-              <option value="text">text</option>
-              <option value="srt">srt</option>
-              <option value="verbose_json">verbose_json</option>
-              <option value="vtt">vtt</option>
-            </select>
           </div>
         </div>
       {:else if kind === 'systemone'}
@@ -1131,7 +1059,7 @@
             <input
               bind:value={exampleInput}
               placeholder="Situation, support ticket, or text to evaluate"
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1141,7 +1069,7 @@
             <input
               bind:value={exampleQuestion}
               placeholder="Enter evaluation question or criteria"
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1151,7 +1079,7 @@
           <div class="w-full min-w-0 flex-1 relative">
             <input
               bind:value={exampleInput}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1160,7 +1088,7 @@
           <div class="w-full min-w-0 flex-1">
             <select
               bind:value={searchType}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
             >
               <option value="web">web</option>
               <option value="news">news</option>
@@ -1175,7 +1103,7 @@
               min="1"
               max="100"
               bind:value={maxResults}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1185,7 +1113,7 @@
             <input
               type="text"
               bind:value={country}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1195,7 +1123,7 @@
             <input
               type="text"
               bind:value={language}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1205,7 +1133,7 @@
           <div class="w-full min-w-0 flex-1">
             <input
               bind:value={exampleInput}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1214,7 +1142,7 @@
           <div class="w-full min-w-0 flex-1">
             <select
               bind:value={fetchFormat}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 text-text-main cursor-pointer"
             >
               <option value="markdown">markdown</option>
               <option value="text">text</option>
@@ -1229,7 +1157,7 @@
               type="number"
               min="0"
               bind:value={fetchMaxChars}
-              class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+              class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 text-text-main font-mono"
             />
           </div>
         </div>
@@ -1243,7 +1171,7 @@
             <button
               type="button"
               onclick={copyCurl}
-              class="inline-flex items-center gap-1 text-xs text-text-muted hover:text-primary transition-colors cursor-pointer mr-2"
+              class="inline-flex items-center gap-1 min-h-8 px-1.5 rounded text-xs text-text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer mr-2"
             >
               <span class="material-symbols-outlined text-[14px]">content_copy</span>
               {copiedCurl ? 'Copied' : 'Copy'}
@@ -1278,51 +1206,60 @@
 
 <!-- Modal: Add Connection -->
 {#if showAddConnModal}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    onkeydown={(e) => e.key === 'Escape' && (showAddConnModal = false)}
+  >
     <div
       class="absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity"
       onclick={() => (showAddConnModal = false)}
       role="presentation"
     ></div>
-    <div class="relative w-full max-w-md bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] p-6 z-10 flex flex-col gap-4">
-      <div class="flex items-center justify-between">
+    <div class="relative w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] p-6 z-10 flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-2">
         <h3 class="text-base font-semibold text-text-main">Add {provider.name} Connection</h3>
         <button
           type="button"
+          aria-label="Close"
           onclick={() => (showAddConnModal = false)}
-          class="p-1 rounded text-text-muted hover:text-text-main cursor-pointer"
+          class="min-h-8 min-w-8 inline-flex items-center justify-center p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           <span class="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
       {#if newConnError}
-        <div class="p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 text-xs">
+        <div class="p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs">
           {newConnError}
         </div>
       {/if}
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-text-muted">API Key / Token</label>
+        <label for="media-add-conn-key" class="text-xs font-medium text-text-muted">API Key / Token</label>
         <input
+          id="media-add-conn-key"
           type="password"
           bind:value={newConnKey}
           placeholder="Enter API key"
-          class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-text-main focus:outline-none focus:border-brand-500 font-mono"
+          class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm border border-border rounded-lg bg-background text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50 font-mono"
         />
       </div>
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-text-muted">Display Name (optional)</label>
+        <label for="media-add-conn-name" class="text-xs font-medium text-text-muted">Display Name (optional)</label>
         <input
+          id="media-add-conn-name"
           type="text"
           bind:value={newConnName}
           placeholder="e.g. Primary Account"
-          class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-text-main focus:outline-none focus:border-brand-500"
+          class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm border border-border rounded-lg bg-background text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </div>
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
         <button
           type="button"
           onclick={() => (showAddConnModal = false)}
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main border border-border cursor-pointer"
+          class="min-h-9 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           Cancel
         </button>
@@ -1330,7 +1267,7 @@
           type="button"
           onclick={handleSaveNewConnection}
           disabled={isSavingConn}
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-50"
+          class="min-h-9 px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-50"
         >
           {isSavingConn ? 'Saving...' : 'Add Connection'}
         </button>
@@ -1341,47 +1278,55 @@
 
 <!-- Modal: Edit Connection -->
 {#if editingConn}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    onkeydown={(e) => e.key === 'Escape' && (editingConn = null)}
+  >
     <div
       class="absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity"
       onclick={() => (editingConn = null)}
       role="presentation"
     ></div>
-    <div class="relative w-full max-w-md bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] p-6 z-10 flex flex-col gap-4">
-      <div class="flex items-center justify-between">
+    <div class="relative w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] p-6 z-10 flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-2">
         <h3 class="text-base font-semibold text-text-main">Edit Connection</h3>
         <button
           type="button"
+          aria-label="Close"
           onclick={() => (editingConn = null)}
-          class="p-1 rounded text-text-muted hover:text-text-main cursor-pointer"
+          class="min-h-8 min-w-8 inline-flex items-center justify-center p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           <span class="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-text-muted">Display Name</label>
+        <label for="media-edit-conn-name" class="text-xs font-medium text-text-muted">Display Name</label>
         <input
+          id="media-edit-conn-name"
           type="text"
           bind:value={editConnName}
-          class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-text-main focus:outline-none focus:border-brand-500"
+          class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm border border-border rounded-lg bg-background text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </div>
       <div class="flex items-center justify-between py-1">
         <span class="text-xs font-medium text-text-muted">Active</span>
-        <input type="checkbox" bind:checked={isEditingActive} class="size-4 rounded text-brand-500 focus:ring-brand-500" />
+        <input type="checkbox" bind:checked={isEditingActive} class="size-4 rounded accent-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer" />
       </div>
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
         <button
           type="button"
           onclick={() => (editingConn = null)}
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main border border-border cursor-pointer"
+          class="min-h-9 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="button"
           onclick={handleSaveEditedConn}
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors cursor-pointer"
+          class="min-h-9 px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           Save
         </button>

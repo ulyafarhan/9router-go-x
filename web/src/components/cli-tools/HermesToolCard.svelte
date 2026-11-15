@@ -212,7 +212,7 @@
       if (notUpdated.length === 0) {
         message = { type: 'success', text: res.message || `Endpoint and API key applied to ${res.updated ?? 0} profile(s).` }
       } else {
-        const detail = notUpdated.map((r) => `${r.profile} — ${r.reason || r.status}`).join('; ')
+        const detail = notUpdated.map((r) => `${r.profile}: ${r.reason || r.status}`).join('; ')
         message = {
           type: (res.updated ?? 0) > 0 ? 'success' : 'error',
           text: `Updated ${res.updated ?? 0} profile(s), skipped ${notUpdated.length}: ${detail}`,
@@ -264,12 +264,12 @@
       <span>Checking Hermes Agent…</span>
     </div>
   {:else if settings && !settings.installed}
-    <div class="flex flex-col gap-3 p-4 rounded-[10px] bg-yellow-500/10 border border-yellow-500/30">
+    <div class="flex flex-col gap-3 p-4 rounded-[10px] bg-amber-500/10 border border-amber-500/30">
       <div class="flex items-start gap-3">
-        <AlertTriangle class="w-5 h-5 text-warning shrink-0" />
-        <div class="flex-1">
-          <p class="font-semibold text-warning">Hermes Agent not detected locally</p>
-          <p class="text-sm text-text-muted">
+        <AlertTriangle class="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0" />
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-amber-800 dark:text-amber-300">Hermes Agent not detected locally</p>
+          <p class="text-sm text-text-muted break-words">
             Install: curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
           </p>
         </div>
@@ -277,7 +277,7 @@
       <button
         type="button"
         onclick={() => (showManualConfig = true)}
-        class="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold bg-warning/20 border border-warning/40 text-warning cursor-pointer"
+        class="self-start min-h-8 flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
         <Copy class="w-3.5 h-3.5" />
         Manual Config
@@ -307,36 +307,36 @@
               </button>
             {/each}
           </div>
-          <div class="flex items-center gap-2 text-xs text-text-muted">
+          <div class="flex flex-wrap items-center gap-2 text-xs text-text-muted">
             <Terminal class="w-3.5 h-3.5 shrink-0" />
             <code class="px-1.5 py-0.5 rounded bg-surface-2 font-mono text-[11px]">{runCommand}</code>
-            <button type="button" onclick={copyCommand} class="p-0.5 rounded cursor-pointer {copiedCommand === runCommand ? 'text-success' : 'text-text-muted hover:text-text-main'}" title="Copy command">
+            <button type="button" onclick={copyCommand} class="p-1 rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {copiedCommand === runCommand ? 'text-emerald-700 dark:text-emerald-400' : 'text-text-muted hover:text-text-main'}" title="Copy command" aria-label="Copy command">
               {#if copiedCommand === runCommand}
                 <Check class="w-3.5 h-3.5" />
               {:else}
                 <Copy class="w-3.5 h-3.5" />
               {/if}
             </button>
-            <span class="hidden sm:inline">— every profile runs as its own agent with its own model.</span>
+            <span class="hidden sm:inline">Every profile runs as its own agent with its own model.</span>
           </div>
         </div>
       {/if}
 
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2.5">
         <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
           <span class="text-xs font-semibold text-text-main sm:w-32 sm:text-right sm:text-sm">Endpoint</span>
           <input
             type="text"
             bind:value={endpoint}
             placeholder="{localOrigin} (the server appends /v1)"
-            class="flex-1 min-w-0 px-2 py-1.5 rounded bg-surface border border-border text-xs text-text-main focus:outline-none focus:ring-1 focus:ring-brand-500/50"
+            class="flex-1 min-w-0 min-h-8 px-2.5 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </div>
 
         {#if currentBaseUrl}
           <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
             <span class="text-xs font-semibold text-text-main sm:w-32 sm:text-right sm:text-sm">Current</span>
-            <span class="flex-1 min-w-0 truncate rounded bg-surface-2 px-2 py-1.5 text-xs text-text-muted">{currentBaseUrl}</span>
+            <span class="flex-1 min-w-0 truncate rounded-lg bg-surface-2 px-2.5 py-1.5 text-xs text-text-muted">{currentBaseUrl}</span>
           </div>
         {/if}
 
@@ -344,7 +344,7 @@
           <span class="text-xs font-semibold text-text-main sm:w-32 sm:text-right sm:text-sm">API Key</span>
           <select
             bind:value={selectedApiKey}
-            class="flex-1 min-w-0 px-2 py-1.5 rounded bg-surface border border-border text-xs text-text-main focus:outline-none focus:ring-1 focus:ring-brand-500/50"
+            class="flex-1 min-w-0 min-h-8 px-2.5 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             {#if apiKeys.length === 0}
               <option value="">No key created</option>
@@ -361,7 +361,7 @@
             type="text"
             bind:value={selectedModel}
             placeholder="provider/model-id"
-            class="flex-1 min-w-0 px-2 py-1.5 rounded bg-surface border border-border text-xs text-text-main focus:outline-none focus:ring-1 focus:ring-brand-500/50"
+            class="flex-1 min-w-0 min-h-8 px-2.5 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           />
         </div>
 
@@ -369,7 +369,7 @@
           <button
             type="button"
             onclick={() => (showRoles = !showRoles)}
-            class="flex items-center gap-1 text-xs font-semibold text-text-main hover:text-brand-500 cursor-pointer"
+            class="min-h-7 flex items-center gap-1 rounded px-1 text-xs font-semibold text-text-main hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <ChevronRight class="w-4 h-4 text-text-muted transition-transform {showRoles ? 'rotate-90' : ''}" />
             Model Roles (optional)
@@ -381,13 +381,13 @@
                   <span class="text-xs font-semibold text-text-main sm:w-32 sm:text-right sm:text-sm truncate" title={role.label}>
                     {hermesRoleLabel(role.id)}
                   </span>
-                  <input
-                    type="text"
-                    value={roleModels[role.id] ?? ''}
-                    oninput={(e) => (roleModels = { ...roleModels, [role.id]: e.currentTarget.value })}
-                    placeholder="inherit default"
-                    class="flex-1 min-w-0 px-2 py-1.5 rounded bg-surface border border-border text-xs text-text-main focus:outline-none focus:ring-1 focus:ring-brand-500/50"
-                  />
+                    <input
+                      type="text"
+                      value={roleModels[role.id] ?? ''}
+                      oninput={(e) => (roleModels = { ...roleModels, [role.id]: e.currentTarget.value })}
+                      placeholder="inherit default"
+                      class="flex-1 min-w-0 min-h-8 px-2.5 py-1.5 rounded-lg bg-surface border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
+                    />
                 </div>
               {/each}
               <p class="text-xs text-text-muted">Empty roles inherit the default model.</p>
@@ -397,22 +397,22 @@
       </div>
 
       {#if message}
-        <div class="flex items-start gap-2 px-2 py-1.5 rounded text-xs {message.type === 'success' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}">
+        <div class="flex items-start gap-2 px-3 py-2 rounded-lg text-xs {message.type === 'success' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-danger/10 text-danger'}">
           {#if message.type === 'success'}
-            <Check class="w-3.5 h-3.5 shrink-0" />
+            <Check class="w-3.5 h-3.5 shrink-0 mt-0.5" />
           {:else}
-            <AlertTriangle class="w-3.5 h-3.5 shrink-0" />
+            <AlertTriangle class="w-3.5 h-3.5 shrink-0 mt-0.5" />
           {/if}
           <span class="break-words">{message.text}</span>
         </div>
       {/if}
 
-      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 pt-1">
         <button
           type="button"
           onclick={handleApply}
           disabled={!selectedModel.trim() || applying}
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-brand-500 hover:bg-brand-600 text-white font-semibold text-xs disabled:opacity-50 cursor-pointer"
+          class="min-h-9 flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-brand-500 hover:bg-brand-600 text-white font-semibold text-xs whitespace-nowrap shrink-0 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           <Save class="w-3.5 h-3.5" />Apply
         </button>
@@ -422,7 +422,7 @@
             onclick={handleApplyAll}
             disabled={applyingAll}
             title="Set the endpoint and API key on every profile that routes through 9router. Each profile keeps its own model."
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-surface-2 hover:bg-surface-3 text-text-main border border-border font-semibold text-xs disabled:opacity-50 cursor-pointer"
+            class="min-h-9 flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-surface-2 hover:bg-surface-3 text-text-main border border-border font-semibold text-xs whitespace-nowrap shrink-0 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <Layers class="w-3.5 h-3.5" />Apply to All Profiles
           </button>
@@ -431,14 +431,14 @@
           type="button"
           onclick={handleReset}
           disabled={!settings.has9Router || resetting}
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-border text-text-main font-semibold text-xs disabled:opacity-50 cursor-pointer"
+          class="min-h-9 flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-[10px] border border-border text-text-main hover:bg-surface-2 font-semibold text-xs whitespace-nowrap shrink-0 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           <RotateCcw class="w-3.5 h-3.5" />Reset
         </button>
         <button
           type="button"
           onclick={() => (showManualConfig = true)}
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-text-muted font-semibold text-xs hover:text-text-main cursor-pointer"
+          class="min-h-9 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-[10px] text-text-muted font-semibold text-xs whitespace-nowrap shrink-0 hover:text-text-main hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           <Copy class="w-3.5 h-3.5" />Manual Config
         </button>
@@ -452,26 +452,48 @@
 </Card>
 
 {#if showManualConfig}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onclick={() => (showManualConfig = false)} role="presentation">
-    <div class="w-full max-w-2xl p-6 rounded-2xl bg-surface border border-border shadow-2xl space-y-4" onclick={(e) => e.stopPropagation()} role="presentation">
-      <div class="flex items-start justify-between pb-3 border-b border-border">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+    onclick={() => (showManualConfig = false)}
+    onkeydown={(e) => { if (e.key === 'Escape') showManualConfig = false }}
+    role="presentation"
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Hermes Agent Manual Configuration"
+      class="w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] space-y-4"
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+    >
+      <div class="flex items-start justify-between gap-3 pb-3 border-b border-border">
         <div>
-          <h3 class="text-base font-bold text-text-main">Hermes Agent — Manual Configuration</h3>
+          <h3 class="text-base font-bold text-text-main">Hermes Agent Manual Configuration</h3>
           <p class="text-xs text-text-muted">Write these into {hermesHomeDir(activeProfile)} when you prefer to edit the files yourself.</p>
         </div>
-        <button type="button" onclick={() => (showManualConfig = false)} class="text-text-muted hover:text-text-main cursor-pointer" title="Close">
+        <button
+          type="button"
+          onclick={() => (showManualConfig = false)}
+          class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+          title="Close"
+          aria-label="Close"
+        >
           <X class="w-4 h-4" />
         </button>
       </div>
       {#each manualConfigs as cfg (cfg.filename)}
         <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-text-main font-mono">{cfg.filename}</span>
-            <button type="button" onclick={() => copyToClipboard(cfg.content)} class="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:opacity-80 cursor-pointer">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-text-main font-mono break-all">{cfg.filename}</span>
+            <button
+              type="button"
+              onclick={() => copyToClipboard(cfg.content)}
+              class="min-h-7 px-2 rounded flex items-center gap-1 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:bg-surface-2 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+            >
               <Copy class="w-3.5 h-3.5" />Copy
             </button>
           </div>
-          <pre class="p-3 rounded-xl bg-bg border border-border font-mono text-xs text-text-main whitespace-pre-wrap select-all">{cfg.content}</pre>
+          <pre class="p-3 rounded-xl bg-bg border border-border font-mono text-xs text-text-main whitespace-pre-wrap break-all overflow-x-auto select-all">{cfg.content}</pre>
         </div>
       {/each}
     </div>

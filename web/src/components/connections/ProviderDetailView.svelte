@@ -47,7 +47,6 @@
     buildAvailableModels,
     fetchProviderModelsData,
     fetchSuggestedModels,
-    getIconPath,
     isChatModel,
     isConnectionError,
     type CustomModelData,
@@ -766,7 +765,7 @@
     const q = proxyPoolSearch.trim().toLowerCase()
     if (!q) return proxyPools
     return proxyPools.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.proxyUrl.toLowerCase().includes(q)
+      (p) => p.name.toLowerCase().includes(q) || (p.proxyUrl ?? '').toLowerCase().includes(q)
     )
   })
 
@@ -826,7 +825,6 @@
     }
     return providerConnections.find((c) => c.isActive === 1) ?? providerConnections[0]
   })
-  let freebuffConnection = $derived(targetFreebuffConn)
   let freebuffSession = $state<FreebuffSessionStatusResponse | null>(null)
   let isLoadingSession = $state(false)
   let isAuthorizingFreebuff = $state(false)
@@ -834,7 +832,7 @@
   let currentFreebuffInit = $state<{
     fingerprintId: string
     fingerprintHash: string
-    expiresAt: number
+    expiresAt: string | number
     loginUrl: string
   } | null>(null)
 
@@ -960,7 +958,7 @@
     try {
       const [modelsData, settingsData, poolsData, aliasesData, capsData] = await Promise.all([
         fetchProviderModelsData(providerId, storageAlias),
-        api.getSettings().catch(() => ({})),
+        api.getSettings().catch((): Settings => ({})),
         api.getProxyPools().catch(() => []),
         api.getModelAliases().catch(() => ({ aliases: {} })),
         // The caps endpoint answers for compatible nodes too: a node with
@@ -3401,13 +3399,13 @@
   })
 </script>
 
-<div class="flex min-w-0 flex-col gap-6 px-1 sm:gap-8 sm:px-0">
+<div class="flex min-w-0 flex-col gap-6 lg:gap-7">
   <!-- 0. Header: Back button + Provider Icon & Name -->
   <div class="min-w-0">
     <button
       type="button"
       onclick={onBack}
-      class="inline-flex items-center gap-1 text-sm text-text-muted hover:text-primary transition-colors mb-4 cursor-pointer"
+      class="inline-flex items-center gap-1 min-h-8 rounded-md px-1 text-sm text-text-muted hover:text-primary transition-colors mb-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
     >
       <span class="material-symbols-outlined text-lg">arrow_back</span>
       Back to Providers
@@ -3480,10 +3478,10 @@
 
   <!-- 1. Risk Notice (for OAuth / subscription providers) -->
   {#if hasRiskNotice}
-    <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-      <span class="material-symbols-outlined text-[16px] text-yellow-500 mt-0.5 shrink-0">warning</span>
-      <p class="text-xs text-red-600 dark:text-yellow-400 leading-relaxed">
-        ⚠️ Risk Notice: This provider uses a subscription/OAuth session not officially licensed for proxy/router use. Account may be restricted or banned. Use at your own risk.
+    <div class="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
+      <span class="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-400 mt-0.5 shrink-0">warning</span>
+      <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+        Risk Notice: This provider uses a subscription/OAuth session not officially licensed for proxy/router use. Account may be restricted or banned. Use at your own risk.
       </p>
     </div>
   {/if}
@@ -3508,57 +3506,57 @@
 
   <!-- 2. Compatible Node details (if custom node) — upstream parity: endpoint line + Add API Key / Edit / Delete -->
   {#if selectedNode}
-    <div class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-6">
-      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div class="min-w-0">
-          <h2 class="text-lg font-semibold">
+    <div class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-5 sm:p-6">
+      <div class="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0 flex-1">
+          <h2 class="text-lg font-semibold text-text-main">
             {isAnthropicCompatibleNode ? 'Anthropic Compatible Details' : 'OpenAI Compatible Details'}
           </h2>
-          <p class="break-all text-sm text-text-muted">
+          <p class="mt-1.5 break-words [overflow-wrap:anywhere] text-sm text-text-muted leading-relaxed">
             {isAnthropicCompatibleNode
               ? `Messages API · ${(selectedNode.baseUrl || '').replace(/\/$/, '')}/messages`
               : `${isResponsesNode ? 'Responses API' : 'Chat Completions'} · ${(selectedNode.baseUrl || '').replace(/\/$/, '')}/${isResponsesNode ? 'responses' : 'chat/completions'}`}
           </p>
         </div>
-        <div class="grid grid-cols-1 gap-2 sm:flex sm:items-center">
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
             onclick={openAddKeyModal}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">add</span>
+            <span class="material-symbols-outlined text-[16px]">add</span>
             Add API Key
           </button>
           <button
             type="button"
             onclick={() => (showExportKeysModal = true)}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">download</span>
+            <span class="material-symbols-outlined text-[16px]">download</span>
             Export Keys
           </button>
           <button
             type="button"
             onclick={() => (showShareProviderModal = true)}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">link</span>
+            <span class="material-symbols-outlined text-[16px]">link</span>
             Share
           </button>
           <button
             type="button"
             onclick={() => (showEditNodeModal = true)}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">edit</span>
+            <span class="material-symbols-outlined text-[16px]">edit</span>
             Edit
           </button>
           <button
             type="button"
             onclick={() => handleDeleteProviderNode(selectedNode!.id)}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">delete</span>
+            <span class="material-symbols-outlined text-[16px]">delete</span>
             Delete
           </button>
         </div>
@@ -3608,7 +3606,7 @@
           value={freeProxyPoolId}
           onchange={(e) => handleFreeProxyChange(e.currentTarget.value, freeRotateStrategy)}
           disabled={isSavingFreeProxy || freeRotateStrategy !== 'none'}
-          class="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-primary disabled:opacity-50 cursor-pointer"
+          class="w-full min-h-9 bg-surface-2 border border-border rounded-lg px-3 py-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 disabled:opacity-50 cursor-pointer"
         >
           <option value="none">None (direct)</option>
           {#each activeProxyPools as pool}
@@ -3617,7 +3615,7 @@
         </select>
         {#if freeRotateStrategy !== 'none'}
           <p class="text-xs text-text-muted">
-            Pool selector is ignored when rotation is active — all active pools are used.
+            Pool selector is ignored when rotation is active; all active pools are used.
           </p>
         {/if}
       </div>
@@ -3629,7 +3627,7 @@
           <button
             type="button"
             onclick={() => handleFreeProxyChange(freeProxyPoolId, 'none')}
-            class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer {freeRotateStrategy === 'none'
+            class="min-h-9 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {freeRotateStrategy === 'none'
               ? 'bg-primary text-white border-primary'
               : 'bg-surface-2 text-text-main border-border hover:bg-surface-3'}"
           >
@@ -3639,7 +3637,7 @@
             type="button"
             onclick={() => handleFreeProxyChange(freeProxyPoolId, 'round-robin')}
             disabled={activeProxyPools.length < 2}
-            class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed {freeRotateStrategy === 'round-robin'
+            class="min-h-9 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed {freeRotateStrategy === 'round-robin'
               ? 'bg-primary text-white border-primary'
               : 'bg-surface-2 text-text-main border-border hover:bg-surface-3'}"
           >
@@ -3649,7 +3647,7 @@
             type="button"
             onclick={() => handleFreeProxyChange(freeProxyPoolId, 'random')}
             disabled={activeProxyPools.length < 2}
-            class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed {freeRotateStrategy === 'random'
+            class="min-h-9 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed {freeRotateStrategy === 'random'
               ? 'bg-primary text-white border-primary'
               : 'bg-surface-2 text-text-main border-border hover:bg-surface-3'}"
           >
@@ -3665,18 +3663,18 @@
     </div>
   {:else}
   <!-- 3. Connections Card -->
-  <div class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-6">
+  <div class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-5 sm:p-6">
     <!-- Header -->
-    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="text-lg font-semibold">Connections</h2>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+    <div class="mb-4 flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between">
+      <h2 class="text-lg font-semibold text-text-main">Connections</h2>
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
         {#if selectedConnIds.length > 0}
           <button
             type="button"
             onclick={handleDeleteSelected}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30 h-7 px-3 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30 min-h-8 h-auto px-3 py-1 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">delete</span>
+            <span class="material-symbols-outlined text-[16px]">delete</span>
             Delete Selected ({selectedConnIds.length})
           </button>
         {/if}
@@ -3685,9 +3683,9 @@
           <button
             type="button"
             onclick={() => (showApplyProxyModal = true)}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-8 h-auto px-3 py-1 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">lan</span>
+            <span class="material-symbols-outlined text-[16px]">lan</span>
             Apply Proxy
           </button>
         {/if}
@@ -3696,9 +3694,9 @@
           type="button"
           onclick={runOneByOneTest}
           disabled={isTestingOneByOne || providerConnections.length === 0}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px]"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-8 h-auto px-3 py-1 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px] {isTestingOneByOne ? 'animate-spin text-primary' : ''}">sync</span>
+          <span class="material-symbols-outlined text-[16px] {isTestingOneByOne ? 'animate-spin text-primary' : ''}">sync</span>
           {isTestingOneByOne ? 'Testing Connection One-by-One...' : 'Test Connection One-by-One'}
         </button>
 
@@ -3707,22 +3705,22 @@
             type="button"
             onclick={stopOneByOneTest}
             disabled={isStoppingOneByOne}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed bg-transparent hover:bg-surface-2 text-text-muted hover:text-text-main h-7 px-3 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed bg-transparent hover:bg-surface-2 text-text-muted hover:text-text-main min-h-8 h-auto px-3 py-1 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">stop</span>
+            <span class="material-symbols-outlined text-[16px]">stop</span>
             {isStoppingOneByOne ? 'Stopping...' : 'Stop'}
           </button>
         {/if}
 
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-text-muted font-medium">Round Robin</span>
+          <span class="text-xs text-text-muted font-medium whitespace-nowrap">Round Robin</span>
           <button
             type="button"
             role="switch"
             aria-label="Toggle Round Robin"
             aria-checked={isRoundRobin}
             onclick={toggleRoundRobin}
-            class="relative inline-flex shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/30 {isRoundRobin ? 'bg-brand-500' : 'bg-surface-3'} w-11 h-6"
+            class="relative inline-flex shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {isRoundRobin ? 'bg-brand-500' : 'bg-surface-3'} w-11 h-6"
           >
             <span
               class="pointer-events-none inline-block rounded-full bg-white shadow-sm transform transition duration-200 ease-in-out {isRoundRobin ? 'translate-x-5' : 'translate-x-0.5'} size-5 mt-0.5"
@@ -3737,7 +3735,7 @@
                 bind:value={stickyLimit}
                 onchange={handleStickyLimitChange}
                 placeholder="1"
-                class="w-14 px-2 py-1 text-xs border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+                class="w-14 min-h-8 px-2 py-1 text-xs border border-border rounded-md bg-bg text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus:border-primary"
               />
             </div>
           {/if}
@@ -3745,9 +3743,9 @@
           <button
             type="button"
             onclick={() => (showHeaderOverrides = true)}
-            class="inline-flex h-7 items-center gap-1.5 rounded-[8px] px-3 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text-main"
+            class="inline-flex min-h-8 items-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] border border-border-subtle px-3 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text-main cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">tune</span>
+            <span class="material-symbols-outlined text-[16px]" aria-hidden="true">tune</span>
             Custom headers
           </button>
         </div>
@@ -3804,115 +3802,112 @@
 
     <!-- Connection tabs: Active / Error / Banned. Every connection belongs to
          exactly one tab; banned connections are excluded from Error. -->
-    <div class="flex gap-1 border border-border rounded-lg bg-surface px-1 py-1 sm:px-2">
+    <div class="mb-5 inline-flex w-fit max-w-full flex-wrap items-center gap-1 border border-border rounded-lg bg-surface-2/60 p-1">
       <button
         type="button"
         onclick={() => (connTab = 'active')}
-        class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors {connTab === 'active'
+        class="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 min-h-8 text-xs font-medium rounded-md transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {connTab === 'active'
           ? 'bg-primary text-white shadow-[var(--shadow-warm)]'
-          : tabCounts.active === 0
-            ? 'text-text-muted/40 pointer-events-none'
-            : 'text-text-main hover:text-text-main hover:bg-surface-2'}"
+          : 'text-text-main hover:bg-surface'}"
         disabled={tabCounts.active === 0}
       >
-        Active <span class="ml-1">{tabCounts.active}</span>
+        <span>Active</span>
+        <span class="tabular-nums opacity-85">{tabCounts.active}</span>
       </button>
       <button
         type="button"
         onclick={() => (connTab = 'error')}
-        class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors {connTab === 'error'
-          ? 'bg-red-500/10 text-red-600 dark:text-red-400 shadow-[var(--shadow-warm)]'
-          : tabCounts.error === 0
-            ? 'text-text-muted/40 pointer-events-none'
-            : 'text-text-main hover:text-text-main hover:bg-surface-2'}"
+        class="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 min-h-8 text-xs font-medium rounded-md transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {connTab === 'error'
+          ? 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30'
+          : 'text-text-main hover:bg-surface'}"
         disabled={tabCounts.error === 0}
       >
-        Error <span class="ml-1">{tabCounts.error}</span>
+        <span>Error</span>
+        <span class="tabular-nums opacity-85">{tabCounts.error}</span>
       </button>
       <button
         type="button"
         onclick={() => (connTab = 'banned')}
-        class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors {connTab === 'banned'
-          ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-[var(--shadow-warm)]'
-          : tabCounts.banned === 0
-            ? 'text-text-muted/40 pointer-events-none'
-            : 'text-text-main hover:text-text-main hover:bg-surface-2'}"
+        class="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 min-h-8 text-xs font-medium rounded-md transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {connTab === 'banned'
+          ? 'bg-orange-500/15 text-orange-700 dark:text-orange-400 border border-orange-500/30'
+          : 'text-text-main hover:bg-surface'}"
         disabled={tabCounts.banned === 0}
       >
-        <span class="material-symbols-outlined text-[14px] mr-1">block</span>
-        Banned <span class="ml-1">{tabCounts.banned}</span>
+        <span class="material-symbols-outlined text-[15px]">block</span>
+        <span>Banned</span>
+        <span class="tabular-nums opacity-85">{tabCounts.banned}</span>
       </button>
     </div>
 
     <!-- Connections List -->
       {#if tabConnections.length === 0}
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-3">
+      <div class="flex flex-col gap-4 rounded-xl border border-dashed border-border bg-surface-2/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
           <div class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary shrink-0">
             <span class="material-symbols-outlined text-[18px]">{isOAuth ? 'lock' : 'key'}</span>
           </div>
           <div class="min-w-0">
-            <p class="text-sm text-text-muted">No connections yet</p>
+            <p class="text-sm font-medium text-text-main">No connections yet</p>
             {#if hasDualAuthModes}
-              <p class="text-xs text-text-muted">
+              <p class="text-xs text-text-muted mt-0.5">
                 Choose {oauthButtonLabel} or {apiKeyButtonLabel}.
               </p>
             {/if}
           </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
         {#if providerId === 'freebuff'}
           <button
             type="button"
             onclick={startFreebuffFlow}
             disabled={isAuthorizingFreebuff}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-8 px-4 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 h-auto px-4 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">vpn_key</span>
+            <span class="material-symbols-outlined text-[16px]">vpn_key</span>
             {isAuthorizingFreebuff ? 'Polling Authorization...' : 'Authorize Freebuff CLI'}
           </button>
         {:else if providerId === 'antigravity'}
           <button
             type="button"
             onclick={handleAddConnectionClick}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-8 px-4 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 h-auto px-4 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">login</span>
+            <span class="material-symbols-outlined text-[16px]">login</span>
             Connect Google Account
           </button>
         {:else if providerId === 'kiro'}
           <button
             type="button"
             onclick={handleAddConnectionClick}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-8 px-4 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 h-auto px-4 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">login</span>
+            <span class="material-symbols-outlined text-[16px]">login</span>
             Connect Kiro
           </button>
         {:else if hasDualAuthModes}
           <button
             type="button"
             onclick={handleAddConnectionClick}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-8 px-4 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 h-auto px-4 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">lock</span>
+            <span class="material-symbols-outlined text-[16px]">lock</span>
             {oauthButtonLabel}
           </button>
           <button
             type="button"
             onclick={openAddKeyModal}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-8 px-4 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 h-auto px-4 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">key</span>
+            <span class="material-symbols-outlined text-[16px]">key</span>
             {apiKeyButtonLabel}
           </button>
         {:else}
           <button
             type="button"
             onclick={handleAddConnectionClick}
-            class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-8 px-4 text-xs rounded-[8px]"
+            class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 h-auto px-4 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
-            <span class="material-symbols-outlined text-[18px]">add</span>
+            <span class="material-symbols-outlined text-[16px]">add</span>
             Add Connection
           </button>
         {/if}
@@ -4323,33 +4318,33 @@
 
     <!-- Bottom Add Button (upstream: compatible nodes add keys only via the details card) -->
     {#if !isCompatibleNode}
-    <div class="mt-4 grid grid-cols-1 gap-2 sm:flex">
+    <div class="mt-5 flex flex-wrap items-center gap-2.5">
       {#if providerId === 'freebuff'}
         <button
           type="button"
           onclick={startFreebuffFlow}
           disabled={isAuthorizingFreebuff}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">vpn_key</span>
+          <span class="material-symbols-outlined text-[16px]">vpn_key</span>
           {isAuthorizingFreebuff ? 'Polling Authorization...' : 'Authorize Freebuff CLI'}
         </button>
       {:else if providerId === 'kiro'}
         <button
           type="button"
           onclick={handleAddConnectionClick}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">login</span>
+          <span class="material-symbols-outlined text-[16px]">login</span>
           Connect Kiro
         </button>
       {:else if isLeaseProvider}
         <button
           type="button"
           onclick={handleAddConnectionClick}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">login</span>
+          <span class="material-symbols-outlined text-[16px]">login</span>
           Sign In
         </button>
         <button
@@ -4357,9 +4352,9 @@
           onclick={handleLeaseConnect}
           disabled={isLeaseConnecting}
           title="Borrow the signed-in MiniMax Code desktop app's login — no second sign-in, refresh stays with the desktop app"
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">desktop_windows</span>
+          <span class="material-symbols-outlined text-[16px]">desktop_windows</span>
           {isLeaseConnecting ? 'Connecting...' : 'Use Desktop App'}
         </button>
         {#if leaseError}
@@ -4369,26 +4364,26 @@
         <button
           type="button"
           onclick={handleAddConnectionClick}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">lock</span>
+          <span class="material-symbols-outlined text-[16px]">lock</span>
           {oauthButtonLabel}
         </button>
         <button
           type="button"
           onclick={openAddKeyModal}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">key</span>
+          <span class="material-symbols-outlined text-[16px]">key</span>
           {apiKeyButtonLabel}
         </button>
       {:else}
         <button
           type="button"
           onclick={handleAddConnectionClick}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">add</span>
+          <span class="material-symbols-outlined text-[16px]">add</span>
           Add
         </button>
       {/if}
@@ -4396,17 +4391,17 @@
         <button
           type="button"
           onclick={() => (showExportKeysModal = true)}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">download</span>
+          <span class="material-symbols-outlined text-[16px]">download</span>
           Export Keys
         </button>
         <button
           type="button"
           onclick={() => (showShareProviderModal = true)}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px] w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-9 sm:min-h-8 h-auto px-3.5 py-1.5 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">link</span>
+          <span class="material-symbols-outlined text-[16px]">link</span>
           Share
         </button>
       {/if}
@@ -4457,7 +4452,7 @@
             type="button"
             onclick={handleAddCompatibleModel}
             disabled={!newCompatibleModel.trim() || isAddingCompatibleModel}
-            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] bg-brand-500 px-3 text-xs font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:bg-brand-600 active:scale-[0.97] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+            class="inline-flex min-h-8 h-auto items-center justify-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:bg-brand-600 active:scale-[0.97] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">add</span>
             {isAddingCompatibleModel ? 'Adding...' : 'Add'}
@@ -4469,7 +4464,7 @@
             onclick={() => handleImportCompatibleModels(false)}
             disabled={!canImportCompatible || isImportingCompatibleModels}
             title="Fetch this endpoint's /models and add everything it lists"
-            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-border bg-surface-2 px-3 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+            class="inline-flex min-h-8 h-auto items-center justify-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">download</span>
             {isImportingCompatibleModels ? 'Importing...' : 'Import from /models'}
@@ -4479,7 +4474,7 @@
             onclick={() => handleImportCompatibleModels(true)}
             disabled={!canImportCompatible || isImportingCompatibleModels}
             title="Same as import, but skip anything that is not on the provider's free tier"
-            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-border bg-surface-2 px-3 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+            class="inline-flex min-h-8 h-auto items-center justify-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">savings</span>
             Import free only
@@ -4489,7 +4484,7 @@
             onclick={handleTestAllCompatibleModels}
             disabled={compatibleRows.length === 0 || compatibleTestAllRunning}
             title="Test all sends a real completion per model and consumes account quota"
-            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-border bg-surface-2 px-3 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+            class="inline-flex min-h-8 h-auto items-center justify-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium text-text-main transition-colors hover:bg-surface-3 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">{compatibleTestAllRunning ? 'progress_activity' : 'science'}</span>
             {compatibleTestAllRunning ? `Testing ${compatibleTestSummary.total}/${compatibleRows.length}...` : 'Test all models'}
@@ -4499,7 +4494,7 @@
             onclick={handleRemoveAllCompatibleModels}
             disabled={compatibleRows.length === 0 || isRemovingCompatibleModels || compatibleTestAllRunning}
             title="Remove all deletes this node's imported models and the aliases pointing at them; models that ship with the build stay"
-            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-border bg-surface-2 px-3 text-xs font-medium text-text-main transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-500 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+            class="inline-flex min-h-8 h-auto items-center justify-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium text-text-main transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">{isRemovingCompatibleModels ? 'progress_activity' : 'delete_sweep'}</span>
             {isRemovingCompatibleModels ? 'Removing...' : 'Remove all models'}
@@ -4509,7 +4504,7 @@
             onclick={handleAutoDisableDeadModels}
             disabled={compatibleRows.length === 0}
             title="Disable every model whose last probe failed or whose account is in cooldown. They stop appearing in /v1/models and every model picker, and leave the combos they were in."
-            class="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-amber-500/40 bg-amber-500/10 px-3 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-500/20 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed dark:text-amber-400"
+            class="inline-flex min-h-8 h-auto items-center justify-center gap-1.5 whitespace-nowrap shrink-0 rounded-[8px] border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-500/20 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed dark:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">heart_broken</span>
             Disable dead models
@@ -4579,7 +4574,7 @@
                     <div class="relative inline-flex group/tt">
                       <span class="material-symbols-outlined leading-none cursor-help text-text-muted/70" style="font-size: 12px;">visibility</span>
                       <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50 w-max max-w-56 rounded px-2 py-1 text-[11px] leading-snug bg-gray-900 text-white opacity-0 group-hover/tt:opacity-100 transition-opacity duration-150 whitespace-normal shadow-lg">
-                        Vision — Supports image input
+                        Vision: Supports image input
                       </div>
                     </div>
                   {/if}
@@ -4587,15 +4582,15 @@
                     <div class="relative inline-flex group/tt">
                       <span class="material-symbols-outlined leading-none cursor-help text-text-muted/70" style="font-size: 12px;">neurology</span>
                       <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50 w-max max-w-56 rounded px-2 py-1 text-[11px] leading-snug bg-gray-900 text-white opacity-0 group-hover/tt:opacity-100 transition-opacity duration-150 whitespace-normal shadow-lg">
-                        Reasoning — Supports reasoning / thinking
+                        Reasoning: Supports reasoning / thinking
                       </div>
                     </div>
                   {/if}
                   {#if row.caps.jailbreak}
                     <div class="relative inline-flex group/tt">
-                      <span class="material-symbols-outlined leading-none cursor-help text-red-500/80" style="font-size: 12px;">local_fire_department</span>
+                      <span class="material-symbols-outlined leading-none cursor-help text-red-600/80 dark:text-red-400/80" style="font-size: 12px;">local_fire_department</span>
                       <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50 w-max max-w-56 rounded px-2 py-1 text-[11px] leading-snug bg-gray-900 text-white opacity-0 group-hover/tt:opacity-100 transition-opacity duration-150 whitespace-normal shadow-lg">
-                        Jailbreak — Uncensored / unrestricted
+                        Jailbreak: Uncensored / unrestricted
                       </div>
                     </div>
                   {/if}
@@ -4603,7 +4598,7 @@
                     <button
                       type="button"
                       onclick={() => copyCompatibleModel(row.id)}
-                      class="p-0.5 hover:bg-sidebar rounded text-text-muted hover:text-primary cursor-pointer"
+                      class="inline-flex items-center justify-center min-h-7 min-w-7 p-0.5 hover:bg-sidebar rounded text-text-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                     >
                       <span class="material-symbols-outlined text-sm">{copiedModelId === row.id ? 'check' : 'content_copy'}</span>
                     </button>
@@ -4617,7 +4612,7 @@
                         type="button"
                         onclick={() => handleTestCompatibleModel(row.id)}
                         disabled={isTestingRow}
-                        class="p-0.5 hover:bg-sidebar rounded text-text-muted hover:text-primary transition-colors cursor-pointer"
+                        class="inline-flex items-center justify-center min-h-7 min-w-7 p-0.5 hover:bg-sidebar rounded text-text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                       >
                         <span class="material-symbols-outlined text-sm" style={isTestingRow ? 'animation: spin 1s linear infinite' : undefined}>
                           {isTestingRow ? 'progress_activity' : 'science'}
@@ -4706,13 +4701,13 @@
         {/if}
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
         <button
           type="button"
           onclick={handleToggleAllModels}
-          class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-7 px-3 text-xs rounded-[8px]"
+          class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border min-h-8 h-auto px-3 py-1 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
-          <span class="material-symbols-outlined text-[18px]">block</span>
+          <span class="material-symbols-outlined text-[16px]">block</span>
           {allDisabled ? 'Enable All' : 'Disable All'}
         </button>
       </div>
@@ -4772,7 +4767,7 @@
           isLoading={isLoadingSession}
           expiresInMin={sessionExpiresInMin}
           onRefresh={loadFreebuffSession}
-          models={visibleModels.map((m) => ({ id: m.id, name: m.name }))}
+          models={visibleModels.map((m) => ({ id: m.id, name: m.name ?? m.id }))}
           onSwitch={switchFreebuffModel}
           connections={providerConnections.map((c) => {
             const specific = c.providerSpecificData as Record<string, any> | undefined
@@ -4893,7 +4888,7 @@
                 type="button"
                 onclick={() => testModel(model.id)}
                 disabled={isTestingThis}
-                class="rounded p-0.5 text-text-muted transition-opacity hover:bg-sidebar hover:text-primary opacity-100 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
+                class="rounded p-1 text-text-muted transition-opacity hover:bg-sidebar hover:text-primary opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer"
                 title={modelTestErrors[model.id] || (testStatus === 'ok' ? 'Test Passed' : 'Test')}
               >
                 {#if isTestingThis}
@@ -4927,7 +4922,7 @@
               <button
                 type="button"
                 onclick={() => copyModelId(model.id)}
-                class="rounded p-0.5 text-text-muted hover:bg-sidebar hover:text-primary cursor-pointer"
+                class="rounded p-1 text-text-muted hover:bg-sidebar hover:text-primary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
               >
                 {#if copiedModelId === model.id}
                   <span class="material-symbols-outlined text-sm text-green-500">check</span>
@@ -4944,7 +4939,7 @@
             <button
               type="button"
               onclick={() => handleDisableModel(model.id)}
-              class="ml-auto rounded p-0.5 text-text-muted opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-500 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
+              class="ml-auto rounded p-1 text-text-muted opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-500 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer"
               title="Disable this model"
             >
               <span class="material-symbols-outlined text-sm">close</span>
@@ -4956,7 +4951,7 @@
               <button
                 type="button"
                 onclick={() => handleDeleteModel(model.id)}
-                class="rounded p-0.5 text-red-500 opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
+                class="rounded p-1 text-red-500 opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer"
                 title={model.isCustom ? 'Delete unusable model' : 'Unusable — disable this registry model'}
               >
                 <span class="material-symbols-outlined text-sm">delete</span>
@@ -5124,32 +5119,40 @@
       onclick={() => (showRiskNoticeModal = false)}
       role="presentation"
     ></div>
-    <div class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] fade-in max-w-md p-6">
+    <div
+      role="dialog"
+      aria-modal="true"
+      class="relative w-full max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] fade-in max-w-md p-6"
+    >
       <div class="flex items-center justify-between pb-3 border-b border-border-subtle mb-4">
         <h2 class="text-lg font-semibold text-text-main">Risk Notice</h2>
         <button
           type="button"
           onclick={() => (showRiskNoticeModal = false)}
-          class="p-1 rounded text-text-muted hover:text-text-main cursor-pointer"
+          aria-label="Close"
+          class="inline-flex items-center justify-center min-h-8 min-w-8 p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <span class="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
-      <p class="text-xs text-red-600 dark:text-yellow-400 leading-relaxed mb-6">
-        ⚠️ Risk Notice: This provider uses a subscription/OAuth session not officially licensed for proxy/router use. Account may be restricted or banned. Use at your own risk.
-      </p>
-      <div class="flex gap-2 justify-end">
+      <div class="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 mb-6">
+        <span class="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">warning</span>
+        <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+          Risk Notice: This provider uses a subscription/OAuth session not officially licensed for proxy/router use. Account may be restricted or banned. Use at your own risk.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2 justify-end">
         <button
           type="button"
           onclick={() => (showRiskNoticeModal = false)}
-          class="px-3 py-1.5 text-xs font-semibold rounded-[8px] bg-surface-2 hover:bg-surface-3 text-text-main border border-border cursor-pointer"
+          class="px-3.5 py-1.5 min-h-8 text-xs font-semibold rounded-[8px] bg-surface-2 hover:bg-surface-3 text-text-main border border-border cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           Cancel
         </button>
         <button
           type="button"
           onclick={confirmRiskAndProceed}
-          class="px-3 py-1.5 text-xs font-semibold rounded-[8px] bg-red-600 hover:bg-red-700 text-white shadow-sm cursor-pointer"
+          class="px-3.5 py-1.5 min-h-8 text-xs font-semibold rounded-[8px] bg-red-600 hover:bg-red-700 text-white shadow-sm cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60"
         >
           I Understand, Continue
         </button>
@@ -5166,13 +5169,18 @@
         onclick={closeOAuthModal}
         role="presentation"
       ></div>
-    <div class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] fade-in max-w-lg p-6">
+    <div
+      role="dialog"
+      aria-modal="true"
+      class="relative w-full max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] fade-in max-w-lg p-6"
+    >
       <div class="flex items-center justify-between pb-3 border-b border-border-subtle mb-4">
         <h2 class="text-lg font-semibold text-text-main">Connect {providerName}</h2>
         <button
           type="button"
           onclick={closeOAuthModal}
-          class="p-1 rounded text-text-muted hover:text-text-main cursor-pointer"
+          aria-label="Close"
+          class="inline-flex items-center justify-center min-h-8 min-w-8 p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <span class="material-symbols-outlined text-lg">close</span>
         </button>
@@ -5374,12 +5382,12 @@
             <input
               readonly
               value={oauthAuthUrl}
-              class="flex-1 px-2.5 py-1.5 text-xs border border-border rounded-md bg-background text-text-muted select-all font-mono"
+              class="flex-1 min-w-0 min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background text-text-muted select-all font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
             <button
               type="button"
               onclick={() => window.open(oauthAuthUrl, '_blank')}
-              class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-text-main cursor-pointer"
+              class="flex items-center gap-1 min-h-9 shrink-0 px-3 py-1.5 text-xs font-semibold rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-text-main transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
             >
               <span class="material-symbols-outlined text-sm">open_in_new</span>
               Open
@@ -5387,7 +5395,7 @@
             <button
               type="button"
               onclick={copyAuthUrl}
-              class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-text-main cursor-pointer"
+              class="flex items-center gap-1 min-h-9 shrink-0 px-3 py-1.5 text-xs font-semibold rounded-md border border-border bg-surface-2 hover:bg-surface-3 text-text-main transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
             >
               <span class="material-symbols-outlined text-sm">{copiedAuthUrl ? 'check' : 'content_copy'}</span>
               {copiedAuthUrl ? 'Copied' : 'Copy'}
@@ -5398,23 +5406,23 @@
 
         {#if providerId === 'gitlab'}
           <div class="grid grid-cols-1 gap-2 p-3 border border-border rounded-md bg-sidebar/50 mb-1">
-            <p class="text-[11px] text-text-muted">Self-hosted GitLab / own OAuth app (optional — defaults to gitlab.com without a client):</p>
+            <p class="text-[11px] text-text-muted">Self-hosted GitLab / own OAuth app (optional; defaults to gitlab.com without a client):</p>
             <input
               bind:value={gitlabBaseUrl}
               placeholder="Base URL (default https://gitlab.com)"
-              class="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background focus:outline-none focus:border-primary font-mono"
+              class="w-full min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 font-mono"
             />
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 bind:value={gitlabClientId}
                 placeholder="OAuth Client ID"
-                class="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background focus:outline-none focus:border-primary font-mono"
+                class="w-full min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 font-mono"
               />
               <input
                 bind:value={gitlabClientSecret}
                 type="password"
                 placeholder="OAuth Client Secret"
-                class="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background focus:outline-none focus:border-primary font-mono"
+                class="w-full min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 font-mono"
               />
             </div>
           </div>
@@ -5435,22 +5443,22 @@
             placeholder={providerId === 'freebuff'
               ? 'https://freebuff.com/onboard?auth_code=... or paste authToken'
               : `${dashboardCallback()}?code=...&state=...`}
-            class="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background focus:outline-none focus:border-primary font-mono"
+            class="w-full min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 font-mono"
           />
           <p class="text-[11px] text-text-muted mt-1">
             {providerId === 'freebuff'
               ? 'If the browser lands on /onboard, finish onboarding in the Freebuff tab, then paste the URL above or click Check & Connect.'
               : isClineOAuth
-                ? 'Log in via the Cline tab that opened — the connection completes automatically. If it fails, copy the redirect URL (containing code=...) here and click Connect.'
+                ? 'Log in via the Cline tab that opened; the connection completes automatically. If it fails, copy the redirect URL (containing code=...) here and click Connect.'
                 : oauthAuthUrl
-                  ? 'Complete the login in the browser tab — the connection completes automatically. If it fails, copy the full URL from the browser here.'
+                  ? 'Complete the login in the browser tab; the connection completes automatically. If it fails, copy the full URL from the browser here.'
                   : 'Paste the access token here, then click Connect.'}
           </p>
         </div>
         {/if}
 
         {#if oauthError}
-          <p class="text-xs text-red-500">{oauthError}</p>
+          <p class="text-xs text-red-600 dark:text-red-400">{oauthError}</p>
         {/if}
 
         <div class="flex gap-2 pt-2">
@@ -5464,7 +5472,7 @@
               }
             }}
             disabled={isConnecting || isPollingDevice}
-            class="flex-1 py-1.5 text-xs font-semibold rounded-[8px] bg-brand-500 hover:bg-brand-600 text-white shadow-sm disabled:opacity-50 cursor-pointer"
+            class="flex-1 min-h-9 py-1.5 text-xs font-semibold rounded-[8px] bg-brand-600 hover:bg-brand-700 text-white shadow-sm disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
           >
             {isConnecting || isPollingDevice ? 'Checking…' : deviceUserCode ? 'Check now' : providerId === 'freebuff' ? 'Check & Connect' : 'Connect'}
           </button>
@@ -5498,7 +5506,11 @@
       onclick={cancelApplyProxy}
       role="presentation"
     ></div>
-    <div class="relative flex max-h-[85vh] w-full flex-col bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] fade-in max-w-lg">
+    <div
+      role="dialog"
+      aria-modal="true"
+      class="relative flex max-h-[85vh] w-full flex-col bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] fade-in max-w-lg"
+    >
       <div class="flex shrink-0 items-center justify-between px-6 pt-5 pb-3 border-b border-border-subtle">
         <h2 class="text-lg font-semibold text-text-main">
           Apply Proxy ({providerConnections.length} connections)
@@ -5508,7 +5520,7 @@
           onclick={cancelApplyProxy}
           disabled={isApplyingProxy}
           aria-label="Close"
-          class="p-1 rounded text-text-muted hover:text-text-main disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          class="inline-flex items-center justify-center min-h-8 min-w-8 p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <span class="material-symbols-outlined text-lg">close</span>
         </button>

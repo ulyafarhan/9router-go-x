@@ -178,7 +178,7 @@
               onkeydown={(e) => e.key === 'Enter' && applyCustom()}
               aria-describedby={customError ? 'period-custom-error' : undefined}
               aria-invalid={customError ? 'true' : undefined}
-              class="min-w-0 flex-1 rounded-lg border border-border bg-bg px-2 py-1.5 font-code text-xs text-text-main outline-none transition-colors placeholder:text-text-subtle focus:border-brand-500"
+              class="min-w-0 flex-1 rounded-lg border border-border bg-bg px-2.5 py-1.5 font-code text-[16px] sm:text-xs text-text-main outline-none transition-colors placeholder:text-text-subtle focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
             <button
               type="button"

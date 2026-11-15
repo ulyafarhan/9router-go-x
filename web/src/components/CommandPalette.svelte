@@ -120,14 +120,14 @@
           type="text"
           placeholder="Search models, providers, pages and settings…"
           aria-label="Search query"
-          class="w-full rounded-lg border border-border bg-bg pl-8 pr-3 py-2 text-sm text-text-main placeholder:text-text-subtle focus:border-brand-500 focus:outline-none"
+          class="w-full rounded-lg border border-border bg-bg pl-8 pr-3 py-2 text-[16px] sm:text-sm text-text-main placeholder:text-text-subtle focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </div>
       <button
         type="button"
         onclick={runSearch}
         disabled={!draft.trim()}
-        class="flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        class="flex items-center gap-1.5 whitespace-nowrap shrink-0 min-h-9 rounded-lg bg-brand-500 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
       >
         <span class="material-symbols-outlined text-[16px]">search</span>
         Search

@@ -10,7 +10,7 @@
     isEntry?: boolean
   }
 
-  const repo = 'luqman-v1/9router-go'
+  const repo = 'ulyafarhan/9router-go-x'
   const branch = 'main'
   const baseFolder = 'skills'
   const githubRepoUrl = `https://github.com/${repo}`
@@ -22,7 +22,7 @@
       id: '9router',
       name: '9router-go (Entry)',
       description:
-        'Setup + index of all capabilities. Start here — covers base URL, auth, model discovery, and links to every capability skill.',
+        'Setup + index of all capabilities. Start here: covers base URL, auth, model discovery, and links to every capability skill.',
       endpoint: null,
       icon: 'hub',
       isEntry: true,

@@ -215,16 +215,16 @@
                 bind:value={newPassword}
                 required
                 data-login-focus
-                class="w-full py-2.5 px-3 text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent placeholder-text-muted/70 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-colors"
+                class="w-full py-2.5 px-3 text-[16px] sm:text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent placeholder-text-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus:border-brand-500 transition-colors"
               />
               {#if errorMessage}
-                <p class="text-xs text-red-500">{errorMessage}</p>
+                <p class="text-xs text-red-600 dark:text-red-400">{errorMessage}</p>
               {/if}
             </div>
             <button
               type="submit"
               disabled={isLoading || !newPassword}
-              class="w-full h-9 px-4 text-sm rounded-[10px] font-medium bg-brand-500 hover:bg-brand-600 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              class="w-full min-h-10 px-4 text-sm rounded-[10px] font-medium bg-brand-500 hover:bg-brand-600 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
             >
               {#if isLoading}
                 <span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white"></span>
@@ -284,12 +284,12 @@
                       bind:value={password}
                       required
                       data-login-focus
-                      class="w-full py-2.5 px-3 pr-10 text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent placeholder-text-muted/70 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-colors"
+                      class="w-full py-2.5 px-3 pr-11 text-[16px] sm:text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent placeholder-text-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus:border-brand-500 transition-colors"
                     />
                     <button
                       type="button"
                       onclick={() => (showPassword = !showPassword)}
-                      class="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-text-main transition-colors cursor-pointer"
+                      class="absolute inset-y-0 right-0 flex items-center justify-center min-w-10 px-2.5 text-text-muted hover:text-text-main transition-colors cursor-pointer rounded-r-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       <span class="material-symbols-outlined text-[20px]">
@@ -298,10 +298,10 @@
                     </button>
                   </div>
                   {#if errorMessage}
-                    <p class="text-xs text-red-500">{errorMessage}</p>
+                    <p class="text-xs text-red-600 dark:text-red-400">{errorMessage}</p>
                   {/if}
                   {#if retryAfter > 0}
-                    <p class="text-xs text-amber-600 dark:text-amber-400">
+                    <p class="text-xs text-amber-700 dark:text-amber-400">
                       Locked. Retry in <span class="font-mono">{retryAfter}s</span>.
                     </p>
                   {/if}
@@ -313,7 +313,7 @@
                 <button
                   type="submit"
                   disabled={isLoading || !password || retryAfter > 0}
-                  class="w-full h-9 px-4 text-sm rounded-[10px] font-medium bg-brand-500 hover:bg-brand-600 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  class="w-full min-h-10 px-4 text-sm rounded-[10px] font-medium bg-brand-500 hover:bg-brand-600 text-white shadow-sm disabled:bg-surface-3 disabled:text-text-muted disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
                 >
                   {#if isLoading}
                     <span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white"></span>

@@ -191,7 +191,7 @@
         <div class="w-full min-w-0 flex-1">
           <select
             bind:value={selectedModel}
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           >
             {#each sttModels as m (m.id)}
               <option value={m.id}>{m.name || m.id}</option>
@@ -206,7 +206,7 @@
           <input
             bind:value={selectedModel}
             placeholder="Enter model id"
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
           />
         </div>
       </div>
@@ -278,7 +278,7 @@
           <input
             bind:value={language}
             placeholder="e.g. en, vi, id, ja (auto-detect if empty)"
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main font-mono"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
           />
         </div>
       </div>
@@ -292,7 +292,7 @@
           <input
             bind:value={prompt}
             placeholder="optional context to improve accuracy"
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           />
         </div>
       </div>
@@ -310,7 +310,7 @@
             max="1"
             bind:value={temperature}
             placeholder="0 - 1 (default 0)"
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           />
         </div>
       </div>
@@ -323,7 +323,7 @@
         <div class="w-full min-w-0 flex-1">
           <select
             bind:value={responseFormat}
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           >
             <option value="json">json</option>
             <option value="text">text</option>
@@ -342,7 +342,7 @@
         <div class="w-full min-w-0 flex-1">
           <select
             bind:value={granularity}
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
           >
             <option value="">provider default</option>
             <option value="word">word</option>
@@ -397,7 +397,7 @@
             bind:value={numSpeakers}
             disabled={diarize}
             placeholder="auto-detect"
-            class="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-text-main disabled:opacity-50"
+            class="w-full min-h-9 px-3 py-1.5 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main disabled:opacity-50"
           />
         </div>
       </div>

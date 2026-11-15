@@ -166,16 +166,16 @@
               <td class="py-3 px-4 text-right font-mono font-semibold text-text-main">
                 {fmt(item.requests || 0)}
               </td>
-              <td class="py-3 px-4 text-right font-mono text-brand-500">
+              <td class="py-3 px-4 text-right font-mono text-brand-600 dark:text-brand-400">
                 {fmtTokens(item.promptTokens || 0)}
               </td>
-              <td class="py-3 px-4 text-right font-mono text-success">
+              <td class="py-3 px-4 text-right font-mono text-emerald-700 dark:text-emerald-400">
                 {fmtTokens(item.completionTokens || 0)}
               </td>
-              <td class="py-3 px-4 text-right font-mono text-info">
+              <td class="py-3 px-4 text-right font-mono text-blue-700 dark:text-blue-400">
                 {fmtTokens(item.cachedTokens || 0)}
               </td>
-              <td class="py-3 px-4 text-right font-mono font-bold text-warning">
+              <td class="py-3 px-4 text-right font-mono font-bold text-amber-700 dark:text-amber-400">
                 {costIn(item.cost || 0)}
               </td>
               <td class="py-3 px-4 text-right font-mono text-text-muted">{tokenShare(item)}%</td>

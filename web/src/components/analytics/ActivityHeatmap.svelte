@@ -102,7 +102,7 @@
         {/each}
       </div>
     </div>
-    <div class="flex items-center justify-between text-[10px] text-text-subtle">
+    <div class="flex items-center justify-between text-[11px] text-text-muted">
       <span>{currentStreak > 0 ? `${currentStreak}-day streak` : 'No active streak'}</span>
       <span class="flex items-center gap-1">
         Less

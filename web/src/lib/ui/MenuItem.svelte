@@ -34,23 +34,25 @@
   }: Props = $props()
 </script>
 
+<!--
+  `aria-checked` only means anything on menuitemcheckbox, so a toggle entry
+  asks for that role rather than announcing a bare menuitem that carries a
+  state no assistive technology would read.
+-->
 <button
   type="button"
-  // `aria-checked` only means anything on menuitemcheckbox, so a toggle entry
-  // asks for that role rather than announcing a bare menuitem that carries a
-  // state no assistive technology would read.
   role={checkbox ? 'menuitemcheckbox' : 'menuitem'}
   aria-checked={checkbox ? pressed : undefined}
   disabled={disabled}
   onclick={onSelect}
-  class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm {danger
-    ? 'text-red-500 hover:bg-red-500/10'
+  class="flex w-full min-h-[40px] sm:min-h-8 items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm {danger
+    ? 'text-red-600 dark:text-red-400 hover:bg-red-500/10'
     : 'text-text-main hover:bg-surface-2'}"
 >
   {#if icon}
     <span
       class="material-symbols-outlined text-[18px] {pressed ? 'text-brand-500' : danger
-        ? 'text-red-500'
+        ? 'text-red-600 dark:text-red-400'
         : 'text-text-muted'}"
       aria-hidden="true"
     >

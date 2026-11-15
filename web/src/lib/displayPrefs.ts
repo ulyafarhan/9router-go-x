@@ -45,7 +45,7 @@ const ANIMATION_LEVEL_KEY = 'displayAnimationLevel'
 
 export const ANIMATION_LEVELS: { id: AnimationLevel; label: string; hint: string }[] = [
   { id: 'full', label: 'Full', hint: 'Every animation and backdrop blur, as designed.' },
-  { id: 'default', label: 'Default', hint: 'Same as Full — kept so an untouched install reads as the default.' },
+  { id: 'default', label: 'Default', hint: 'Same as Full; kept so an untouched install reads as the default.' },
   { id: 'minimal', label: 'Minimal', hint: 'No backdrop blur and no transitions; loading spinners still rotate.' },
   { id: 'off', label: 'Off', hint: 'Nothing moves: no blur, no transitions, no spinning icons.' },
 ]

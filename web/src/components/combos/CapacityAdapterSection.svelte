@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowDown, ArrowUp, Brain, Eye, Headphones, X } from 'lucide-svelte'
+  import { ArrowDown, ArrowUp, Brain, Eye, X } from 'lucide-svelte'
   import Button from '../../lib/ui/Button.svelte'
   import Card from '../../lib/ui/Card.svelte'
   import Toggle from '../../lib/ui/Toggle.svelte'
@@ -80,7 +80,7 @@
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
               <code class="font-mono text-sm font-medium text-text-main">Vision</code>
-              <span class="text-[10px] text-text-muted">— images (png, jpg, webp, …)</span>
+              <span class="text-[10px] text-text-muted">(images: png, jpg, webp, …)</span>
             </div>
             <div class="mt-1 flex min-w-0 flex-wrap items-center gap-1">
               {#if capacityAdapter.vision.models.length === 0}
@@ -93,18 +93,22 @@
                   >
                     <span>{model}</span>
                     {#if vcaps.vision}
-                      <Eye class="w-3 h-3 text-blue-500 shrink-0" title="Vision — Supports image input" />
+                      <span class="inline-flex shrink-0" title="Vision: Supports image input">
+                        <Eye class="w-3 h-3 text-blue-500" />
+                      </span>
                     {/if}
                     {#if vcaps.reasoning}
-                      <Brain class="w-3 h-3 text-amber-500 shrink-0" title="Reasoning — Supports reasoning / thinking" />
+                      <span class="inline-flex shrink-0" title="Reasoning: Supports reasoning / thinking">
+                        <Brain class="w-3 h-3 text-amber-500" />
+                      </span>
                     {/if}
                     <button
                       type="button"
                       onclick={() => moveAdapterModel('vision', idx, -1)}
                       disabled={idx === 0}
-                      class="leading-none opacity-0 group-hover/chip:opacity-100 {idx === 0
+                      class="leading-none opacity-0 group-hover/chip:opacity-100 focus-visible:opacity-100 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {idx === 0
                         ? 'text-text-muted/20 cursor-not-allowed'
-                        : 'text-text-muted hover:text-brand-500'} cursor-pointer"
+                        : 'text-text-muted hover:text-brand-600 dark:hover:text-brand-400'} cursor-pointer"
                       title="Move up"
                     >
                       <ArrowUp class="w-3 h-3" />
@@ -178,7 +182,7 @@
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
               <code class="font-mono text-sm font-medium text-text-main">Audio</code>
-              <span class="text-[10px] text-text-muted">— audio input</span>
+              <span class="text-[10px] text-text-muted">(audio input)</span>
             </div>
             <div class="mt-1 flex min-w-0 flex-wrap items-center gap-1">
               {#if capacityAdapter.audioInput.models.length === 0}

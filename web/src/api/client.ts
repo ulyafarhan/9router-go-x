@@ -305,6 +305,37 @@ export interface ProviderStrategyConfig {
   [key: string]: unknown
 }
 
+export interface PersonaInfo {
+  id: string
+  name: string
+  description: string
+  prefix: string
+  suffix?: string
+  builtIn?: boolean
+}
+
+export interface PersonaCreatePayload {
+  id: string
+  name: string
+  description?: string
+  prefix: string
+  suffix?: string
+}
+
+export interface PersonaUpdatePayload {
+  name: string
+  description?: string
+  prefix: string
+  suffix?: string
+}
+
+export interface PersonaListResponse {
+  personas: PersonaInfo[]
+  active: string
+  enabled: boolean
+  autoDetect: boolean
+}
+
 export interface Settings {
   appName?: string
   appLogoUrl?: string
@@ -373,6 +404,9 @@ export interface Settings {
   systemPromptEnabled?: boolean
   systemPromptPrefix?: string
   systemPromptSuffix?: string
+  personaEnabled?: boolean
+  personaActive?: string
+  personaAutoDetect?: boolean
   outboundProxyEnabled?: boolean
   outboundProxyUrl?: string
   outboundNoProxy?: string
@@ -765,6 +799,7 @@ export interface ConnectionQuotaInfo {
 
 export interface ConnectionUsageResponse {
   plan?: string
+  message?: string
   quotas?: Record<string, ConnectionQuotaInfo> | ConnectionQuotaInfo[]
   error?: string
 }
@@ -918,7 +953,7 @@ export interface FreebuffSessionSwitchResponse {
 }
 
 export interface FreebuffSessionStatusResponse {
-  status: 'active' | 'none' | 'unauthorized' | 'banned' | 'country_blocked'
+  status: 'active' | 'queued' | 'ended' | 'none' | 'unauthorized' | 'banned' | 'country_blocked'
   /** Account this report describes — set so the UI can name it. */
   connectionId?: string
   connectionName?: string
@@ -1296,7 +1331,15 @@ export function handleUnauthorized(path?: string) {
   // operator to the login screen and clearing the stored key there was wrong;
   // the storage card reports the 401 and offers a retry instead. A genuinely
   // expired session still logs out through any other request.
+  const isUpstreamUsageProbe =
+    typeof path === 'string' &&
+    path.startsWith('/api/usage/') &&
+    (path.endsWith('/glm-reset-cards') ||
+      path.endsWith('/claude-reset') ||
+      path.endsWith('/codex-reset') ||
+      path.endsWith('/antigravity-quota'))
   if (
+    isUpstreamUsageProbe ||
     path === '/api/auth/login' ||
     path === '/api/auth/status' ||
     path === '/api/settings/require-login' ||
@@ -1365,6 +1408,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
   if (!res.ok) throw new ApiError(await responseErrorMessage(res), res.status)
   return res.json()
+}
+
+async function requestText(path: string, options: RequestInit = {}): Promise<string> {
+  const headers: Record<string, string> = { ...getAuthHeaders() }
+  delete headers['Content-Type']
+  Object.assign(headers, (options.headers as Record<string, string>) || {})
+  const res = await fetch(path, { ...options, headers })
+  if (res.status === 401) {
+    handleUnauthorized(path)
+  }
+  if (!res.ok) throw new ApiError(await responseErrorMessage(res), res.status)
+  return res.text()
 }
 
 export function normalizeLastError(err: unknown): string | null {
@@ -1822,7 +1877,7 @@ export const api = {
     ),
   getGuardrailLogs: (limit = 100) =>
     request<GuardrailLog[]>(`/api/guardrails/logs?limit=${encodeURIComponent(String(limit))}`),
-  getMetrics: () => request<string>('/api/metrics'),
+  getMetrics: () => requestText('/api/metrics'),
 
   // Models — upstream parity: GET /api/models/custom -> { models: [...] },
   // GET /api/models/disabled -> { disabled: {...} } (full map) or { ids: [...] } (per-provider).
@@ -2382,6 +2437,13 @@ export const api = {
       }
     } catch {}
     try {
+      const res = await fetch('https://raw.githubusercontent.com/ulyafarhan/9router-go-x/main/CHANGELOG.md')
+      if (res.ok) {
+        const text = await res.text()
+        if (text && text.trim().length > 0) return text
+      }
+    } catch {}
+    try {
       const res = await fetch('https://raw.githubusercontent.com/luqman-v1/9router-go/main/CHANGELOG.md')
       if (res.ok) {
         const text = await res.text()
@@ -2928,5 +2990,20 @@ export const api = {
     }>(`/api/combos/${encodeURIComponent(id)}/test-models`, {
       method: 'POST',
       body: JSON.stringify(opts || {}),
+    }),
+  listPersonas: () => request<PersonaListResponse>('/api/personas'),
+  createPersona: (payload: PersonaCreatePayload) =>
+    request<PersonaInfo>('/api/personas', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updatePersona: (id: string, payload: PersonaUpdatePayload) =>
+    request<PersonaInfo>(`/api/personas/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  deletePersona: (id: string) =>
+    request<{ status: string; id: string }>(`/api/personas/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
     }),
 }

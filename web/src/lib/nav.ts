@@ -52,7 +52,7 @@ const PLANS_LINK: NavLink = { kind: 'link', id: 'plans', label: 'Plans', icon: '
  */
 export const DEFAULT_HIDDEN_NAV_ENTRIES: NavLink[] = [
   PLANS_LINK,
-  { kind: 'link', id: 'jailbreak', label: 'Persona', icon: 'masks' },
+  { kind: 'link', id: 'jailbreak', label: 'Instruction Presets', icon: 'masks' },
 ]
 
 /**
@@ -79,6 +79,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { kind: 'link', id: 'analytics', label: 'Usage', icon: 'bar_chart' },
       { kind: 'link', id: 'quota', label: 'Quota Tracker', icon: 'data_usage' },
       { kind: 'link', id: 'token-saver', label: 'Token Saver', icon: 'savings' },
+      { kind: 'link', id: 'persona', label: 'Task Persona', icon: 'badge' },
       { kind: 'link', id: 'cli-tools', label: 'CLI Tools', icon: 'terminal' },
     ],
   },
@@ -87,7 +88,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Advanced Features',
     entries: [
       { kind: 'link', id: 'security', label: 'Security', icon: 'shield_lock' },
-      { kind: 'link', id: 'jailbreak', label: 'Persona', icon: 'masks' },
+      { kind: 'link', id: 'jailbreak', label: 'Instruction Presets', icon: 'masks' },
       PLANS_LINK,
     ],
   },
@@ -176,13 +177,13 @@ export const NAV_PRESETS: NavPresetDef[] = [
   {
     id: 'default',
     label: 'Default',
-    hint: 'Plans and Persona hidden, everything else in place',
+    hint: 'Plans and Instruction Presets hidden, everything else in place',
     visible: NAV_ORDER.filter((id) => !DEFAULT_HIDDEN_NAV_IDS.includes(id)),
   },
   {
     id: 'advanced',
     label: 'Advanced',
-    hint: 'Every entry, Plans and Persona included',
+    hint: 'Every entry, Plans and Instruction Presets included',
     visible: [...NAV_ORDER],
   },
   {

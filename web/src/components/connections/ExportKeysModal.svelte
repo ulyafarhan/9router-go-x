@@ -61,32 +61,36 @@
 </script>
 
 {#if isOpen}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    onkeydown={(e) => {
+      if (e.key === 'Escape') onClose()
+    }}
+  >
     <div
       class="fixed inset-0 bg-black/40 backdrop-blur-sm"
-      role="button"
-      tabindex="-1"
-      aria-label="Close modal"
+      role="presentation"
       onclick={onClose}
-      onkeydown={(e) => {
-        if (e.key === 'Escape') onClose()
-      }}
     ></div>
-    <div class="relative w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-xl max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between pb-4 border-b border-border">
+    <div class="relative w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-elevated)] max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-4 border-b border-border gap-2">
         <h3 class="text-base font-semibold text-text-main">
-          Export Keys — {providerName || providerId}
+          Export Keys: {providerName || providerId}
         </h3>
         <button
           type="button"
+          aria-label="Close"
           onclick={onClose}
-          class="rounded-lg p-1 text-text-muted hover:bg-surface-2 hover:text-text-main"
+          class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg p-1 text-text-muted hover:bg-surface-2 hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-3 min-h-0">
+      <div class="flex-1 overflow-y-auto custom-scrollbar py-4 flex flex-col gap-3 min-h-0">
         {#if loading}
           <p class="text-sm text-text-muted">Loading…</p>
         {:else if withKeys.length === 0}
@@ -102,7 +106,8 @@
                 type="button"
                 onclick={() => copy(item)}
                 title="Copy key"
-                class="shrink-0 rounded p-1.5 hover:bg-black/5 dark:hover:bg-white/5 {copiedId === item.id ? 'text-green-500' : 'text-text-muted hover:text-brand-500'}"
+                aria-label="Copy key"
+                class="min-h-8 min-w-8 inline-flex items-center justify-center shrink-0 rounded p-1.5 hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {copiedId === item.id ? 'text-emerald-700 dark:text-emerald-400' : 'text-text-muted hover:text-brand-500'}"
               >
                 <span class="material-symbols-outlined text-[18px]">
                   {copiedId === item.id ? 'check' : 'content_copy'}
@@ -114,11 +119,11 @@
       </div>
 
       {#if !loading && withKeys.length > 0}
-        <div class="flex justify-between items-center pt-4 border-t border-border">
+        <div class="flex justify-between items-center pt-4 border-t border-border gap-2">
           <button
             type="button"
             onclick={copyAll}
-            class="inline-flex items-center gap-1.5 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-500 hover:bg-brand-600 text-white shadow-sm h-8 px-4 text-xs rounded-[8px]"
+            class="min-h-9 inline-flex items-center gap-1.5 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-brand-600 hover:bg-brand-700 text-white shadow-sm px-4 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <span class="material-symbols-outlined text-[18px]">
               {copiedId === '__all__' ? 'check' : 'content_copy'}
@@ -128,7 +133,7 @@
           <button
             type="button"
             onclick={onClose}
-            class="inline-flex items-center gap-1.5 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border h-8 px-4 text-xs rounded-[8px]"
+            class="min-h-9 inline-flex items-center gap-1.5 font-semibold transition-all duration-150 ease-out cursor-pointer active:scale-[0.97] bg-surface-2 hover:bg-surface-3 text-text-main border border-border px-4 text-xs rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             Close
           </button>

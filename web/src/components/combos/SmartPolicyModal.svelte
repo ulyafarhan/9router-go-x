@@ -77,7 +77,7 @@
   ])
 </script>
 
-<Modal {isOpen} {onClose} title="Router Policy — {comboName || 'Combo'}" size="lg">
+<Modal {isOpen} {onClose} title="Router Policy: {comboName || 'Combo'}" size="lg">
   <div class="flex flex-col gap-4">
     <p class="text-xs text-text-muted">
       Choose how the System One router manages model selection across conversation turns:

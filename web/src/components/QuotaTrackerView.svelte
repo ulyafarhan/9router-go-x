@@ -102,7 +102,6 @@
   let quotaErrors = $state<Record<string, string>>({})
   let autoRefresh = $state(true)
   let hasHydratedAutoRefresh = $state(false)
-  let lastUpdated = $state<Date | null>(null)
   let refreshingAll = $state(false)
   let countdown = $state(60)
   let connectionsLoading = $state(true)
@@ -262,7 +261,6 @@
       },
       onComplete: () => {
         if (quotaCycleController === controller) quotaCycleController = null
-        lastUpdated = new Date()
         refreshingAll = false
       },
     })
@@ -634,7 +632,7 @@
   }
 
   function isActiveConn(conn: ProviderConnection): boolean {
-    return conn.isActive === 1 || conn.isActive === true
+    return conn.isActive === 1
   }
 
   function getConnectionLabel(conn: ProviderConnectionLike): string | null {
@@ -713,7 +711,6 @@
 
   async function refreshProvider(connectionId: string, provider: string): Promise<void> {
     await fetchQuota(connectionId, provider, { force: true })
-    lastUpdated = new Date()
   }
 
   async function refreshAll(force = false): Promise<void> {
@@ -868,12 +865,12 @@
   // ─── Derived ───────────────────────────────────────────────────────────────
   let sortedConnections = $derived.by<ProviderConnection[]>(() =>
     sortVisibleConnections(
-      connections as ProviderConnectionLike[],
+      connections,
       quotaData,
       expiringFirst,
       providerFilter,
       quotaSortMode,
-    ) as ProviderConnection[],
+    ),
   )
 
   // Group the sorted rows by provider so the tracker reads as collapsible
@@ -1200,7 +1197,7 @@
       <select
         bind:value={accountFilter}
         onchange={handleAccountFilterChange}
-        class="h-8 rounded-lg border border-border-subtle bg-surface-2 px-2 text-xs text-text-main outline-none transition-colors hover:bg-surface-3"
+        class="min-h-8 rounded-lg border border-border-subtle bg-surface-2 px-2.5 text-[16px] sm:text-xs text-text-main outline-none transition-colors hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         aria-label="Filter accounts by status"
       >
         {#each ACCOUNT_FILTER_OPTIONS as option (option.value)}
@@ -1212,7 +1209,7 @@
       {#if providerFilter === 'codex'}
         <select
           bind:value={quotaSortMode}
-          class="h-8 rounded-lg border border-border-subtle bg-surface-2 px-2 text-xs text-text-main outline-none transition-colors hover:bg-surface-3"
+          class="min-h-8 rounded-lg border border-border-subtle bg-surface-2 px-2.5 text-[16px] sm:text-xs text-text-main outline-none transition-colors hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label="Sort Codex quotas by remaining"
         >
           {#each QUOTA_SORT_OPTIONS as option (option.value)}
@@ -1621,7 +1618,7 @@
               const nextPageSize = Number.parseInt(nextValue, 10)
               if (Number.isFinite(nextPageSize)) handlePageSizeChange(nextPageSize)
             }}
-            class="h-8 rounded-lg border border-border-subtle bg-surface-2 px-2 text-xs text-text-main outline-none transition-colors hover:bg-surface-3"
+            class="min-h-8 rounded-lg border border-border-subtle bg-surface-2 px-2.5 text-[16px] sm:text-xs text-text-main outline-none transition-colors hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             aria-label="Accounts per page"
           >
             {#each ACCOUNT_PAGE_SIZE_OPTIONS as option (option)}
@@ -1637,7 +1634,7 @@
             bind:value={customPageSizeInput}
             onblur={commitCustomPageSize}
             onkeydown={handleCustomPageSizeKeydown}
-            class="h-8 w-20 rounded-lg border border-border-subtle bg-surface-2 px-2 text-xs text-text-main outline-none transition-colors hover:bg-surface-3"
+            class="min-h-8 w-20 rounded-lg border border-border-subtle bg-surface-2 px-2.5 text-[16px] sm:text-xs text-text-main outline-none transition-colors hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             aria-label="Custom accounts per page"
             placeholder="Custom"
           />
@@ -1645,12 +1642,12 @@
             Page {pagination.page} / {pagination.totalPages}
           </span>
         </div>
-        <div class="flex items-center gap-1.5">
+        <div class="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onclick={() => (page = 1)}
             disabled={pagination.page <= 1 || connectionsLoading || refreshingAll}
-            class="flex h-8 items-center rounded-lg border border-border-subtle px-3 text-xs text-text-main transition-colors hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-40"
+            class="flex min-h-8 items-center rounded-lg border border-border-subtle px-3 text-xs whitespace-nowrap text-text-main transition-colors hover:bg-surface-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             First Page
           </button>
@@ -1659,7 +1656,7 @@
             onclick={() => (page = Math.max(1, page - 1))}
             disabled={pagination.page <= 1 || connectionsLoading || refreshingAll}
             aria-label="Previous accounts page"
-            class="flex h-8 w-8 items-center justify-center rounded-lg border border-border-subtle text-text-main transition-colors hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-40"
+            class="flex min-h-8 min-w-8 items-center justify-center rounded-lg border border-border-subtle text-text-main transition-colors hover:bg-surface-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <span class="material-symbols-outlined text-[16px]">chevron_left</span>
           </button>
@@ -1668,7 +1665,7 @@
             onclick={() => (page = Math.min(pagination.totalPages, page + 1))}
             disabled={pagination.page >= pagination.totalPages || connectionsLoading || refreshingAll}
             aria-label="Next accounts page"
-            class="flex h-8 w-8 items-center justify-center rounded-lg border border-border-subtle text-text-main transition-colors hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-40"
+            class="flex min-h-8 min-w-8 items-center justify-center rounded-lg border border-border-subtle text-text-main transition-colors hover:bg-surface-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <span class="material-symbols-outlined text-[16px]">chevron_right</span>
           </button>
@@ -1676,7 +1673,7 @@
             type="button"
             onclick={() => (page = pagination.totalPages)}
             disabled={pagination.page >= pagination.totalPages || connectionsLoading || refreshingAll}
-            class="flex h-8 items-center rounded-lg border border-border-subtle px-3 text-xs text-text-main transition-colors hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-40"
+            class="flex min-h-8 items-center rounded-lg border border-border-subtle px-3 text-xs whitespace-nowrap text-text-main transition-colors hover:bg-surface-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Last Page
           </button>
@@ -1699,7 +1696,7 @@
 {#if autoPingEditing}
   <AutoPingScheduleModal
     open
-    connectionName={autoPingEditing.name}
+    connectionName={autoPingEditing.name ?? undefined}
     reactive={autoPingMaps[autoPingEditing.provider as AutoPingProvider]?.[autoPingEditing.id] ===
       true}
     schedule={(autoPingSchedules[autoPingEditing.provider as AutoPingProvider]?.[
@@ -1712,30 +1709,39 @@
 {/if}
 
 {#if resetCreditConn}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="presentation"
+    onkeydown={(e) => { if (e.key === 'Escape' && !resetCreditConsuming) closeResetCredits() }}
+  >
     <div
       class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
       onclick={closeResetCredits}
       role="presentation"
     ></div>
-    <div class="relative w-full max-w-md bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] p-6">
-      <div class="flex items-center justify-between pb-3 border-b border-border-subtle mb-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Redeem a ${resetCreditConn?.provider === 'claude' ? 'Claude' : 'Codex'} reset credit`}
+      class="relative w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] p-6"
+    >
+      <div class="flex items-center justify-between gap-2 pb-3 border-b border-border-subtle mb-4">
         <h2 class="text-lg font-semibold text-text-main">Redeem a {resetCreditConn?.provider === 'claude' ? 'Claude' : 'Codex'} reset credit</h2>
         <button
           type="button"
           onclick={closeResetCredits}
           disabled={resetCreditConsuming}
-          class="text-text-muted hover:text-text-main transition-colors disabled:opacity-50 cursor-pointer"
+          class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label="Close"
         >
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
       </div>
 
       {#if resetCreditConfirming && resetCreditPending}
         <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
           <div class="flex items-start gap-3">
-            <span class="material-symbols-outlined text-amber-500">warning</span>
+            <span class="material-symbols-outlined text-amber-700 dark:text-amber-400">warning</span>
             <div class="min-w-0">
               <p class="font-semibold text-text-main">Redeem this reset credit?</p>
               <p class="mt-1 text-sm text-text-muted">{getResetCreditConfirmation(resetCreditPending)}</p>
@@ -1751,7 +1757,7 @@
           {/if}
         </div>
         {#if resetCreditError}
-          <p class="mt-3 text-xs text-red-500">{resetCreditError}</p>
+          <p class="mt-3 text-xs text-red-600 dark:text-red-400">{resetCreditError}</p>
         {/if}
       {:else}
       <p class="text-xs text-text-muted mb-4">
@@ -1762,7 +1768,7 @@
       {#if resetCreditLoading}
         <p class="text-sm text-text-muted py-4 text-center">Loading reset credits…</p>
       {:else if resetCreditError && resetCreditList.length === 0}
-        <p class="text-sm text-red-500 py-4 text-center">{resetCreditError}</p>
+        <p class="text-sm text-red-600 dark:text-red-400 py-4 text-center">{resetCreditError}</p>
       {:else if resetCreditList.length === 0 && resetCreditCount > 0}
         <p class="text-sm text-text-muted py-4 text-center">
           Credit details are currently unavailable. Refresh and try again.
@@ -1848,30 +1854,39 @@
 {/if}
 
 {#if glmResetCardConn}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="presentation"
+    onkeydown={(e) => { if (e.key === 'Escape' && !glmResetCardConsuming) closeGlmResetCards() }}
+  >
     <div
       class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
       onclick={closeGlmResetCards}
       role="presentation"
     ></div>
-    <div class="relative w-full max-w-md bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] p-6">
-      <div class="flex items-center justify-between pb-3 border-b border-border-subtle mb-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Redeem a GLM reset card"
+      class="relative w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] p-6"
+    >
+      <div class="flex items-center justify-between gap-2 pb-3 border-b border-border-subtle mb-4">
         <h2 class="text-lg font-semibold text-text-main">Redeem a GLM reset card</h2>
         <button
           type="button"
           onclick={closeGlmResetCards}
           disabled={glmResetCardConsuming}
-          class="text-text-muted hover:text-text-main transition-colors disabled:opacity-50 cursor-pointer"
+          class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label="Close"
         >
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
       </div>
 
       {#if glmResetCardConfirming && glmResetCardPending}
         <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
           <div class="flex items-start gap-3">
-            <span class="material-symbols-outlined text-amber-500">warning</span>
+            <span class="material-symbols-outlined text-amber-700 dark:text-amber-400">warning</span>
             <div class="min-w-0">
               <p class="font-semibold text-text-main">Redeem this reset card?</p>
               <p class="mt-1 text-sm text-text-muted">
@@ -1889,7 +1904,7 @@
           </p>
         </div>
         {#if glmResetCardError}
-          <p class="mt-3 text-xs text-red-500">{glmResetCardError}</p>
+          <p class="mt-3 text-xs text-red-600 dark:text-red-400">{glmResetCardError}</p>
         {/if}
       {:else}
       <p class="text-xs text-text-muted mb-4">
@@ -1900,7 +1915,7 @@
       {#if glmResetCardLoading}
         <p class="text-sm text-text-muted py-4 text-center">Loading reset cards…</p>
       {:else if glmResetCardError && glmResetCardList.length === 0}
-        <p class="text-sm text-red-500 py-4 text-center">{glmResetCardError}</p>
+        <p class="text-sm text-red-600 dark:text-red-400 py-4 text-center">{glmResetCardError}</p>
       {:else if glmResetCardList.length === 0 && glmResetCardCount > 0}
         <p class="text-sm text-text-muted py-4 text-center">
           Card details are currently unavailable. Refresh and try again.

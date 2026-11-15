@@ -102,14 +102,14 @@
       <p class="font-body text-xs text-text-muted mt-0.5 max-w-xl leading-relaxed">
         Probe the models you have already looked at, and switch off the ones that keep failing.
         A model goes off after the threshold is reached, and comes back on its own once a probe
-        succeeds again — only if you turn auto-enable on.
+        succeeds again (only if you turn auto-enable on).
       </p>
     </div>
     <button
       type="button"
       onclick={load}
       disabled={loading}
-      class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-2 py-1 text-[11px] font-medium text-text-muted transition-colors hover:text-text-main cursor-pointer disabled:opacity-50"
+      class="inline-flex items-center gap-1 min-h-8 rounded-md border border-border bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted transition-colors hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-50"
     >
       <span class="material-symbols-outlined text-[13px] {loading ? 'animate-spin' : ''}">sync</span>
       Refresh
@@ -140,28 +140,28 @@
 
   <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
     <label class="block">
-      <span class="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-text-muted/70">Check every</span>
+      <span class="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-text-muted">Check every</span>
       <div class="flex items-center gap-1.5">
         <input
           type="number"
           min="5"
           max="1440"
           bind:value={config.intervalMin}
-          class="w-24 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-text-main focus:border-primary focus:outline-none"
+          class="w-24 min-h-9 rounded-md border border-border bg-background px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
         <span class="text-xs text-text-muted">minutes</span>
       </div>
     </label>
 
     <label class="block">
-      <span class="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-text-muted/70">Disable after</span>
+      <span class="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-text-muted">Disable after</span>
       <div class="flex items-center gap-1.5">
         <input
           type="number"
           min="2"
           max="100"
           bind:value={config.threshold}
-          class="w-24 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-text-main focus:border-primary focus:outline-none"
+          class="w-24 min-h-9 rounded-md border border-border bg-background px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
         <span class="text-xs text-text-muted">failures in a row</span>
       </div>
@@ -171,10 +171,10 @@
     </label>
 
     <label class="block">
-      <span class="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-text-muted/70">Which models to probe</span>
+      <span class="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-text-muted">Which models to probe</span>
       <select
         bind:value={config.scope}
-        class="w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs text-text-main focus:border-primary focus:outline-none cursor-pointer"
+        class="w-full min-h-9 rounded-md border border-border bg-background px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
       >
         <option value="history">Everything with a verdict</option>
         <option value="failed">Only the ones already failing</option>
@@ -199,24 +199,24 @@
     </label>
   </div>
 
-  <div class="flex items-center gap-2">
+  <div class="flex flex-wrap items-center gap-2">
     <button
       type="button"
       onclick={save}
       disabled={saving}
-      class="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-brand-600 cursor-pointer disabled:opacity-50"
+      class="min-h-9 inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-3.5 py-1.5 text-xs font-semibold text-white whitespace-nowrap shadow-sm transition-colors hover:bg-brand-600 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-50"
     >
       <span class="material-symbols-outlined text-[14px] {saving ? 'animate-spin' : ''}">{saving ? 'sync' : 'save'}</span>
       {saving ? 'Saving...' : 'Save'}
     </button>
     {#if savedAt}
-      <span class="text-[11px] text-text-muted">Saved at {savedAt} — takes effect on the next pass, no restart needed.</span>
+      <span class="text-[11px] text-text-muted">Saved at {savedAt} (takes effect on the next pass, no restart needed).</span>
     {/if}
   </div>
 
   {#if watched.length > 0}
     <div>
-      <h4 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted/70">
+      <h4 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
         Being watched ({watched.length})
       </h4>
       <div class="divide-y divide-border rounded-lg border border-border">

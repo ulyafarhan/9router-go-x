@@ -620,8 +620,8 @@
          card header. It is the one action an operator takes after reading the
          list, so it belongs where the reading ends rather than where it begins,
          and on a phone the header is the first thing to scroll away. -->
-    <div class="flex items-center gap-2 rounded-xl border border-border bg-surface-2/50 p-2.5">
-      <div class="relative flex-1 min-w-0">
+    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-xl border border-border bg-surface-2/50 p-2.5">
+      <div class="relative flex-1 min-w-[180px]">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-subtle pointer-events-none" aria-hidden="true">
           <Search class="w-4 h-4" />
         </span>
@@ -631,16 +631,16 @@
           oninput={(e) => (searchTerm = e.currentTarget.value)}
           placeholder="Search keys or tokens..."
           aria-label="Search keys"
-          class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-bg border border-border font-mono text-xs text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 transition-colors"
+          class="w-full min-h-9 pl-9 pr-3 py-1.5 rounded-lg bg-bg border border-border font-mono text-[16px] sm:text-xs text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50 transition-colors"
         />
       </div>
-      <label class="flex items-center gap-1.5 rounded-lg border border-border bg-bg px-2.5 py-1.5 text-xs shrink-0">
-        <span class="text-text-subtle">Sort</span>
+      <label class="flex items-center gap-1.5 min-h-9 rounded-lg border border-border bg-bg px-2.5 py-1.5 text-xs shrink-0 focus-within:ring-2 focus-within:ring-brand-500/50">
+        <span class="text-text-muted">Sort</span>
         <select
           value={sortKey}
           onchange={(e) => (sortKey = e.currentTarget.value as 'newest' | 'name' | 'requests')}
           aria-label="Sort keys"
-          class="bg-transparent border-0 p-0 text-xs font-medium text-text-main focus:outline-none cursor-pointer"
+          class="bg-transparent border-0 p-0 text-[16px] sm:text-xs font-medium text-text-main focus:outline-none cursor-pointer"
         >
           <option value="newest">Newest</option>
           <option value="name">Name</option>
@@ -657,7 +657,7 @@
             tokensPill = 'off'
             unusedPill = 'off'
           }}
-          class="shrink-0 rounded-lg px-2.5 py-1.5 text-xs text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer"
+          class="shrink-0 min-h-9 rounded-lg px-2.5 py-1.5 text-xs text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           Clear
         </button>
@@ -666,7 +666,7 @@
         type="button"
         onclick={() => onCreate?.()}
         aria-label="Create Key"
-        class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold transition cursor-pointer"
+        class="shrink-0 min-h-9 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold whitespace-nowrap transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
         <Plus class="w-3.5 h-3.5" />
         <!-- One label, not a responsive pair. "Create Key" on desktop and

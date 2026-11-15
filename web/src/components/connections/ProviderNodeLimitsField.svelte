@@ -143,8 +143,8 @@
           </div>
           {#if confirmingReset}
             <p class="text-xs text-text-main">
-              Reset the counter to zero from this moment? The node's usage history is not deleted — the Usage page keeps
-              every request, and only the number this quota is measured against restarts.
+              Reset the counter to zero from this moment? The node's usage history is not deleted (the Usage page keeps
+              every request), and only the number this quota is measured against restarts.
             </p>
             <div class="flex gap-2">
               <Button variant="danger" size="sm" loading={resetting} onclick={handleReset}>Yes, reset the count</Button>
@@ -166,14 +166,14 @@
           {/if}
         </div>
         {#if usage.expired}
-          <p class="text-xs text-red-500">The contract has ended, so this node is skipped until the date is moved forward.</p>
+          <p class="text-xs text-red-600 dark:text-red-400">The contract has ended, so this node is skipped until the date is moved forward.</p>
         {:else if usage.tokenQuota > 0 && usage.usedTokens >= usage.tokenQuota}
-          <p class="text-xs text-red-500">The lifetime quota is spent; requests to this node answer 403.</p>
+          <p class="text-xs text-red-600 dark:text-red-400">The lifetime quota is spent; requests to this node answer 403.</p>
         {/if}
       {/if}
 
       {#if resetError}
-        <p class="text-xs text-red-500" role="alert">{resetError}</p>
+        <p class="text-xs text-red-600 dark:text-red-400" role="alert">{resetError}</p>
       {/if}
     </div>
   {/if}

@@ -409,14 +409,14 @@
             step="any"
             placeholder="Off"
             bind:value={timeoutInput}
-            class="w-24 rounded-lg border bg-surface px-2.5 py-1.5 text-sm text-text-main focus:outline-none focus:border-brand-500 {timeoutError ? 'border-red-500' : 'border-border'}"
+            class="w-24 min-h-9 rounded-lg border bg-surface px-2.5 py-1.5 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 {timeoutError ? 'border-red-500' : 'border-border'}"
           />
           <span class="text-sm text-text-muted">seconds</span>
         </div>
       </div>
       <p class="mt-1.5 text-xs text-text-muted">{RESPONSE_TIMEOUT_HELP}</p>
       {#if timeoutError}
-        <p class="mt-1 text-xs text-red-500" role="alert">{timeoutError}</p>
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{timeoutError}</p>
       {/if}
       <div class="mt-3 flex items-center gap-2 border-t border-border pt-3 {timeoutMs ? '' : 'opacity-50'}">
         <span class="material-symbols-outlined text-[18px] text-text-muted">hourglass_top</span>
@@ -431,7 +431,7 @@
             placeholder={String(DEFAULT_FIRST_TOKEN_GRACE_SECONDS)}
             disabled={!timeoutMs}
             bind:value={graceInput}
-            class="w-24 rounded-lg border bg-surface px-2.5 py-1.5 text-sm text-text-main focus:outline-none focus:border-brand-500 disabled:cursor-not-allowed {graceError ? 'border-red-500' : 'border-border'}"
+            class="w-24 min-h-9 rounded-lg border bg-surface px-2.5 py-1.5 text-[16px] sm:text-sm text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 disabled:cursor-not-allowed {graceError ? 'border-red-500' : 'border-border'}"
           />
           <span class="text-sm text-text-muted">seconds</span>
         </div>
@@ -442,7 +442,7 @@
         The pause is kept in memory and resets when the gateway restarts.
       </p>
       {#if graceError}
-        <p class="mt-1 text-xs text-red-500" role="alert">{graceError}</p>
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{graceError}</p>
       {/if}
     </div>
     <!-- Smart rules: the source of membership, so it sits above the list it
@@ -469,7 +469,7 @@
         <div
           class="text-center py-3 border border-dashed border-black/10 dark:border-white/10 rounded-lg bg-black/[0.01] dark:bg-white/[0.01] text-[11px] text-text-muted italic"
         >
-          No rules — this combo holds only the models you picked.
+          No rules: this combo holds only the models you picked.
         </div>
       {:else}
         <div class="flex flex-col gap-2">
@@ -488,12 +488,12 @@
                   value={rule.pattern}
                   oninput={(e) => (rule.pattern = e.currentTarget.value)}
                   placeholder="kenari/deepseek*"
-                  class="min-w-0 flex-1 rounded border border-border bg-surface px-2 py-1 font-mono text-xs text-text-main focus:outline-none focus:border-brand-500"
+                  class="min-w-0 flex-1 min-h-8 rounded border border-border bg-surface px-2 py-1 font-mono text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
                 />
                 <button
                   type="button"
                   onclick={() => removeRule(idx)}
-                  class="shrink-0 rounded p-1 text-text-muted hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer"
+                  class="shrink-0 inline-flex items-center justify-center min-h-7 min-w-7 rounded p-1 text-text-muted hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
                   title="Remove rule"
                 >
                   <X class="w-3.5 h-3.5" />
@@ -503,7 +503,7 @@
                 <select
                   value={rule.mode}
                   onchange={(e) => (rule.mode = e.currentTarget.value as SmartRule['mode'])}
-                  class="rounded border border-border bg-surface px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus:border-brand-500 cursor-pointer"
+                  class="min-h-8 rounded border border-border bg-surface px-2 py-1 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 cursor-pointer"
                   title="How the pattern is matched"
                 >
                   {#each SMART_RULE_MODES as mode (mode.value)}
@@ -513,7 +513,7 @@
                 <select
                   value={rule.effect}
                   onchange={(e) => (rule.effect = e.currentTarget.value as SmartRule['effect'])}
-                  class="rounded border border-border bg-surface px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus:border-brand-500 cursor-pointer"
+                  class="min-h-8 rounded border border-border bg-surface px-2 py-1 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 cursor-pointer"
                   title="Add matching models, or keep them out"
                 >
                   <option value="include">Add</option>
@@ -526,7 +526,7 @@
                     min="0"
                     value={rule.maxMembers}
                     oninput={(e) => (rule.maxMembers = Math.max(0, Number(e.currentTarget.value) || 0))}
-                    class="w-14 rounded border border-border bg-surface px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus:border-brand-500"
+                    class="w-16 min-h-8 rounded border border-border bg-surface px-2 py-1 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
                   />
                 </label>
                 <label class="flex items-center gap-1 text-[10px] text-text-muted" title="Also match embedding, image, tts and stt models">
@@ -635,7 +635,7 @@
           <select
             value={sortKey}
             onchange={(e) => applySort(e.currentTarget.value as ComboSortKey)}
-            class="rounded border border-border bg-surface px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus:border-brand-500 cursor-pointer shrink-0"
+            class="min-h-8 rounded border border-border bg-surface px-2 py-1 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 cursor-pointer shrink-0"
             title="Reorder the members once. You can drag anything back afterwards."
           >
             {#each COMBO_SORT_OPTIONS as opt (opt.value)}
@@ -648,7 +648,7 @@
           <button
             type="button"
             onclick={onOpenModelPicker}
-            class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium text-brand-500 hover:bg-brand-500/10 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
+            class="inline-flex items-center gap-1 min-h-7 rounded px-2 py-1 text-[11px] font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer shrink-0 whitespace-nowrap"
           >
             <Plus class="w-3 h-3 shrink-0" />
             <span>Add Models Manually</span>
@@ -658,7 +658,7 @@
             type="button"
             disabled={models.length === 0 || isTestingDraft}
             onclick={handleTestDraftModels}
-            class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium text-text-muted hover:text-text-main hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 whitespace-nowrap"
+            class="inline-flex items-center gap-1 min-h-7 rounded px-2 py-1 text-[11px] font-medium text-text-muted hover:text-text-main hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 whitespace-nowrap"
             title={models.length === 0 ? "No models to test" : isTestingDraft ? "Testing draft models..." : "Test draft models (Dead/Alive check)"}
           >
             {#if isTestingDraft}
@@ -707,7 +707,7 @@
                     if (e.key === 'Enter') commitEdit(idx)
                     if (e.key === 'Escape') editingIdx = null
                   }}
-                  class="min-w-0 flex-1 rounded border border-brand-500/40 bg-white px-1.5 py-0.5 font-mono text-xs text-text-main outline-none dark:bg-black/20"
+                  class="min-w-0 flex-1 min-h-7 rounded border border-brand-500/40 bg-white px-2 py-0.5 font-mono text-[16px] sm:text-xs text-text-main outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 dark:bg-black/20"
                 />
               {:else}
                 {@const res = draftTestResults[model]}
@@ -739,10 +739,14 @@
                 </div>
               {/if}
               {#if caps.vision}
-                <Eye class="w-3 h-3 text-blue-500 shrink-0" title="Vision — Supports image input" />
+                <span class="inline-flex shrink-0" title="Vision: Supports image input">
+                  <Eye class="w-3 h-3 text-blue-500" />
+                </span>
               {/if}
               {#if caps.reasoning}
-                <Brain class="w-3 h-3 text-amber-500 shrink-0" title="Reasoning — Supports reasoning / thinking" />
+                <span class="inline-flex shrink-0" title="Reasoning: Supports reasoning / thinking">
+                  <Brain class="w-3 h-3 text-amber-500" />
+                </span>
               {/if}
               <div class="flex shrink-0 items-center gap-0.5">
                 <button

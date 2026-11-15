@@ -123,13 +123,13 @@
     aria-label={ariaLabel}
     onclick={() => (open = !open)}
     onkeydown={onKeydown}
-    class="inline-flex max-w-full items-center gap-2 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-main shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 sm:text-sm"
+    class="inline-flex max-w-full min-h-9 items-center gap-2 whitespace-nowrap rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-main shadow-sm transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer sm:text-sm"
   >
     <span class="truncate">{current?.label}</span>
     {#if current}
-      <span class="text-text-muted">({current.count})</span>
+      <span class="text-text-muted shrink-0">({current.count})</span>
     {/if}
-    <span class="material-symbols-outlined text-[16px] text-text-muted" aria-hidden="true">
+    <span class="material-symbols-outlined text-[16px] text-text-muted shrink-0" aria-hidden="true">
       expand_more
     </span>
   </button>
@@ -147,7 +147,7 @@
       tabindex="-1"
       style="{panelStyle};max-width:{maxPanelWidth()};min-width:{panelMinWidth()}"
       onkeydown={onKeydown}
-      class="fixed z-50 w-max rounded-xl border border-border bg-surface p-1.5 shadow-[var(--shadow-elev)]"
+      class="fixed z-50 w-max rounded-xl border border-border bg-surface p-1.5 shadow-[var(--shadow-elevated)]"
     >
       {#each options as o (o.value)}
         <button
@@ -155,7 +155,7 @@
           role="option"
           aria-selected={value === o.value}
           onclick={() => select(o.value)}
-          class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-xs text-text-main transition-colors hover:bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 sm:text-sm"
+          class="flex w-full min-h-[40px] sm:min-h-8 items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-xs text-text-main transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer sm:text-sm"
         >
           <span class="truncate">{o.label}</span>
           <span class="flex items-center gap-2">

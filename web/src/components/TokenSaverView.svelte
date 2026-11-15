@@ -1280,7 +1280,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                 bind:value={rtkTestInput}
                 rows={4}
                 placeholder="Paste sample tool output here (e.g. git diff, npm test, docker logs)..."
-                class="w-full px-3 py-2 text-xs font-mono rounded bg-surface-1 border border-border focus:outline-none focus:ring-1 focus:ring-primary text-text-main"
+                class="w-full px-3 py-2 text-[16px] sm:text-xs font-mono rounded bg-surface-1 border border-border focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
               ></textarea>
 
               <div class="flex justify-end gap-2">
@@ -1288,7 +1288,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                   <button
                     type="button"
                     onclick={() => { rtkTestInput = ''; rtkTestResult = null; }}
-                    class="px-3 py-1.5 rounded text-xs text-text-muted hover:text-text-main cursor-pointer"
+                    class="min-h-8 px-3 py-1.5 rounded text-xs text-text-muted hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                   >
                     Clear
                   </button>
@@ -1297,7 +1297,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                   type="button"
                   onclick={handleRunRtkTest}
                   disabled={rtkTestLoading || !rtkTestInput.trim()}
-                  class="px-4 py-1.5 rounded-lg text-xs font-medium bg-primary text-white hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  class="min-h-9 px-4 py-1.5 rounded-lg text-xs font-medium bg-primary text-white hover:opacity-90 disabled:opacity-50 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer flex items-center gap-1.5 shadow-sm"
                 >
                   {#if rtkTestLoading}
                     <span class="material-symbols-outlined text-sm animate-spin">refresh</span>
@@ -1690,7 +1690,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                 bind:value={cavemanPreserveKeywords}
                 onblur={handleCavemanPreserveKeywordsBlur}
                 placeholder="e.g. please, thank you, exact"
-                class="w-full px-3 py-1.5 rounded-lg bg-surface-1 border border-border text-xs focus:outline-none focus:ring-1 focus:ring-primary text-text-main font-mono"
+                class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-surface-1 border border-border text-[16px] sm:text-xs focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main font-mono"
               />
               <p class="text-[10px] text-text-muted">
                 Comma-separated words that will be preserved intact if found in user prompts.
@@ -1704,26 +1704,26 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                   <span class="material-symbols-outlined text-sm">compress</span>
                   Live Prompt Compressor Bench
                 </span>
-                <div class="flex items-center gap-1.5">
+                <div class="flex flex-wrap items-center gap-1.5">
                   <span class="text-[11px] text-text-muted mr-1">Sample Presets:</span>
                   <button
                     type="button"
                     onclick={() => handleSetCavemanPreset('polite')}
-                    class="px-2 py-0.5 rounded text-[11px] bg-surface-1 border border-border hover:bg-surface-2 cursor-pointer"
+                    class="min-h-7 px-2 py-0.5 rounded text-[11px] bg-surface-1 border border-border hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                   >
                     Polite Query
                   </button>
                   <button
                     type="button"
                     onclick={() => handleSetCavemanPreset('troubleshoot')}
-                    class="px-2 py-0.5 rounded text-[11px] bg-surface-1 border border-border hover:bg-surface-2 cursor-pointer"
+                    class="min-h-7 px-2 py-0.5 rounded text-[11px] bg-surface-1 border border-border hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                   >
                     Troubleshooting
                   </button>
                   <button
                     type="button"
                     onclick={() => handleSetCavemanPreset('indonesia')}
-                    class="px-2 py-0.5 rounded text-[11px] bg-surface-1 border border-border hover:bg-surface-2 cursor-pointer"
+                    class="min-h-7 px-2 py-0.5 rounded text-[11px] bg-surface-1 border border-border hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                   >
                     Bahasa Indonesia
                   </button>
@@ -1734,7 +1734,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                 bind:value={cavemanTestInput}
                 rows={3}
                 placeholder="Type user message here to test input pre-compression (e.g. 'Hello, please help me to...')"
-                class="w-full px-3 py-2 text-xs font-mono rounded bg-surface-1 border border-border focus:outline-none focus:ring-1 focus:ring-primary text-text-main"
+                class="w-full px-3 py-2 text-[16px] sm:text-xs font-mono rounded bg-surface-1 border border-border focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50 text-text-main"
               ></textarea>
 
               <div class="flex justify-end gap-2">
@@ -1742,7 +1742,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                   <button
                     type="button"
                     onclick={() => { cavemanTestInput = ''; cavemanTestResult = null; }}
-                    class="px-3 py-1.5 rounded text-xs text-text-muted hover:text-text-main cursor-pointer"
+                    class="min-h-8 px-3 py-1.5 rounded text-xs text-text-muted hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
                   >
                     Clear
                   </button>
@@ -1751,7 +1751,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
                   type="button"
                   onclick={handleRunCavemanTest}
                   disabled={cavemanTestLoading || !cavemanTestInput.trim()}
-                  class="px-4 py-1.5 rounded-lg text-xs font-medium bg-primary text-white hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  class="min-h-9 px-4 py-1.5 rounded-lg text-xs font-medium bg-primary text-white hover:opacity-90 disabled:opacity-50 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer flex items-center gap-1.5 shadow-sm"
                 >
                   {#if cavemanTestLoading}
                     <span class="material-symbols-outlined text-sm animate-spin">refresh</span>
@@ -1965,8 +1965,8 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
             id="system-prompt-prefix"
             bind:value={systemPromptPrefix}
             rows="2"
-            placeholder="House style, language, conventions — read before anything else"
-            class="w-full px-3 py-2 rounded-lg bg-surface-1 border border-border text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-primary/40"
+            placeholder="House style, language, conventions; read before anything else"
+            class="w-full px-3 py-2 rounded-lg bg-surface-1 border border-border text-[16px] sm:text-sm font-mono resize-y focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
           ></textarea>
         </div>
         <div class="space-y-1">
@@ -1975,8 +1975,8 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
             id="system-prompt-suffix"
             bind:value={systemPromptSuffix}
             rows="2"
-            placeholder="Last word the model reads — e.g. always answer in Vietnamese"
-            class="w-full px-3 py-2 rounded-lg bg-surface-1 border border-border text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-primary/40"
+            placeholder="Last word the model reads (e.g. always answer in Vietnamese)"
+            class="w-full px-3 py-2 rounded-lg bg-surface-1 border border-border text-[16px] sm:text-sm font-mono resize-y focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
           ></textarea>
         </div>
         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -1984,7 +1984,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
           <button
             type="button"
             onclick={saveSystemPrompt}
-            class="px-3 py-1.5 rounded text-xs font-medium bg-primary text-white hover:opacity-90 transition-opacity cursor-pointer"
+            class="min-h-8 px-3 py-1.5 rounded text-xs font-medium bg-primary text-white hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer"
           >
             Save prompt
           </button>
@@ -2030,7 +2030,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
               bind:value={semanticCacheTTL}
               onchange={() => patchSetting({ semanticCacheTTL: parseInt(semanticCacheTTL, 10) || 1440 })}
               placeholder="1440"
-              class="w-full bg-surface-2 border border-border rounded px-3 py-1.5 text-xs text-text-main focus:outline-none focus:border-primary"
+              class="w-full min-h-8 bg-surface-2 border border-border rounded px-3 py-1.5 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
             />
           </div>
           <div>
@@ -2041,7 +2041,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
               bind:value={semanticCacheMaxEntries}
               onchange={() => patchSetting({ semanticCacheMaxEntries: parseInt(semanticCacheMaxEntries, 10) || 1000 })}
               placeholder="1000"
-              class="w-full bg-surface-2 border border-border rounded px-3 py-1.5 text-xs text-text-main focus:outline-none focus:border-primary"
+              class="w-full min-h-8 bg-surface-2 border border-border rounded px-3 py-1.5 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
             />
           </div>
         </div>
@@ -2093,8 +2093,8 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
           type="button"
           onclick={() => handleHeadroomEngineChange('external')}
           aria-pressed={headroomEngine === 'external'}
-          class="flex-1 px-3 py-2 rounded-lg border text-sm text-left transition-colors cursor-pointer {headroomEngine === 'external'
-            ? 'border-primary bg-primary/10 text-text-main'
+          class="flex-1 min-h-10 px-3 py-2 rounded-lg border text-sm text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {headroomEngine === 'external'
+            ? 'border-brand-500 bg-brand-500/10 text-text-main'
             : 'border-border bg-surface-2 text-text-muted hover:bg-surface-3'}"
         >
           <span class="font-medium block">External proxy</span>
@@ -2102,7 +2102,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
         </button>
       </div>
       <p class="text-xs text-text-muted">
-        Built-in compresses in this process — nothing to install, no extra round trip. The
+        Built-in compresses in this process (nothing to install, no extra round trip). The
         external proxy adds semantic compression but must be running at the URL below.
       </p>
     </div>
@@ -2113,7 +2113,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
         bind:value={headroomUrl}
         onblur={handleHeadroomUrlBlur}
         placeholder="http://localhost:8787"
-        class="w-full px-3 py-2 rounded-lg bg-surface-2 border border-border font-mono text-sm focus:outline-none focus:ring-1 focus:ring-primary text-text-main"
+        class="w-full min-h-9 px-3 py-2 rounded-lg bg-surface-2 border border-border font-mono text-[16px] sm:text-sm focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 text-text-main"
       />
       <p class="text-xs text-text-muted">
         Use a local proxy for Start/Stop, or an external Docker sidecar like http://headroom:8787.
@@ -2127,7 +2127,7 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
         bind:value={headroomTimeoutMs}
         onblur={handleHeadroomTimeoutBlur}
         placeholder="3000"
-        class="w-full px-3 py-2 rounded-lg bg-surface-2 border border-border font-mono text-sm focus:outline-none focus:ring-1 focus:ring-primary text-text-main"
+        class="w-full min-h-9 px-3 py-2 rounded-lg bg-surface-2 border border-border font-mono text-[16px] sm:text-sm focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 text-text-main"
       />
       <p class="text-xs text-text-muted">
         Request timeout in milliseconds. Defaults to 3000 ms.
@@ -2222,17 +2222,27 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
 
 <!-- MODAL: Confirmation for Extras -->
 {#if extrasConfirm}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-    <div class="w-full max-w-sm p-6 rounded-2xl bg-surface border border-border shadow-2xl space-y-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    role="presentation"
+    onclick={(e) => { if (e.target === e.currentTarget) extrasConfirm = null }}
+    onkeydown={(e) => { if (e.key === 'Escape') extrasConfirm = null }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={extrasConfirm.title}
+      class="w-full max-w-sm max-h-[85vh] overflow-y-auto custom-scrollbar p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] space-y-4"
+    >
       <div class="space-y-1">
         <h3 class="text-base font-bold text-text-main">{extrasConfirm.title}</h3>
         <p class="text-sm text-text-muted">{extrasConfirm.message}</p>
       </div>
-      <div class="flex gap-2 justify-end pt-2">
+      <div class="flex flex-wrap gap-2 justify-end pt-2">
         <button
           type="button"
           onclick={() => (extrasConfirm = null)}
-          class="px-4 py-2 rounded-lg border border-border text-text-main hover:bg-surface-2 transition-colors text-sm font-medium cursor-pointer"
+          class="min-h-9 px-4 py-2 rounded-lg border border-border text-text-main hover:bg-surface-2 transition-colors text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           Cancel
         </button>
@@ -2243,9 +2253,9 @@ f6e5d4c3b2a1   redis:7-alpine "docker-entrypoint.s…"   2 hours ago     Up 2 ho
             extrasConfirm = null
             fn?.()
           }}
-          class="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors cursor-pointer {extrasConfirm.variant ===
+          class="min-h-9 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {extrasConfirm.variant ===
           'danger'
-            ? 'bg-danger hover:bg-danger/80'
+            ? 'bg-red-600 hover:bg-red-700'
             : 'bg-primary hover:bg-primary/90'}"
         >
           {extrasConfirm.confirmText}

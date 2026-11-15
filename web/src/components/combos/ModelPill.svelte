@@ -35,7 +35,7 @@
   type="button"
   {value}
   onclick={handleClick}
-  class={`px-2 py-1 rounded-xl text-xs font-medium transition-all border hover:cursor-pointer flex items-center gap-1 ${
+  class={`px-2.5 py-1 min-h-7 rounded-xl text-xs font-medium whitespace-nowrap shrink-0 transition-all border hover:cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${
     isAdded
       ? 'bg-brand-500 text-white border-brand-500 hover:bg-brand-600'
       : 'bg-surface border-border text-text-main hover:border-brand-500/50 hover:bg-brand-500/5'
@@ -46,10 +46,14 @@
   {/if}
   <span class="truncate">{label}</span>
   {#if vision}
-    <Eye class={isAdded ? 'w-3 h-3 text-white/90 shrink-0' : 'w-3 h-3 text-blue-500 shrink-0'} title="Vision — Supports image input" />
+    <span class="inline-flex shrink-0" title="Vision — Supports image input">
+      <Eye class={isAdded ? 'w-3 h-3 text-white/90' : 'w-3 h-3 text-blue-500'} />
+    </span>
   {/if}
   {#if reasoning}
-    <Brain class={isAdded ? 'w-3 h-3 text-white/90 shrink-0' : 'w-3 h-3 text-amber-500 shrink-0'} title="Reasoning / Thinking" />
+    <span class="inline-flex shrink-0" title="Reasoning / Thinking">
+      <Brain class={isAdded ? 'w-3 h-3 text-white/90' : 'w-3 h-3 text-amber-500'} />
+    </span>
   {/if}
   {#if deprecated}
     <span

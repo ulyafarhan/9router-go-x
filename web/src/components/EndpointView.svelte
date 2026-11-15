@@ -1135,7 +1135,7 @@
 <div class="flex flex-col gap-6">
   <!-- TOP SECTION: API Endpoint Card -->
   <Card padding="md" class="space-y-4">
-    <div class="flex items-center gap-2 mb-2">
+    <div class="flex flex-wrap items-center gap-2">
       <div class="p-2 rounded-lg bg-brand-500/10 text-brand-500">
         <Radio class="w-5 h-5" />
       </div>
@@ -1227,9 +1227,9 @@
       {/if}
     <!-- Pre-enable security gate banner (upstream isLoginUnsafe) -->
     {#if isLoginUnsafe && !tunnelEnabled && !tailscaleEnabled}
-      <div class="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs">
-        <AlertTriangle class="w-4 h-4 shrink-0 text-amber-500" />
-        <p class="flex-1 leading-relaxed">{unsafeReason}</p>
+      <div class="mt-4 flex flex-wrap items-start sm:items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs">
+        <AlertTriangle class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5 sm:mt-0" />
+        <p class="flex-1 min-w-[200px] leading-relaxed">{unsafeReason}</p>
         <a
           href="/dashboard/profile"
           onclick={(e) => {
@@ -1300,8 +1300,17 @@
 
 <!-- MODAL: Create API Key -->
 {#if isCreateKeyOpen}
-  <div class="fixed inset-0 z-\[100\] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full {createKeyTab === 'bulk' ? 'max-w-lg' : 'max-w-md'} p-6 rounded-2xl bg-surface border border-border shadow-2xl space-y-4">
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+    role="presentation"
+    onkeydown={(e) => { if (e.key === "Escape") isCreateKeyOpen = false; }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Create API Key"
+      class="w-full {createKeyTab === 'bulk' ? 'max-w-lg' : 'max-w-md'} max-h-[85vh] overflow-y-auto custom-scrollbar p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] space-y-4"
+    >
       <div class="flex items-center justify-between pb-3 border-b border-border">
         <h3 class="text-base font-bold text-text-main">Create API Key</h3>
         <button
@@ -1500,8 +1509,17 @@
 {/if}
 <!-- MODAL: Bulk Keys Created -->
 {#if bulkKeyResults.length > 0}
-  <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-lg p-6 rounded-2xl bg-surface border border-border shadow-2xl space-y-4">
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+    role="presentation"
+    onkeydown={(e) => { if (e.key === "Escape") bulkKeyResults = []; }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Bulk API Keys Created"
+      class="w-full max-w-lg max-h-[85vh] overflow-y-auto custom-scrollbar p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] space-y-4"
+    >
       <div class="flex items-center justify-between pb-3 border-b border-border">
         <h3 class="text-base font-bold text-text-main">
           {bulkKeyResults.length} API Key{bulkKeyResults.length === 1 ? '' : 's'} Created
@@ -1570,8 +1588,17 @@
 {/if}
 
 {#if newlyCreatedKey}
-  <div class="fixed inset-0 z-\[100\] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-md p-6 rounded-2xl bg-surface border border-border shadow-2xl space-y-4">
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+    role="presentation"
+    onkeydown={(e) => { if (e.key === "Escape") newlyCreatedKey = null; }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="API Key Created"
+      class="w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar p-6 rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] space-y-4"
+    >
       <div class="flex items-center justify-between pb-3 border-b border-border">
         <h3 class="text-base font-bold text-text-main">API Key Created</h3>
       </div>
@@ -1635,19 +1662,28 @@
        backdrop — does not close the modal on its way out. -->
   <div
     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+    role="presentation"
     onclick={(e) => {
       if (e.target === e.currentTarget) showTunnelSettingsModal = false
     }}
+    onkeydown={(e) => {
+      if (e.key === 'Escape') showTunnelSettingsModal = false
+    }}
   >
-    <div class="w-full max-w-lg rounded-2xl bg-surface border border-border shadow-2xl flex flex-col max-h-[90vh]">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tunnel Settings"
+      class="w-full max-w-lg rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] flex flex-col max-h-[85vh]"
+    >
       <!-- Header: title, tabs, close. Fixed so the way out is always reachable. -->
       <div class="p-6 pb-0 border-b border-border shrink-0 space-y-4">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <h3 class="text-base font-bold text-text-main">Tunnel Settings</h3>
           <button
             type="button"
             onclick={() => (showTunnelSettingsModal = false)}
-            class="text-text-muted hover:text-text-main cursor-pointer"
+            class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             aria-label="Close tunnel settings"
           >
             <X class="w-4 h-4" />
@@ -1659,9 +1695,9 @@
             role="tab"
             aria-selected={tunnelSettingsTab === 'global'}
             onclick={() => (tunnelSettingsTab = 'global')}
-            class="flex-1 py-2 px-3 rounded-t-lg text-xs font-semibold transition cursor-pointer border-b-2 {tunnelSettingsTab ===
+            class="flex-1 py-2.5 px-3 rounded-t-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer border-b-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {tunnelSettingsTab ===
             'global'
-              ? 'border-brand-500 text-brand-500'
+              ? 'border-brand-500 text-brand-600 dark:text-brand-400'
               : 'border-transparent text-text-muted hover:text-text-main'}"
           >
             <span class="flex items-center justify-center gap-1.5">
@@ -1674,9 +1710,9 @@
             role="tab"
             aria-selected={tunnelSettingsTab === 'cloudflare'}
             onclick={() => (tunnelSettingsTab = 'cloudflare')}
-            class="flex-1 py-2 px-3 rounded-t-lg text-xs font-semibold transition cursor-pointer border-b-2 {tunnelSettingsTab ===
+            class="flex-1 py-2.5 px-3 rounded-t-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer border-b-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {tunnelSettingsTab ===
             'cloudflare'
-              ? 'border-brand-500 text-brand-500'
+              ? 'border-brand-500 text-brand-600 dark:text-brand-400'
               : 'border-transparent text-text-muted hover:text-text-main'}"
           >
             <span class="flex items-center justify-center gap-1.5">
@@ -1689,9 +1725,9 @@
             role="tab"
             aria-selected={tunnelSettingsTab === 'tailscale'}
             onclick={() => (tunnelSettingsTab = 'tailscale')}
-            class="flex-1 py-2 px-3 rounded-t-lg text-xs font-semibold transition cursor-pointer border-b-2 {tunnelSettingsTab ===
+            class="flex-1 py-2.5 px-3 rounded-t-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer border-b-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 {tunnelSettingsTab ===
             'tailscale'
-              ? 'border-indigo-500 text-indigo-400'
+              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
               : 'border-transparent text-text-muted hover:text-text-main'}"
           >
             <span class="flex items-center justify-center gap-1.5">
@@ -1790,7 +1826,7 @@
                 id="tunnel-method"
                 value={tunnelMode}
                 onchange={(e) => selectTunnelMode(e.currentTarget.value as 'quick' | 'named' | 'auto')}
-                class="w-full text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main cursor-pointer focus:outline-none focus:border-brand-500/50"
+                class="w-full min-h-9 text-[16px] sm:text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main cursor-pointer focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 <option value="quick">Quick Free</option>
                 <option value="named">Your Own</option>
@@ -1802,10 +1838,10 @@
                        all — no account, no token, no domain. The cost is stated
                        in the same breath: the address is not yours to choose,
                        which is the whole reason the other two modes exist. -->
-                  Fastest of the three and needs nothing at all — no account, no token, no domain. You get a
+                  Fastest of the three and needs nothing at all: no account, no token, no domain. You get a
                   <span class="font-mono">*.trycloudflare.com</span> address plus a stable alias from the mapping service,
                   though the address itself is not yours to choose.{#if currentTunnelMode === 'quick' && tunnelRunning}<span
-                    class="text-brand-500 font-semibold">· active</span
+                    class="text-brand-600 dark:text-brand-400 font-semibold">· active</span
                   >{/if}
                 {:else if tunnelMode === 'named'}
                   <!-- The step count is stated here too, so the comparison is
@@ -1816,7 +1852,7 @@
                   Most steps of the three, but no API token needed. Create the tunnel yourself in the Cloudflare dashboard,
                   then paste its token here along with a hostname whose DNS you have pointed at it yourself.{#if currentTunnelMode ===
                     'named' &&
-                    tunnelRunning}<span class="text-brand-500 font-semibold">· active</span>{/if}
+                    tunnelRunning}<span class="text-brand-600 dark:text-brand-400 font-semibold">· active</span>{/if}
                 {:else}
                   <!-- The step count leads, because it is the reason to pick this
                        mode and the thing an operator cannot see: the token
@@ -1825,10 +1861,10 @@
                        steps. Stating the trade in one line lets them decide
                        instead of guessing. -->
                   Fewest steps of the three, but you need a Cloudflare API token first. The gateway then creates the tunnel,
-                  its route and its DNS record for you — no Zero Trust dashboard, no ingress rule to type by hand. Needs a
+                  its route and its DNS record for you; no Zero Trust dashboard, no ingress rule to type by hand. Needs a
                   token with <span class="font-mono">Tunnel:Edit</span> and <span class="font-mono">Zone:DNS:Edit</span>.{#if currentTunnelMode ===
                     'auto' &&
-                    tunnelRunning}<span class="text-brand-500 font-semibold">· active</span>{/if}
+                    tunnelRunning}<span class="text-brand-600 dark:text-brand-400 font-semibold">· active</span>{/if}
                 {/if}
               </p>
             </div>
@@ -1843,9 +1879,9 @@
                      needs to know which one to update, and "the old URL" makes
                      them go and look. -->
                 Switching method disconnects <span class="font-mono text-text-muted break-all">{publicUrl || tunnelUrl}</span> and
-                builds a new one — expect a short outage, and that address stops working.
+                builds a new one; expect a short outage, and that address stops working.
               {:else}
-                Switching method disconnects the current tunnel and builds a new one — expect a short outage, and the old URL
+                Switching method disconnects the current tunnel and builds a new one; expect a short outage, and the old URL
                 stops working.
               {/if}
             </p>
@@ -1899,11 +1935,11 @@
                         e.currentTarget.value = typed.replace(/^r+/, '')
                       }
                     }}
-                    class="w-full font-mono text-sm bg-bg border border-border rounded-lg pl-7 pr-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                    class="w-full min-h-9 font-mono text-[16px] sm:text-sm bg-bg border border-border rounded-lg pl-7 pr-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                 </div>
                 <p class="text-[11px] text-text-subtle leading-relaxed">
-                  Lowercase letters, digits and hyphens (3-20 chars). The <span class="font-mono">r</span> is added for you —
+                  Lowercase letters, digits and hyphens (3-20 chars). The <span class="font-mono">r</span> is added for you:
                   your stable URL becomes
                   <!-- The address is the one thing in this paragraph the operator
                        has to read carefully, and it was the same colour as the
@@ -1911,7 +1947,7 @@
                        rather than a result. Brand-500 is the accent the rest of
                        this modal already uses for the live value, which keeps
                        "this is the thing you get" consistent across screens. -->
-                  <span class="font-mono text-brand-500">r{tunnelShortId.trim() || 'yourid'}.abc-tunnel.us</span>.
+                  <span class="font-mono text-brand-600 dark:text-brand-400">r{tunnelShortId.trim() || 'yourid'}.abc-tunnel.us</span>.
                   Leave empty for a random one. Not used by the other methods, which already have a fixed address.
                 </p>
               </div>
@@ -1927,13 +1963,13 @@
                     type="text"
                     bind:value={tunnelWorkerUrl}
                     placeholder="https://abc-tunnel.us"
-                    class="flex-1 min-w-0 font-mono text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                    class="flex-1 min-w-0 min-h-9 font-mono text-[16px] sm:text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <button
                     type="button"
                     onclick={saveTunnelWorkerUrl}
                     disabled={isSavingWorkerUrl}
-                    class="shrink-0 py-2 px-3 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-text-main transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="shrink-0 min-h-9 py-2 px-3 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-text-main transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
                     {isSavingWorkerUrl ? 'Saving…' : 'Save'}
                   </button>
@@ -1943,7 +1979,7 @@
                     disabled={isSavingWorkerUrl || tunnelWorkerUrl.trim() === defaultWorkerUrl}
                     title="Reset to the default mapping service"
                     aria-label="Reset mapping service to default"
-                    class="shrink-0 p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-brand-500 transition-colors cursor-pointer border border-border disabled:opacity-40 disabled:cursor-not-allowed"
+                    class="shrink-0 min-h-9 min-w-9 inline-flex items-center justify-center p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-brand-500 transition-colors cursor-pointer border border-border disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   >
                     <RotateCcw class="w-3.5 h-3.5" />
                   </button>
@@ -2044,7 +2080,7 @@
                   type="text"
                   bind:value={tunnelCustomDomain}
                   placeholder="router.example.com"
-                  class="w-full font-mono text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                  class="w-full min-h-9 font-mono text-[16px] sm:text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 />
                 <p class="text-[11px] text-text-subtle leading-relaxed">
                   {tunnelMode === 'auto'
@@ -2065,12 +2101,12 @@
                     bind:value={tunnelToken}
                     placeholder="eyJhIjoi..."
                     autocomplete="off"
-                    class="flex-1 min-w-0 font-mono text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                    class="flex-1 min-w-0 min-h-9 font-mono text-[16px] sm:text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <button
                     type="button"
                     onclick={() => (showTunnelToken = !showTunnelToken)}
-                    class="p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-brand-500 transition-colors shrink-0 cursor-pointer border border-border"
+                    class="min-h-9 min-w-9 inline-flex items-center justify-center p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-brand-500 transition-colors shrink-0 cursor-pointer border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     title={showTunnelToken ? 'Hide token' : 'Show token'}
                     aria-label={showTunnelToken ? 'Hide tunnel token' : 'Show tunnel token'}
                   >
@@ -2083,7 +2119,7 @@
                 </div>
                 <p class="text-[11px] text-text-subtle leading-relaxed">
                   From Cloudflare Zero Trust → Networks → Tunnels → your tunnel → Install connector. You can paste the whole
-                  command — the token is picked out of it.
+                  command; the token is picked out of it.
                 </p>
               </div>
             {/if}
@@ -2098,12 +2134,12 @@
                     bind:value={tunnelCfApiToken}
                     placeholder="eyJhIjoi..."
                     autocomplete="off"
-                    class="flex-1 min-w-0 font-mono text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                    class="flex-1 min-w-0 min-h-9 font-mono text-[16px] sm:text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <button
                     type="button"
                     onclick={() => (showCfApiToken = !showCfApiToken)}
-                    class="p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-brand-500 transition-colors shrink-0 cursor-pointer border border-border"
+                    class="min-h-9 min-w-9 inline-flex items-center justify-center p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-brand-500 transition-colors shrink-0 cursor-pointer border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                     title={showCfApiToken ? 'Hide token' : 'Show token'}
                     aria-label={showCfApiToken ? 'Hide Cloudflare API token' : 'Show Cloudflare API token'}
                   >
@@ -2127,7 +2163,7 @@
                     type="text"
                     bind:value={tunnelCfZone}
                     placeholder="example.com"
-                    class="w-full font-mono text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                    class="w-full min-h-9 font-mono text-[16px] sm:text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <p class="text-[11px] text-text-subtle leading-relaxed">
                     The domain on your Cloudflare account that will host the hostname above.
@@ -2142,7 +2178,7 @@
                     type="text"
                     bind:value={tunnelCfAccountId}
                     placeholder="auto-detected"
-                    class="w-full font-mono text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50"
+                    class="w-full min-h-9 font-mono text-[16px] sm:text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-brand-500/50 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <p class="text-[11px] text-text-subtle leading-relaxed">
                     Leave empty unless your token reaches more than one account.
@@ -2162,7 +2198,7 @@
             <div class="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3 space-y-1">
               <p class="text-xs font-semibold text-amber-700 dark:text-amber-300">Unsaved changes</p>
               <p class="text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed">
-                Applying them disconnects the current tunnel and builds a new one — expect a short outage, and the current URL
+                Applying them disconnects the current tunnel and builds a new one; expect a short outage, and the current URL
                 stops working until the new tunnel is up. Press <span class="font-semibold">Restart</span> below to apply them, or
                 to rebuild the tunnel as it stands.
               </p>
@@ -2186,8 +2222,9 @@
                   <button
                     type="button"
                     onclick={() => copy(tailscaleUrl, 'ts_settings_url')}
-                    class="p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-indigo-400 transition-colors shrink-0 cursor-pointer border border-border"
+                    class="min-h-9 min-w-9 inline-flex items-center justify-center p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors shrink-0 cursor-pointer border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
                     title="Copy Tailscale URL"
+                    aria-label="Copy Tailscale URL"
                   >
                     {#if copiedId === 'ts_settings_url'}
                       <Check class="w-4 h-4 text-success" />
@@ -2235,7 +2272,7 @@
                 id="tailscale-auth-mode"
                 value={tailscaleAuthMode}
                 onchange={(e) => selectTailscaleAuthMode(e.currentTarget.value as 'interactive' | 'key')}
-                class="w-full text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main cursor-pointer focus:outline-none focus:border-indigo-500/50"
+                class="w-full min-h-9 text-[16px] sm:text-sm bg-bg border border-border rounded-lg px-3 py-2 text-text-main cursor-pointer focus:outline-none focus:border-indigo-500/50 focus-visible:ring-2 focus-visible:ring-indigo-500/50"
               >
                 <option value="interactive">Interactive login</option>
                 <option value="key">Auth key</option>
@@ -2245,7 +2282,7 @@
                   Opens a Tailscale login page in your browser to authorise this machine. Best for a desktop or a laptop you
                   can reach.
                 {:else}
-                  Authenticates without a browser. The only option on a headless gateway — a server, a container, or a Pi has
+                  Authenticates without a browser. The only option on a headless gateway, because a server, container, or Pi has
                   nowhere to open a login page.
                 {/if}
               </p>
@@ -2261,12 +2298,12 @@
                   bind:value={tailscaleAuthKey}
                   placeholder="tskey-auth-..."
                   autocomplete="off"
-                  class="flex-1 min-w-0 font-mono text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-indigo-500/50"
+                  class="flex-1 min-w-0 min-h-9 font-mono text-[16px] sm:text-xs bg-bg border border-border rounded-lg px-3 py-2 text-text-main placeholder:text-text-subtle focus:outline-none focus:border-indigo-500/50 focus-visible:ring-2 focus-visible:ring-indigo-500/50"
                 />
                 <button
                   type="button"
                   onclick={() => (showTailscaleKey = !showTailscaleKey)}
-                  class="p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-indigo-400 transition-colors shrink-0 cursor-pointer border border-border"
+                  class="min-h-9 min-w-9 inline-flex items-center justify-center p-2 hover:bg-surface-2 rounded-lg text-text-muted hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors shrink-0 cursor-pointer border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
                   title={showTailscaleKey ? 'Hide key' : 'Show key'}
                   aria-label={showTailscaleKey ? 'Hide Tailscale auth key' : 'Show Tailscale auth key'}
                 >
@@ -2291,13 +2328,13 @@
               <div class="rounded-xl border border-indigo-500/25 bg-indigo-500/5 p-3 space-y-2">
                 <p class="text-xs font-semibold text-text-main">Login required</p>
                 <p class="text-[11px] text-text-muted leading-relaxed">
-                  Open the Tailscale login page to authorise this machine, then come back — the connection continues on its
+                  Open the Tailscale login page to authorise this machine, then come back; the connection continues on its
                   own.
                 </p>
                 <button
                   type="button"
                   onclick={() => window.open(tailscaleAuthUrl, '_blank')}
-                  class="w-full py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                  class="w-full min-h-9 py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
                 >
                   <ExternalLink class="w-3.5 h-3.5" />
                   Open login page
@@ -2329,7 +2366,7 @@
               <h4 class="text-xs font-semibold text-text-main">Tailscale behaviour</h4>
               <p class="text-[11px] text-text-muted leading-relaxed">
                 Re-establish the funnel after a network change or a wake from sleep. The Tailscale daemon itself is left
-                alone — it reconnects on its own and restarting it would discard your login.
+                alone; it reconnects on its own and restarting it would discard your login.
               </p>
             </div>
             <div class="flex items-center justify-between gap-3">
@@ -2347,7 +2384,7 @@
               <h4 class="text-xs font-semibold text-text-main">Dashboard access</h4>
               <p class="text-[11px] text-text-muted leading-relaxed">
                 When enabled, the dashboard can be reached through whichever tunnel is running. A login is still
-                required — the tunnel decides who can reach the door, not who gets in.
+                required: the tunnel decides who can reach the door, not who gets in.
               </p>
             </div>
             <div class="flex items-center justify-between gap-3">
@@ -2364,7 +2401,7 @@
               <h4 class="text-xs font-semibold text-text-main">Visibility</h4>
               <p class="text-[11px] text-text-muted leading-relaxed">
                 Hide the Tunnel and Tailscale rows while neither is running. They come back the moment one is
-                enabled — this tidies the card, it does not remove the controls.
+                enabled (this tidies the card, it does not remove the controls).
               </p>
             </div>
             <div class="flex items-center justify-between gap-3">
@@ -2403,7 +2440,7 @@
                 type="button"
                 onclick={doStartTunnel}
                 disabled={isTunnelLoading}
-                class="flex-1 py-2 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-semibold text-xs transition cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex-1 min-h-9 py-2 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isTunnelLoading ? 'Restarting…' : 'Restart'}
               </button>
@@ -2413,7 +2450,7 @@
                   showTunnelSettingsModal = false
                   showDisableTunnelModal = true
                 }}
-                class="flex-1 py-2 px-4 rounded-lg bg-danger hover:bg-danger/90 text-white font-semibold text-xs transition cursor-pointer"
+                class="flex-1 min-h-9 py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
               >
                 Disable
               </button>
@@ -2435,7 +2472,7 @@
               showTunnelSettingsModal = false
               showDisableTailscaleModal = true
             }}
-            class="w-full py-2 px-4 rounded-lg bg-danger hover:bg-danger/90 text-white font-semibold text-xs transition cursor-pointer"
+            class="w-full min-h-9 py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
           >
             Disable Tailscale
           </button>
@@ -2486,7 +2523,7 @@
         <button
           type="button"
           onclick={stopTunnel}
-          class="flex-1 py-2 px-4 rounded-lg bg-danger hover:bg-danger/90 text-white font-semibold text-xs transition cursor-pointer"
+          class="flex-1 min-h-9 py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
         >
           Disable Tunnel
         </button>
@@ -2528,7 +2565,7 @@
         <button
           type="button"
           onclick={stopTailscale}
-          class="flex-1 py-2 px-4 rounded-lg bg-danger hover:bg-danger/90 text-white font-semibold text-xs transition cursor-pointer"
+          class="flex-1 min-h-9 py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
         >
           Disable Tailscale
         </button>

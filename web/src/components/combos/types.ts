@@ -51,14 +51,14 @@ export interface ComboStrategyInfo {
  */
 export const COMBO_STRATEGIES = [
   { value: 'inherit', label: 'Inherit global strategy' },
-  { value: 'fallback', label: 'Fallback — try in order' },
-  { value: 'round-robin', label: 'Round Robin — rotate' },
-  { value: 'sticky', label: 'Sticky — stay until the limit' },
-  { value: 'capacity', label: 'Capacity — prefer free tiers' },
-  { value: 'smart', label: 'Smart Router — System One' },
-  { value: 'fusion', label: 'Fusion — panel + judge' },
-  { value: 'tokenmaxxing', label: 'Tokenmaxxing — quota-aware' },
-  { value: 'cascade', label: 'Cascade — cheapest first' }
+  { value: 'fallback', label: 'Fallback: try in order' },
+  { value: 'round-robin', label: 'Round Robin: rotate' },
+  { value: 'sticky', label: 'Sticky: stay until the limit' },
+  { value: 'capacity', label: 'Capacity: prefer free tiers' },
+  { value: 'smart', label: 'Smart Router: System One' },
+  { value: 'fusion', label: 'Fusion: panel + judge' },
+  { value: 'tokenmaxxing', label: 'Tokenmaxxing: quota-aware' },
+  { value: 'cascade', label: 'Cascade: cheapest first' }
 ] as const
 
 /**
@@ -92,7 +92,7 @@ export function comboStrategyOptions(globalStrategy?: string | null): { value: s
   const globalLabel = resolveComboStrategy(globalStrategy)
   return COMBO_STRATEGIES.map((s) =>
     s.value === INHERIT_STRATEGY
-      ? { value: s.value, label: `Inherit global — ${globalLabel}` }
+      ? { value: s.value, label: `Inherit global (${globalLabel})` }
       : { value: s.value, label: s.label }
   )
 }
@@ -408,10 +408,10 @@ export const SMART_RULE_MODES = [
   {
     value: 'glob',
     label: 'Glob',
-    hint: 'Whole id, case-insensitive. * spans "/" — kenari/deepseek*'
+    hint: 'Whole id, case-insensitive. * spans "/" (e.g. kenari/deepseek*)'
   },
-  { value: 'keyword', label: 'Keyword', hint: 'Case-insensitive substring — deepseek' },
-  { value: 'regex', label: 'Regex', hint: 'Prefix with re:, matched whole — re:^kenari/deepseek-v\\d+$' }
+  { value: 'keyword', label: 'Keyword', hint: 'Case-insensitive substring (e.g. deepseek)' },
+  { value: 'regex', label: 'Regex', hint: 'Prefix with re:, matched whole (e.g. re:^kenari/deepseek-v\\d+$)' }
 ] as const
 
 /** Mirrors internal/combos/smart.DefaultMaxMembers. */
@@ -551,7 +551,7 @@ export const COMBO_SORT_OPTIONS: ComboSortOption[] = [
   {
     value: 'latency',
     label: 'Latency (fastest first)',
-    hint: 'Sort by observed mean time-to-first-token, then total latency. Models with no traffic yet go last — they are unproven, not slow.',
+    hint: 'Sort by observed mean time-to-first-token, then total latency. Models with no traffic yet go last (they are unproven, not slow).',
   },
   {
     value: 'shuffle',

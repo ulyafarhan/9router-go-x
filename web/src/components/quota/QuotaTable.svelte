@@ -4,8 +4,6 @@
     formatResetTime,
     formatResetTimeDisplay,
     getRemainingPercentage,
-    getStatusColor,
-    getStatusEmoji,
     type NormalizedQuota,
   } from './types'
 
@@ -248,7 +246,7 @@
             <button
               type="button"
               onclick={() => onHideQuota?.(quota)}
-              class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-3 hover:text-text-main"
+              class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-3 hover:text-text-main cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               title="Hide this quota row"
               aria-label="Hide quota {quota.name}"
             >

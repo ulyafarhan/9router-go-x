@@ -183,7 +183,7 @@
         {/if}
         {#if ruleCount > 0}
           <span
-            class="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-500 border border-brand-500/30"
+            class="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-700 dark:text-brand-300 border border-brand-500/30"
             title="{ruleCount} smart rule{ruleCount === 1 ? '' : 's'} keep this combo in step with the catalog"
           >
             <Wand2 class="w-2.5 h-2.5" />
@@ -281,7 +281,7 @@
             <button
               type="button"
               onclick={() => onOpenRouterPicker(combo)}
-              class="inline-flex max-w-full items-center gap-1 rounded border border-dashed border-brand-500/40 px-1.5 py-0.5 font-mono text-[11px] text-brand-500 hover:border-brand-500 hover:bg-brand-500/5 transition-colors cursor-pointer"
+              class="inline-flex max-w-full min-h-7 items-center gap-1 rounded border border-dashed border-brand-500/40 px-2 py-0.5 font-mono text-[11px] text-brand-700 dark:text-brand-300 hover:border-brand-500 hover:bg-brand-500/5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
               title="Pick the System One model that decides model routing"
             >
               <span class="material-symbols-outlined text-[13px]">psychology</span>
@@ -290,7 +290,7 @@
             <button
               type="button"
               onclick={() => onOpenPolicyModal(combo)}
-              class="inline-flex items-center gap-1 rounded border border-border/70 bg-black/[0.02] dark:bg-white/[0.02] px-2 py-0.5 text-[11px] text-text-main hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer"
+              class="inline-flex min-h-7 items-center gap-1 rounded border border-border/70 bg-black/[0.02] dark:bg-white/[0.02] px-2 py-0.5 text-[11px] text-text-main hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
               title="Configure routing policy and prompt cache retention"
             >
               <span class="material-symbols-outlined text-[13px] text-text-muted">tune</span>
@@ -303,13 +303,13 @@
     </div>
 
     <!-- Actions: Strategy selector + Copy/Edit/Delete -->
-    <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3 sm:shrink-0">
+    <div class="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:items-center sm:gap-3 sm:shrink-0">
       <!-- Strategy dropdown -->
       <div class="w-full sm:w-[200px]">
         <select
           value={currentStrategy}
           onchange={(e) => onSetStrategy(combo, e.currentTarget.value)}
-          class="w-full bg-surface-2 border border-border rounded-lg px-2.5 py-1.5 text-xs text-text-main focus:outline-none focus:border-brand-500 cursor-pointer font-body"
+          class="w-full min-h-8 bg-surface-2 border border-border rounded-lg px-2.5 py-1.5 text-xs text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus:border-brand-500 cursor-pointer font-body"
         >
           {#each strategyOptions as strategy (strategy.value)}
             <option value={strategy.value}>{strategy.label}</option>
@@ -320,14 +320,14 @@
              order the models themselves and would ignore the flag anyway. -->
         {#if !isSmart && !isCascade}
           <label
-            class="mt-1.5 flex cursor-pointer items-center gap-1.5 text-[10px] text-text-muted hover:text-text-main select-none"
+            class="mt-1.5 flex cursor-pointer items-center gap-1.5 text-[11px] text-text-muted hover:text-text-main select-none"
             title="Skip the rotation strategy and try models in the order shown. A request that needs vision still floats a capable model to the front."
           >
             <input
               type="checkbox"
               checked={strategyInfo.respectStoredOrder === true}
               onchange={(e) => onToggleStoredOrder(combo, e.currentTarget.checked)}
-              class="size-3 shrink-0 cursor-pointer accent-brand-500"
+              class="size-3.5 shrink-0 cursor-pointer accent-brand-500"
             />
             <span>Respect stored order</span>
           </label>
@@ -335,10 +335,10 @@
         <!-- Model response timeout: kept minimal here; the edit modal is the
              prominent home. The explanation lives in the tooltip. -->
         <label
-          class="mt-1.5 flex items-center gap-1.5 text-[10px] text-text-muted"
+          class="mt-1.5 flex items-center gap-1.5 text-[11px] text-text-muted"
           title={RESPONSE_TIMEOUT_HELP}
         >
-          <span class="material-symbols-outlined text-[12px]">timer</span>
+          <span class="material-symbols-outlined text-[13px]">timer</span>
           <span>Response timeout</span>
           <input
             type="number"
@@ -349,7 +349,7 @@
             aria-label="Model response timeout in seconds"
             value={timeoutSeconds || ''}
             onchange={handleResponseTimeoutChange}
-            class="w-14 rounded border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] text-text-main focus:outline-none focus:border-brand-500"
+            class="w-16 rounded border border-border bg-surface-2 px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus:border-brand-500"
           />
           <span>s</span>
         </label>
@@ -359,10 +359,10 @@
              so this is a spend limit for the running gateway, not a durable
              budget that survives a restart. -->
         <label
-          class="mt-1.5 flex items-center gap-1.5 text-[10px] text-text-muted"
+          class="mt-1.5 flex items-center gap-1.5 text-[11px] text-text-muted"
           title={BUDGET_CALLS_HELP}
         >
-          <span class="material-symbols-outlined text-[12px]">pacemaker</span>
+          <span class="material-symbols-outlined text-[13px]">pacemaker</span>
           <span>Call budget</span>
           <input
             type="number"
@@ -373,7 +373,7 @@
             aria-label="Requests per window for this combo"
             value={strategyInfo.budgetCalls || ''}
             onchange={handleBudgetCallsChange}
-            class="w-16 rounded border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] text-text-main focus:outline-none focus:border-brand-500"
+            class="w-16 rounded border border-border bg-surface-2 px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus:border-brand-500"
           />
           <span>calls</span>
         </label>
@@ -382,10 +382,10 @@
              default of one hour is what the placeholder names. -->
         {#if strategyInfo.budgetCalls}
           <label
-            class="mt-1.5 flex items-center gap-1.5 text-[10px] text-text-muted"
+            class="mt-1.5 flex items-center gap-1.5 text-[11px] text-text-muted"
             title={BUDGET_WINDOW_HELP}
           >
-            <span class="material-symbols-outlined text-[12px]">hourglass_top</span>
+            <span class="material-symbols-outlined text-[13px]">hourglass_top</span>
             <span>Window</span>
             <input
               type="number"
@@ -396,7 +396,7 @@
               aria-label="Budget window in minutes"
               value={budgetWindowMinutes}
               onchange={handleBudgetWindowChange}
-              class="w-14 rounded border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] text-text-main focus:outline-none focus:border-brand-500"
+              class="w-16 rounded border border-border bg-surface-2 px-1.5 py-0.5 text-[11px] text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus:border-brand-500"
             />
             <span>min</span>
           </label>
@@ -409,48 +409,48 @@
           type="button"
           onclick={() => onTest?.(combo)}
           disabled={isTesting || modelsList.length === 0}
-          class="flex flex-col items-center justify-center rounded px-2.5 py-1 transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-brand-500 cursor-pointer {isTesting ? 'text-brand-500 cursor-wait' : modelsList.length === 0 ? 'opacity-40 cursor-not-allowed text-text-muted' : 'text-text-muted'}"
+          class="flex flex-col items-center justify-center min-h-10 rounded px-2.5 py-1.5 transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-brand-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {isTesting ? 'text-brand-500 cursor-wait' : modelsList.length === 0 ? 'opacity-40 cursor-not-allowed text-text-muted' : 'text-text-muted'}"
           title={modelsList.length === 0 ? 'No models to test' : isTesting ? 'Testing models...' : 'Test all models in combo (Dead/Alive check)'}
         >
           <span class="material-symbols-outlined text-[18px] {isTesting ? 'animate-spin' : ''}">
             {isTesting ? 'progress_activity' : 'science'}
           </span>
-          <span class="text-[10px] leading-tight">Test</span>
+          <span class="text-[10px] leading-tight mt-0.5">Test</span>
         </button>
 
         <button
           type="button"
           onclick={() => onCopy(combo.name, combo.id)}
-          class="flex flex-col items-center justify-center rounded px-2.5 py-1 text-text-muted transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-brand-500 cursor-pointer"
+          class="flex flex-col items-center justify-center min-h-10 rounded px-2.5 py-1.5 text-text-muted transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-brand-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           title="Copy combo name"
         >
           {#if copiedId === combo.id}
-            <Check class="w-4 h-4 text-success" />
-            <span class="text-[10px] leading-tight text-success font-medium">Copied</span>
+            <Check class="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <span class="text-[10px] leading-tight mt-0.5 text-emerald-700 dark:text-emerald-400 font-medium">Copied</span>
           {:else}
             <Copy class="w-4 h-4" />
-            <span class="text-[10px] leading-tight">Copy</span>
+            <span class="text-[10px] leading-tight mt-0.5">Copy</span>
           {/if}
         </button>
 
         <button
           type="button"
           onclick={() => onEdit(combo)}
-          class="flex flex-col items-center justify-center rounded px-2.5 py-1 text-text-muted transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-brand-500 cursor-pointer"
+          class="flex flex-col items-center justify-center min-h-10 rounded px-2.5 py-1.5 text-text-muted transition-colors hover:bg-black/5 dark:hover:bg-white/5 hover:text-brand-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           title="Edit"
         >
           <Pencil class="w-4 h-4" />
-          <span class="text-[10px] leading-tight">Edit</span>
+          <span class="text-[10px] leading-tight mt-0.5">Edit</span>
         </button>
 
         <button
           type="button"
           onclick={() => onDelete(combo)}
-          class="flex flex-col items-center justify-center rounded px-2.5 py-1 text-red-500 transition-colors hover:bg-red-500/10 cursor-pointer"
+          class="flex flex-col items-center justify-center min-h-10 rounded px-2.5 py-1.5 text-red-600 dark:text-red-400 transition-colors hover:bg-red-500/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60"
           title="Delete"
         >
           <Trash2 class="w-4 h-4" />
-          <span class="text-[10px] leading-tight">Delete</span>
+          <span class="text-[10px] leading-tight mt-0.5">Delete</span>
         </button>
       </div>
     </div>

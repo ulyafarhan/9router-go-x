@@ -34,7 +34,7 @@
   const CAPACITY_META: Record<string, { label: string; desc: string }> = {
     vision: { label: 'Vision', desc: 'Supports image input' },
     reasoning: { label: 'Reasoning', desc: 'Supports reasoning / thinking' },
-    jailbreak: { label: 'Jailbreak', desc: 'Uncensored / unrestricted — accepts prompts a filtered model refuses' },
+    jailbreak: { label: 'Jailbreak', desc: 'Uncensored / unrestricted: accepts prompts a filtered model refuses' },
   }
 
   const defaultCaps = (): ModelCaps => ({ vision: false, reasoning: false, jailbreak: false })
@@ -172,8 +172,8 @@
             testError = ''
           }}
           onkeydown={handleKeyDown}
-          placeholder="e.g. claude-opus-4-5 — paste a list to add several"
-          class="flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary"
+          placeholder="e.g. claude-opus-4-5: paste a list to add several"
+          class="flex-1 min-h-9 px-3 py-2 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
         />
         {#if !isPaste}
           <Button
@@ -194,9 +194,9 @@
           {plan.ids.length} id{plan.ids.length === 1 ? '' : 's'} to add
           {#if plan.duplicates.length > 0}· {plan.duplicates.length} repeated in the paste{/if}
           {#if plan.invalid.length > 0}· {plan.invalid.length} rejected{/if}
-          — separated by spaces, commas or newlines, a
+          (separated by spaces, commas or newlines, a
           <code class="font-mono bg-sidebar px-1 rounded">{providerAlias}/</code> prefix is stripped, and the
-          capabilities and token limits below apply to every id.
+          capabilities and token limits below apply to every id).
         </p>
         {#if plan.ids.length > 0}
           <div class="mt-2 flex flex-wrap gap-1">
@@ -206,9 +206,9 @@
           </div>
         {/if}
         {#if plan.invalid.length > 0}
-          <ul class="text-xs text-red-500 mt-1 space-y-0.5">
+          <ul class="text-xs text-red-600 dark:text-red-400 mt-1 space-y-0.5">
             {#each plan.invalid as id (id)}
-              <li><code class="font-mono">{id}</code> — not a usable id (pipe, quotes or angle brackets)</li>
+              <li><code class="font-mono">{id}</code>: not a usable id (pipe, quotes or angle brackets)</li>
             {/each}
           </ul>
         {/if}
@@ -221,15 +221,14 @@
     </div>
 
     {#if bulkResult}
-      <div class="text-sm font-medium {bulkResult.skipped.length > 0 ? 'text-yellow-400' : 'text-green-400'}">
+      <div class="text-sm font-medium {bulkResult.skipped.length > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-400'}">
         ✓ {summarizeBulkModels(plan, bulkResult.added.length)}
       </div>
       {#if bulkResult.skipped.length > 0}
         <ul class="text-xs text-text-muted space-y-0.5">
           {#each bulkResult.skipped as skip (skip.id)}
             <li>
-              <code class="font-mono">{skip.id}</code>
-              — {skip.reason}
+              <code class="font-mono">{skip.id}</code>: {skip.reason}
             </li>
           {/each}
         </ul>
@@ -275,7 +274,7 @@
             oninput={(e) => {
               limits = { ...limits, contextWindow: parseLimit((e.target as HTMLInputElement).value) }
             }}
-            class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary"
+            class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
           />
         </div>
         <div>
@@ -291,7 +290,7 @@
             }}
             aria-describedby={limitsError ? 'add-custom-model-limits-error' : undefined}
             aria-invalid={limitsError ? 'true' : undefined}
-            class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary"
+            class="w-full min-h-9 px-3 py-2 text-[16px] sm:text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
           />
         </div>
       </div>

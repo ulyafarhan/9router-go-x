@@ -65,12 +65,12 @@
       {min}
       {max}
       bind:value
-      class="w-full py-2.5 px-3 text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent placeholder-text-muted/70 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500/40 transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed text-[16px] sm:text-sm {icon ? 'pl-10' : ''} {error ? 'ring-1 ring-red-500 focus:ring-2 focus:ring-red-500/40 border-red-500/40' : ''} {inputClass}"
+      class="w-full py-2.5 px-3 text-text-main bg-surface-2 rounded-[10px] border border-transparent placeholder-text-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus:border-brand-500/40 transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed text-[16px] sm:text-sm {icon ? 'pl-10' : ''} {error ? 'ring-1 ring-red-500 focus-visible:ring-2 focus-visible:ring-red-500/50 border-red-500/40' : ''} {inputClass}"
     />
   </div>
 
   {#if error}
-    <p class="text-xs text-red-500 flex items-center gap-1">
+    <p class="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
       <span class="material-symbols-outlined text-[14px]">error</span>
       {error}
     </p>

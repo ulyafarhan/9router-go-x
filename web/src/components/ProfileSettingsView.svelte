@@ -849,7 +849,7 @@
             type="button"
             onclick={handleDownloadBackup}
             disabled={isDownloadingBackup || isImportingBackup}
-            class="flex-1 py-2 px-3 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-text-main transition cursor-pointer flex items-center justify-center gap-1.5"
+            class="flex-1 min-h-9 py-2 px-3 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-text-main transition cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <Download class="w-3.5 h-3.5 text-brand-500" />
             <span>Download Backup</span>
@@ -868,7 +868,7 @@
             type="button"
             onclick={() => fileInput?.click()}
             disabled={isImportingBackup || isDownloadingBackup}
-            class="flex-1 py-2 px-3 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-text-main transition cursor-pointer flex items-center justify-center gap-1.5"
+            class="flex-1 min-h-9 py-2 px-3 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-text-main transition cursor-pointer flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <Upload class="w-3.5 h-3.5 text-text-muted" />
             <span>Import Backup</span>
@@ -905,7 +905,7 @@
           <select
             id="session-timeout"
             bind:value={sessionTimeout}
-            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <option value="15m">15 Minutes</option>
             <option value="1h">1 Hour</option>
@@ -920,7 +920,7 @@
           <button
             type="button"
             onclick={() => (showPasswordFields = !showPasswordFields)}
-            class="text-xs font-semibold text-brand-500 hover:opacity-80 cursor-pointer"
+            class="min-h-8 inline-flex items-center rounded px-1 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:opacity-80 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             {showPasswordFields ? 'Hide Change Password' : 'Change Master Password'}
           </button>
@@ -945,7 +945,7 @@
                   type="password"
                   bind:value={currentPassword}
                   placeholder="123456"
-                  class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main focus:outline-none focus:border-brand-500"
+                  class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   required
                 />
               </div>
@@ -957,7 +957,7 @@
                   type="password"
                   bind:value={newPassword}
                   placeholder="At least 6 characters"
-                  class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main focus:outline-none focus:border-brand-500"
+                  class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   required
                 />
               </div>
@@ -969,7 +969,7 @@
                   type="password"
                   bind:value={confirmNewPassword}
                   placeholder="Re-enter new password"
-                  class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main focus:outline-none focus:border-brand-500"
+                  class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   required
                 />
               </div>
@@ -977,7 +977,7 @@
               <button
                 type="submit"
                 disabled={isUpdatingPassword}
-                class="w-full py-2 px-3 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-semibold text-xs transition cursor-pointer"
+                class="w-full min-h-9 py-2 px-3 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
                 {isUpdatingPassword ? 'Updating...' : 'Update Password'}
               </button>
@@ -1002,7 +1002,7 @@
           <select
             id="auth-mode-select"
             bind:value={authMode}
-            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <option value="password">Password Only</option>
             <option value="oidc">OpenID Connect (OIDC)</option>
@@ -1019,7 +1019,7 @@
                 type="text"
                 bind:value={oidcIssuerUrl}
                 placeholder="https://accounts.google.com or Okta URL"
-                class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main"
+                class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
             <div class="space-y-1">
@@ -1029,7 +1029,7 @@
                 type="text"
                 bind:value={oidcClientId}
                 placeholder="client-id"
-                class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main"
+                class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
             <div class="space-y-1">
@@ -1039,7 +1039,7 @@
                 type="text"
                 bind:value={oidcScopes}
                 placeholder="openid profile email"
-                class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main"
+                class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
           </div>
@@ -1052,7 +1052,7 @@
                 type="text"
                 bind:value={samlEntryPoint}
                 placeholder="https://idp.example.com/sso"
-                class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main"
+                class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
             <div class="space-y-1">
@@ -1062,7 +1062,7 @@
                 type="text"
                 bind:value={samlIssuer}
                 placeholder="https://9router.local"
-                class="w-full px-3 py-1.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main"
+                class="w-full min-h-9 px-3 py-1.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               />
             </div>
             <div class="space-y-1">
@@ -1072,7 +1072,7 @@
                 bind:value={samlCert}
                 rows={3}
                 placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-                class="w-full p-2.5 rounded-lg bg-bg border border-border text-xs font-mono text-text-main"
+                class="w-full p-2.5 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
               ></textarea>
             </div>
           </div>
@@ -1093,7 +1093,7 @@
           <select
             id="fallback-strat"
             bind:value={fallbackStrategy}
-            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <option value="failover">Failover (Try next on error/rate-limit)</option>
             <option value="round-robin">Round Robin (Distribute requests across all connections)</option>
@@ -1110,7 +1110,7 @@
               bind:value={stickyRoundRobinLimit}
               min="1"
               max="100"
-              class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs font-mono text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
             <p class="text-[11px] text-text-subtle">
               Number of consecutive requests routed to the same credential before rotating.
@@ -1123,7 +1123,7 @@
           <select
             id="combo-strat"
             bind:value={comboStrategy}
-            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <option value="first-model">First Model (Always try primary model first)</option>
             <option value="round-robin">Round Robin (Rotate starting model)</option>
@@ -1167,10 +1167,11 @@
         <!-- Observability Mode & Retention Controls -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div class="space-y-1">
-            <label class="text-[11px] font-medium text-text-muted">Observability Mode</label>
+            <label for="obs-mode" class="text-[11px] font-medium text-text-muted">Observability Mode</label>
             <select
+              id="obs-mode"
               bind:value={observabilityMode}
-              class="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text-main focus:border-brand-500 focus:outline-none"
+              class="w-full min-h-9 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               <option value="full">Full (Record all requests)</option>
               <option value="errors_only">Errors Only (Diagnostics only)</option>
@@ -1179,10 +1180,11 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-[11px] font-medium text-text-muted">Diagnostics Retention</label>
+            <label for="obs-retention" class="text-[11px] font-medium text-text-muted">Diagnostics Retention</label>
             <select
+              id="obs-retention"
               bind:value={retentionDays}
-              class="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text-main focus:border-brand-500 focus:outline-none"
+              class="w-full min-h-9 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               <option value={1}>1 Day (STB / Low-Memory)</option>
               <option value={3}>3 Days</option>
@@ -1194,21 +1196,23 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-[11px] font-medium text-text-muted">Max Request Records</label>
+            <label for="obs-max-records" class="text-[11px] font-medium text-text-muted">Max Request Records</label>
             <input
+              id="obs-max-records"
               type="number"
               bind:value={maxRequestRecords}
               min="500"
               step="500"
-              class="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text-main focus:border-brand-500 focus:outline-none"
+              class="w-full min-h-9 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
           </div>
 
           <div class="space-y-1">
-            <label class="text-[11px] font-medium text-text-muted">Usage Ledger Retention</label>
+            <label for="obs-usage-retention" class="text-[11px] font-medium text-text-muted">Usage Ledger Retention</label>
             <select
+              id="obs-usage-retention"
               bind:value={usageHistoryRetentionDays}
-              class="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text-main focus:border-brand-500 focus:outline-none"
+              class="w-full min-h-9 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               <option value={0}>Off (Keep Forever, Recommended)</option>
               <option value={30}>30 Days</option>
@@ -1345,7 +1349,7 @@
             rows="4"
             spellcheck="false"
             placeholder="Identity and invariants read before anything else."
-            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs font-mono text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           ></textarea>
         </div>
 
@@ -1357,7 +1361,7 @@
             rows="4"
             spellcheck="false"
             placeholder="Constraints the model must hold after reading user content."
-            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs font-mono text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs font-mono text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           ></textarea>
         </div>
       </div>
@@ -1396,7 +1400,7 @@
         />
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-2 px-3 py-2 text-xs font-medium text-text-main transition-colors hover:border-brand-500/40 disabled:opacity-50"
+          class="min-h-9 inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-2 px-3 py-2 text-xs font-medium text-text-main transition-colors hover:border-brand-500/40 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
           disabled={isUploadingLogo}
           onclick={() => logoFileInput?.click()}
         >
@@ -1528,7 +1532,7 @@
         <select
           bind:value={animationLevel}
           onchange={() => setAnimationLevel(animationLevel)}
-          class="shrink-0 rounded-lg border border-border bg-bg px-2 py-1 text-xs text-text-main focus:outline-none focus:border-brand-500 cursor-pointer"
+          class="shrink-0 min-h-8 rounded-lg border border-border bg-bg px-2.5 py-1 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           {#each ANIMATION_LEVELS as option (option.id)}
             <option value={option.id}>{option.label}</option>
@@ -1549,10 +1553,10 @@
             <select
               id="currency-code"
               bind:value={currencyCode}
-              class="w-full px-3 py-2 rounded-lg bg-bg border border-border text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 px-3 py-2 rounded-lg bg-bg border border-border text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               {#each CURRENCY_CATALOG as option (option.code)}
-                <option value={option.code}>{option.code} — {option.label}</option>
+                <option value={option.code}>{option.code} ({option.label})</option>
               {/each}
             </select>
           </div>
@@ -1568,11 +1572,11 @@
         </div>
 
         {#if advancedSettings}
-        <div class="space-y-1">
-          <p class="text-xs text-text-main">Rates — one USD in each currency</p>
+        <div class="space-y-1.5">
+          <p class="text-xs text-text-main">Rates (one USD in each currency)</p>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {#each CURRENCY_CATALOG as option (option.code)}
-              <label class="flex items-center gap-2 rounded-[10px] border border-border-subtle px-2 py-1.5">
+              <label class="flex items-center gap-2 rounded-[10px] border border-border-subtle px-2.5 py-1.5 min-h-9 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/50">
                 <span class="w-9 text-[11px] font-semibold text-text-muted">{option.code}</span>
                 <input
                   type="number"
@@ -1582,7 +1586,7 @@
                   value={currencyRates[option.code] ?? ''}
                   placeholder={String(DEFAULT_RATES[option.code] ?? '')}
                   oninput={(e) => setRate(option.code, (e.target as HTMLInputElement).value)}
-                  class="w-full bg-transparent text-xs text-text-main focus:outline-none"
+                  class="w-full bg-transparent text-[16px] sm:text-xs text-text-main focus:outline-none"
                 />
               </label>
             {/each}
@@ -1622,7 +1626,7 @@
         <button
           type="button"
           onclick={() => markLayoutEdit(() => (navOrder = []))}
-          class="text-[10px] font-medium text-text-muted transition-colors hover:text-text-main cursor-pointer"
+          class="min-h-7 rounded px-1.5 text-[11px] font-medium text-text-muted transition-colors hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           Reset order
         </button>
@@ -1641,7 +1645,7 @@
                   (event.currentTarget as HTMLSelectElement).value as NavPreset
                 ))
               )}
-            class="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text-main focus:border-brand-500 focus:outline-none"
+            class="w-full min-h-9 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <!-- Shown only while the switches match no preset: a selection of
                  one's own is a state to read, not one to pick. -->
@@ -1691,7 +1695,7 @@
                   disabled={index === 0}
                   onclick={() =>
                     markLayoutEdit(() => (navOrder = moveNavEntry(navOrder, entry.id, -1)))}
-                  class="rounded p-0.5 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  class="min-h-7 min-w-7 inline-flex items-center justify-center rounded p-1 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                 >
                   <span class="material-symbols-outlined text-[14px]">arrow_upward</span>
                 </button>
@@ -1702,7 +1706,7 @@
                   disabled={index === siblings.length - 1}
                   onclick={() =>
                     markLayoutEdit(() => (navOrder = moveNavEntry(navOrder, entry.id, 1)))}
-                  class="rounded p-0.5 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  class="min-h-7 min-w-7 inline-flex items-center justify-center rounded p-1 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                 >
                   <span class="material-symbols-outlined text-[14px]">arrow_downward</span>
                 </button>
@@ -1789,7 +1793,7 @@
               markLayoutEdit(() =>
                 applyUsagePreset((event.currentTarget as HTMLSelectElement).value as UsagePanelPreset)
               )}
-            class="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text-main focus:border-brand-500 focus:outline-none"
+            class="w-full min-h-9 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
             <!-- Shown only while the toggles match no preset: an arrangement of
                  one's own is a state to read, not one to pick. -->
@@ -1863,7 +1867,7 @@
                         aria-label="Move {item?.label} up"
                         disabled={Boolean(fixed) || index === 0}
                         onclick={() => markLayoutEdit(() => movePanel(group.id, itemId, -1))}
-                        class="rounded p-0.5 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        class="min-h-7 min-w-7 inline-flex items-center justify-center rounded p-1 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                       >
                         <span class="material-symbols-outlined text-[14px]">arrow_upward</span>
                       </button>
@@ -1873,7 +1877,7 @@
                         aria-label="Move {item?.label} down"
                         disabled={Boolean(fixed) || index === panelOrder(group.id).length - 1}
                         onclick={() => markLayoutEdit(() => movePanel(group.id, itemId, 1))}
-                        class="rounded p-0.5 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        class="min-h-7 min-w-7 inline-flex items-center justify-center rounded p-1 text-text-muted transition-colors hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                       >
                         <span class="material-symbols-outlined text-[14px]">arrow_downward</span>
                       </button>

@@ -337,8 +337,8 @@
     if (modelErrors.length || cardErrors.length) {
       const parts: string[] = []
       if (added > 0) parts.push(`${added} model(s) added`)
-      if (modelErrors.length) parts.push(`model import failed — ${modelErrors.join('; ')}`)
-      if (cardErrors.length) parts.push(`could not add — ${cardErrors.join('; ')}`)
+      if (modelErrors.length) parts.push(`model import failed: ${modelErrors.join('; ')}`)
+      if (cardErrors.length) parts.push(`could not add: ${cardErrors.join('; ')}`)
       error = parts.join('. ')
       return
     }
@@ -443,14 +443,14 @@
                 <input
                   bind:value={form.baseURL}
                   placeholder="https://api.example.com/v1"
-                  class="rounded-[8px] border border-transparent bg-surface-2 px-2 py-1.5 font-mono text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none"
+                  class="min-h-8 rounded-[8px] border border-transparent bg-surface-2 px-2.5 py-1.5 font-mono text-[16px] sm:text-xs text-text-main placeholder:text-text-muted/70 focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 />
               </label>
               <label class="flex flex-col gap-1">
                 <span class="text-xs text-text-muted">Prefix</span>
                 <input
                   bind:value={form.prefix}
-                  class="rounded-[8px] border border-transparent bg-surface-2 px-2 py-1.5 font-mono text-xs text-text-main focus:border-brand-500/40 focus:outline-none"
+                  class="min-h-8 rounded-[8px] border border-transparent bg-surface-2 px-2.5 py-1.5 font-mono text-[16px] sm:text-xs text-text-main focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 />
               </label>
               <label class="flex flex-col gap-1 sm:col-span-2">
@@ -459,12 +459,12 @@
                   <input
                     type={form.revealed ? 'text' : 'password'}
                     bind:value={form.apiKey}
-                    class="min-w-0 flex-1 rounded-[8px] border border-transparent bg-surface-2 px-2 py-1.5 font-mono text-xs text-text-main focus:border-brand-500/40 focus:outline-none"
+                    class="min-w-0 min-h-8 flex-1 rounded-[8px] border border-transparent bg-surface-2 px-2.5 py-1.5 font-mono text-[16px] sm:text-xs text-text-main focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   />
                   <button
                     type="button"
                     onclick={() => (form.revealed = !form.revealed)}
-                    class="shrink-0 rounded p-1 text-text-muted hover:text-text-main"
+                    class="min-h-8 min-w-8 inline-flex items-center justify-center shrink-0 rounded p-1 text-text-muted hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                     aria-label={form.revealed ? 'Hide key' : 'Show key'}
                   >
                     <span class="material-symbols-outlined text-[16px]">{form.revealed ? 'visibility_off' : 'visibility'}</span>
@@ -475,7 +475,7 @@
                 <span class="text-xs text-text-muted">Connection name</span>
                 <input
                   bind:value={form.name}
-                  class="rounded-[8px] border border-transparent bg-surface-2 px-2 py-1.5 text-xs text-text-main focus:border-brand-500/40 focus:outline-none"
+                  class="min-h-8 rounded-[8px] border border-transparent bg-surface-2 px-2.5 py-1.5 text-[16px] sm:text-xs text-text-main focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 />
               </label>
             </div>
@@ -488,8 +488,8 @@
                   <button
                     type="button"
                     onclick={() => (form.modelMode = opt.v as typeof form.modelMode)}
-                    class="rounded-[8px] border px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer {form.modelMode === opt.v
-                      ? 'border-brand-500 bg-brand-500/10 text-brand-500'
+                    class="min-h-7 rounded-[8px] border px-2 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {form.modelMode === opt.v
+                      ? 'border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-400'
                       : 'border-border bg-surface-2 text-text-muted hover:text-text-main'}"
                   >
                     {opt.l}
@@ -505,7 +505,7 @@
                 <textarea
                   bind:value={form.modelIDs}
                   rows={3}
-                  class="w-full rounded-[8px] border border-transparent bg-surface-2 px-2 py-1.5 font-mono text-xs text-text-main focus:border-brand-500/40 focus:outline-none"
+                  class="w-full rounded-[8px] border border-transparent bg-surface-2 px-2.5 py-1.5 font-mono text-[16px] sm:text-xs text-text-main focus:border-brand-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 ></textarea>
               {/if}
             </div>

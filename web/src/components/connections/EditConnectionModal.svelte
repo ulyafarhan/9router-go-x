@@ -207,21 +207,28 @@
   }
 </script>
 
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  role="dialog"
+  aria-modal="true"
+  tabindex="-1"
+  onkeydown={(e) => e.key === 'Escape' && onClose()}
+>
   <div
     class="absolute inset-0 bg-black/50 backdrop-blur-[2px] fade-in"
     onclick={onClose}
     role="presentation"
   ></div>
   <div
-    class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] fade-in max-w-md p-6"
+    class="relative w-full max-w-md max-h-[85vh] overflow-y-auto custom-scrollbar bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] fade-in p-6"
   >
-    <div class="flex items-center justify-between pb-3 border-b border-border-subtle mb-4">
+    <div class="flex items-center justify-between pb-3 border-b border-border-subtle mb-4 gap-2">
       <h2 class="text-lg font-semibold text-text-main">Edit Connection</h2>
       <button
         type="button"
+        aria-label="Close"
         onclick={onClose}
-        class="p-1 rounded text-text-muted hover:text-text-main cursor-pointer"
+        class="min-h-8 min-w-8 inline-flex items-center justify-center p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
       >
         <span class="material-symbols-outlined text-lg">close</span>
       </button>
@@ -233,7 +240,7 @@
         <input
           id="edit-conn-name"
           bind:value={name}
-          class="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-primary"
+          class="w-full min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
         />
       </div>
 
@@ -258,25 +265,25 @@
               placeholder={credentialPlaceholder(connection)}
               bind:value={apiKey}
               oninput={resetKeyCheck}
-              class="min-w-0 flex-1 px-2.5 py-1.5 text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-primary"
+              class="min-w-0 min-h-9 flex-1 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
             />
             <button
               type="button"
               onclick={checkReplacementKey}
               disabled={!apiKey.trim() || isCheckingKey || isSaving}
-              class="shrink-0 px-2.5 py-1.5 text-xs font-semibold rounded-[8px] bg-surface-2 hover:bg-surface-3 text-text-main border border-border disabled:opacity-50 cursor-pointer"
+              class="shrink-0 min-h-9 px-2.5 py-1.5 text-xs font-semibold rounded-[8px] bg-surface-2 hover:bg-surface-3 text-text-main border border-border disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
             >
               {isCheckingKey ? 'Checking' : 'Check'}
             </button>
           </div>
           {#if keyCheck === 'valid'}
-            <p class="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">The provider accepted this key.</p>
+            <p class="mt-1.5 text-xs text-emerald-700 dark:text-emerald-400">The provider accepted this key.</p>
           {:else if keyCheck === 'unsupported'}
             <p class="mt-1.5 text-xs text-text-subtle">
               This provider has no key check, so the new key is saved unverified.
             </p>
           {:else if keyError}
-            <p class="mt-1.5 text-xs text-red-500">{keyError}</p>
+            <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{keyError}</p>
           {/if}
         </div>
       {/if}
@@ -288,7 +295,7 @@
           type="number"
           min="1"
           bind:value={priority}
-          class="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-primary"
+          class="w-full min-h-9 px-2.5 py-1.5 text-[16px] sm:text-xs border border-border rounded-md bg-background text-text-main focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
         />
       </div>
 

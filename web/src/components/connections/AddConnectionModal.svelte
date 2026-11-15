@@ -469,7 +469,7 @@
       onclick={onClose}
       role="presentation"
     ></div>
-    <div class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elev)] fade-in max-w-md">
+    <div class="relative w-full bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-elevated)] fade-in max-w-md" role="dialog" aria-modal="true" aria-label={modalTitle}>
       <div class="flex items-center justify-between p-2 border-b border-border-subtle">
         <div class="flex items-center">
           <div class="hidden md:flex items-center gap-2 mr-4 ml-2">
@@ -478,7 +478,7 @@
               onclick={onClose}
               aria-label="Close"
               title="Close"
-              class="w-4 h-4 rounded-full bg-[#FF5F56] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center group/dot"
+              class="w-4 h-4 rounded-full bg-[#FF5F56] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center group/dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
             >
               <span class="text-[9px] font-bold text-white opacity-0 group-hover/dot:opacity-100 transition-opacity leading-none">✕</span>
             </button>
@@ -493,7 +493,7 @@
           type="button"
           onclick={onClose}
           aria-label="Close"
-          class="md:hidden p-1.5 rounded-[10px] text-text-muted hover:bg-surface-2 hover:text-text-main transition-colors cursor-pointer"
+          class="md:hidden min-h-8 min-w-8 flex items-center justify-center rounded-[10px] text-text-muted hover:bg-surface-2 hover:text-text-main transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           <span class="material-symbols-outlined text-[20px]">close</span>
         </button>

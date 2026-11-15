@@ -23,6 +23,7 @@
     tokens: number
     cost: number
     byModel: Record<string, number>
+    byModelCost?: Record<string, number>
   }
 
   interface Series {
@@ -93,13 +94,35 @@
     }
   })
 
+  function bucketSeriesMap(b: ChartBucket): Record<string, number> {
+    if (viewMode === 'costs') {
+      if (b.byModelCost && Object.keys(b.byModelCost).length > 0) {
+        return b.byModelCost
+      }
+      const totalTokens = Object.values(b.byModel || {}).reduce((sum, v) => sum + (v || 0), 0)
+      if ((b.cost || 0) > 0 && totalTokens > 0) {
+        const scaled: Record<string, number> = {}
+        for (const [family, tokens] of Object.entries(b.byModel || {})) {
+          if (tokens > 0) scaled[family] = ((b.cost || 0) * tokens) / totalTokens
+        }
+        return scaled
+      }
+      return {}
+    }
+    return b.byModel || {}
+  }
+
+  function fmtMetric(value: number): string {
+    return viewMode === 'costs' ? `~${costIn(value)}` : fmtTokens(value)
+  }
+
   // Rank families by period total, keep the top six and fold the tail into
   // "other" so the legend stays bounded.
   const families = $derived.by((): Series[] => {
     const totals = new Map<string, number>()
     for (const b of buckets) {
-      for (const [family, tokens] of Object.entries(b.byModel || {})) {
-        totals.set(family, (totals.get(family) || 0) + (tokens || 0))
+      for (const [family, val] of Object.entries(bucketSeriesMap(b))) {
+        totals.set(family, (totals.get(family) || 0) + (val || 0))
       }
     }
     const ranked = [...totals.entries()].sort((a, b) => b[1] - a[1])
@@ -122,15 +145,16 @@
 
   const keptFamilies = $derived(families.slice(0, MAX_SERIES).map((s) => s.family))
 
-  // Per-bucket stack: cumulative token height of each series, bottom-up.
+  // Per-bucket stack: cumulative height of each series, bottom-up.
   const stack = $derived(
     buckets.map((b) => {
+      const seriesMap = bucketSeriesMap(b)
       const values = families.map((s) =>
         s.family === 'other'
-          ? Object.entries(b.byModel || {})
+          ? Object.entries(seriesMap)
               .filter(([family]) => !keptFamilies.includes(family))
               .reduce((sum, [, t]) => sum + (t || 0), 0)
-          : b.byModel?.[s.family] || 0
+          : seriesMap[s.family] || 0
       )
       const cumulative: number[] = []
       let acc = 0
@@ -142,7 +166,7 @@
     })
   )
 
-  const maxTotal = $derived(Math.max(1, ...stack.map((s) => s.total)))
+  const maxTotal = $derived(Math.max(viewMode === 'costs' ? 1e-6 : 1, ...stack.map((s) => s.total)))
   const hasData = $derived(stack.some((s) => s.total > 0))
   const step = $derived(buckets.length > 1 ? WIDTH / (buckets.length - 1) : WIDTH)
 
@@ -229,7 +253,7 @@
         {#each stack as _point, i}
           <rect
             tabindex={i === focusedPoint ? 0 : -1}
-            aria-label="{stack[i].bucket.label}: {fmtTokens(stack[i].bucket.tokens)} tokens"
+            aria-label="{stack[i].bucket.label}: {viewMode === 'costs' ? costIn(stack[i].bucket.cost ?? 0) : `${fmtTokens(stack[i].bucket.tokens)} tokens`}"
             x={xAt(i) - step / 2}
             y="0"
             width={step}
@@ -283,7 +307,7 @@
                   <span class="w-2 h-2 rounded-sm" style="background: {s.color}"></span>
                   {s.family}
                 </span>
-                <span class="font-mono">{fmtTokens(value)}</span>
+                <span class="font-mono">{fmtMetric(value)}</span>
               </div>
             {/if}
           {/each}
@@ -298,7 +322,7 @@
           {s.family}
         </span>
       {/each}
-      <span class="ml-auto font-mono">Peak {fmtTokens(maxTotal)}</span>
+      <span class="ml-auto font-mono">Peak {fmtMetric(maxTotal)}</span>
     </div>
 
     <div class="flex justify-between text-[10px] text-text-subtle">

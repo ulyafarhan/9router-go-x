@@ -26,6 +26,7 @@
     details?: RequestDetailItem[]
     detailsTotal?: number
     detailsPage?: number
+    pageSize?: number
     detailsLoading?: boolean
     onPageChange: (page: number) => void
     /** Set when the read failed, so the table below is not read as current. */
@@ -40,6 +41,7 @@
     details = [],
     detailsTotal = 0,
     detailsPage = 1,
+    pageSize = 20,
     detailsLoading = false,
     detailsError = '',
     onPageChange,
@@ -143,7 +145,7 @@
           type="text"
           placeholder="Filter model, account, provider..."
           bind:value={searchFilter}
-          class="w-44 sm:w-56 rounded-xl border border-border bg-surface pl-8 pr-3 py-1 text-xs text-text-main focus:outline-none focus:border-brand-500"
+          class="w-44 sm:w-56 min-h-8 rounded-xl border border-border bg-surface pl-8 pr-3 py-1 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </div>
 
@@ -267,7 +269,7 @@
               <td class="py-3 px-4 text-right text-info">
                 {fmt(cachedTokensFor(item))}
               </td>
-              <td class="py-3 px-4 text-right font-mono text-emerald-500 text-[11px]">
+              <td class="py-3 px-4 text-right font-mono text-emerald-700 dark:text-emerald-400 text-[11px]">
                 {item.cost ? costIn(item.cost, 4) : '—'}
               </td>
               {#if isPanelVisible('details.payload')}
@@ -278,7 +280,7 @@
                     e.stopPropagation()
                     openDetail(item)
                   }}
-                  class="text-xs text-brand-500 hover:underline font-semibold cursor-pointer"
+                  class="text-xs text-brand-600 dark:text-brand-400 hover:underline font-semibold cursor-pointer rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 >
                   View
                 </button>
@@ -291,8 +293,8 @@
     </div>
 
     <!-- Pagination -->
-    {#if detailsTotal > 50}
-      <div class="px-4 py-3 border-t border-border flex items-center justify-between text-xs text-text-muted bg-surface-2 font-body">
+    {#if detailsTotal > pageSize}
+      <div class="px-4 py-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted bg-surface-2 font-body">
         <div>
           Showing {details.length} of {detailsTotal.toLocaleString()} requests (Page {detailsPage})
         </div>
@@ -308,7 +310,7 @@
           <Button
             variant="secondary"
             size="sm"
-            disabled={detailsPage * 50 >= detailsTotal}
+            disabled={detailsPage * pageSize >= detailsTotal}
             onclick={() => onPageChange(detailsPage + 1)}
           >
             Next
@@ -323,17 +325,27 @@
 <!-- Detail Modal (OmniRoute style) -->
 {#if selectedDetail && isPanelVisible('details.payload')}
   {@const acc = resolveAccount(selectedDetail)}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="w-full max-w-4xl lg:max-w-5xl max-h-[90vh] rounded-2xl bg-surface border border-border shadow-2xl flex flex-col overflow-hidden">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    role="presentation"
+    onclick={(e) => { if (e.target === e.currentTarget) closeDetail() }}
+    onkeydown={(e) => { if (e.key === 'Escape') closeDetail() }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Request details for ${selectedDetail.model}`}
+      class="w-full max-w-4xl lg:max-w-5xl max-h-[85vh] rounded-2xl bg-surface border border-border shadow-[var(--shadow-elevated)] flex flex-col overflow-hidden"
+    >
       <!-- Modal Header -->
-      <div class="px-6 py-4 border-b border-border flex items-center justify-between bg-surface-2">
-        <div class="flex flex-wrap items-center gap-2">
+      <div class="px-6 py-4 border-b border-border flex items-center justify-between gap-3 bg-surface-2">
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
           <span
             class="w-2.5 h-2.5 rounded-full {selectedDetail.status === 'success' || selectedDetail.status === 'ok'
               ? 'bg-success'
               : 'bg-danger'}"
           ></span>
-          <h3 class="font-headline text-base font-bold text-text-main">{selectedDetail.model}</h3>
+          <h3 class="font-headline text-base font-bold text-text-main break-words">{selectedDetail.model}</h3>
           <span title={selectedDetail.provider || undefined}>
             <Badge variant="neutral" size="sm">{providerDisplayName(selectedDetail.provider, providerNodes)}</Badge>
           </span>
@@ -342,7 +354,7 @@
             {acc.name}
           </span>
           {#if selectedDetail.combo}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-medium text-purple-400">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-medium text-purple-700 dark:text-purple-400">
               <span class="material-symbols-outlined text-[12px]">layers</span>
               {selectedDetail.combo}
             </span>
@@ -351,7 +363,7 @@
         <button
           type="button"
           onclick={closeDetail}
-          class="p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-3 transition-colors cursor-pointer"
+          class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-3 transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           aria-label="Close"
         >
           <X class="w-5 h-5" />
@@ -567,7 +579,7 @@
           </div>
           <div class="p-3 rounded-xl bg-surface-2 border border-border space-y-1">
             <div class="text-text-muted text-[10px] uppercase font-bold tracking-wider">Cache Source</div>
-            <div class="font-code text-xs text-cyan-400 font-medium">
+            <div class="font-code text-xs text-cyan-700 dark:text-cyan-400 font-medium">
               {selectedDetail.cacheSource || (cachedTokensFor(selectedDetail) > 0 ? 'Upstream (Provider)' : 'None')}
             </div>
           </div>
@@ -580,8 +592,9 @@
               <button
                 type="button"
                 onclick={() => copyToClipboard(acc.name)}
-                class="text-text-subtle hover:text-text-main p-0.5 rounded hover:bg-surface-3 transition-colors shrink-0"
+                class="text-text-subtle hover:text-text-main p-1 rounded hover:bg-surface-3 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                 title="Copy Account"
+                aria-label="Copy Account"
               >
                 <span class="material-symbols-outlined text-[13px]">content_copy</span>
               </button>
@@ -595,13 +608,13 @@
           </div>
           <div class="p-3 rounded-xl bg-surface-2 border border-border space-y-1">
             <div class="text-text-muted text-[10px] uppercase font-bold tracking-wider">Combo</div>
-            <div class="font-code text-xs text-purple-400 font-mono font-medium">
+            <div class="font-code text-xs text-purple-700 dark:text-purple-400 font-mono font-medium">
               {selectedDetail.combo || 'Direct (None)'}
             </div>
           </div>
           <div class="p-3 rounded-xl bg-surface-2 border border-border space-y-1">
             <div class="text-text-muted text-[10px] uppercase font-bold tracking-wider">Est. Cost</div>
-            <div class="font-code text-xs text-emerald-500 font-bold">
+            <div class="font-code text-xs text-emerald-700 dark:text-emerald-400 font-bold">
               {costIn(selectedDetail.cost ?? 0, 4)}
             </div>
           </div>
@@ -613,8 +626,9 @@
                 <button
                   type="button"
                   onclick={() => copyToClipboard(selectedDetail?.id || '')}
-                  class="text-text-subtle hover:text-text-main p-0.5 rounded hover:bg-surface-3 transition-colors shrink-0"
+                  class="text-text-subtle hover:text-text-main p-1 rounded hover:bg-surface-3 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
                   title="Copy Request ID"
+                  aria-label="Copy Request ID"
                 >
                   <span class="material-symbols-outlined text-[14px]">content_copy</span>
                 </button>
@@ -629,7 +643,7 @@
             <button
               type="button"
               onclick={() => copyToClipboard(JSON.stringify(selectedDetail, null, 2))}
-              class="flex items-center gap-1 text-text-muted hover:text-text-main transition-colors lowercase font-normal"
+              class="flex items-center gap-1 text-text-muted hover:text-text-main transition-colors lowercase font-normal rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               <span class="material-symbols-outlined text-[13px]">content_copy</span>
               copy json

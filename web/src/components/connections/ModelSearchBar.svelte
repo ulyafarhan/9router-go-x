@@ -26,20 +26,20 @@
     {placeholder}
     bind:value
     oninput={() => onSearch(value)}
-    class="w-full bg-surface border border-border rounded pl-8 pr-24 py-1.5 text-xs text-text-main placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-brand-500/50"
+    class="w-full min-h-9 bg-surface border border-border rounded-lg pl-8 pr-24 py-1.5 text-[16px] sm:text-xs text-text-main placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus:border-brand-500/40"
   />
   <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
     {#if parsed.isRegex}
-      <span class="text-[10px] px-1 py-0.2 rounded bg-brand-500/10 text-brand-500 font-mono font-medium">regex</span>
+      <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono font-medium">regex</span>
     {:else if parsed.negativeTerms.length > 0}
-      <span class="text-[10px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-500 font-mono font-medium">!exclude</span>
+      <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-mono font-medium">!exclude</span>
     {/if}
     {#if value}
       <button
         type="button"
         onclick={clear}
         aria-label="Clear search"
-        class="p-1 rounded text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer"
+        class="inline-flex items-center justify-center min-h-7 min-w-7 p-1 rounded text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
       >
         <span class="material-symbols-outlined text-[14px]">close</span>
       </button>

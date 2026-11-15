@@ -224,7 +224,7 @@
         {/each}
       </div>
       <p class="text-xs text-text-muted">
-        Already entered your endpoint? Switch type here — your name, prefix and base URL stay put.
+        Already entered your endpoint? Switch type here; your name, prefix and base URL stay put.
       </p>
     </fieldset>
 
@@ -260,7 +260,7 @@
         <select
           id="api-type"
           bind:value={formApiType}
-          class="w-full py-2.5 px-3 text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500/40 transition-all duration-150 ease-out text-[16px] sm:text-sm"
+          class="w-full min-h-10 py-2.5 px-3 text-[16px] sm:text-sm text-text-main bg-surface-2 rounded-[10px] border border-transparent focus:outline-none focus:border-brand-500/40 focus-visible:ring-2 focus-visible:ring-brand-500/50 transition-all duration-150 ease-out"
         >
           <option value="chat">Chat Completions</option>
           <option value="responses">Responses API</option>
@@ -328,7 +328,7 @@
     <div class="flex flex-col gap-2 sm:flex-row">
       <Button
         type="button"
-        onclick={handleSubmit}
+        onclick={() => handleSubmit()}
         fullWidth
         disabled={!formName.trim() || !formPrefix.trim() || !formBaseUrl.trim() || submitting}
       >

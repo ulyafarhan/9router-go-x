@@ -70,20 +70,22 @@
 
     <!-- Modal Card -->
     <div
+      role="dialog"
+      aria-modal="true"
       class="relative w-full max-w-3xl bg-surface border border-border-subtle rounded-2xl shadow-2xl flex flex-col max-h-[85vh] z-10 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle shrink-0">
-        <div class="flex items-center gap-2.5">
-          <span class="material-symbols-outlined text-primary text-[22px]">history</span>
-          <h2 class="text-lg font-semibold text-text-main tracking-tight">Change Log</h2>
+      <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-border-subtle shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="material-symbols-outlined text-primary text-[22px] shrink-0">history</span>
+          <h2 class="text-lg font-semibold text-text-main tracking-tight truncate">Change Log</h2>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <a
-            href="https://github.com/luqman-v1/9router-go/releases"
+            href="https://github.com/ulyafarhan/9router-go-x/releases"
             target="_blank"
             rel="noopener noreferrer"
-            class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 border border-border-subtle transition-colors"
+            class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 min-h-8 rounded-lg text-xs font-medium text-text-muted hover:text-text-main hover:bg-surface-2 border border-border-subtle transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="material-symbols-outlined text-[16px]">open_in_new</span>
             GitHub Releases
@@ -91,7 +93,7 @@
           <button
             type="button"
             onclick={onClose}
-            class="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer"
+            class="inline-flex items-center justify-center min-h-9 min-w-9 p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
             aria-label="Close"
           >
             <span class="material-symbols-outlined text-[20px]">close</span>
@@ -126,7 +128,7 @@
                 Retry
               </button>
               <a
-                href="https://github.com/luqman-v1/9router-go/blob/main/CHANGELOG.md"
+                href="https://github.com/ulyafarhan/9router-go-x/blob/main/CHANGELOG.md"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="px-4 py-2 text-xs font-medium rounded-lg border border-border-subtle text-text-main hover:bg-surface-2 transition-colors"
@@ -144,12 +146,12 @@
       </div>
 
       <!-- Footer -->
-      <div class="flex items-center justify-between px-6 py-3.5 border-t border-border-subtle bg-surface shrink-0">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-6 py-3.5 border-t border-border-subtle bg-surface shrink-0">
         <a
-          href="https://github.com/luqman-v1/9router-go/blob/main/CHANGELOG.md"
+          href="https://github.com/ulyafarhan/9router-go-x/blob/main/CHANGELOG.md"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-xs text-text-muted hover:text-primary transition-colors flex items-center gap-1"
+          class="text-xs text-text-muted hover:text-primary transition-colors flex items-center gap-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           <span>View on GitHub</span>
           <span class="material-symbols-outlined text-[14px]">arrow_outward</span>
@@ -157,7 +159,7 @@
         <button
           type="button"
           onclick={onClose}
-          class="px-4 py-1.5 text-xs font-medium rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main transition-colors cursor-pointer border border-border-subtle"
+          class="px-4 py-1.5 min-h-9 text-xs font-medium rounded-lg bg-surface-2 hover:bg-surface-3 text-text-main transition-colors cursor-pointer border border-border-subtle whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
         >
           Close
         </button>

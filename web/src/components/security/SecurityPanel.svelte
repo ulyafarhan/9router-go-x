@@ -7,7 +7,7 @@
   import Input from '../../lib/ui/Input.svelte'
   import Modal from '../../lib/ui/Modal.svelte'
   import Toggle from '../../lib/ui/Toggle.svelte'
-  import { Activity, AlertTriangle, KeyRound, Lock, Plus, RefreshCw, ShieldCheck, Trash2 } from 'lucide-svelte'
+  import { Activity, AlertTriangle, KeyRound, Lock, Pencil, Plus, RefreshCw, ShieldCheck, Trash2 } from 'lucide-svelte'
 
   type BadgeTone = 'default' | 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'error' | 'info' | 'outline'
 
@@ -47,6 +47,7 @@
 
   let scopeFilter = $state('all')
   let isEditorOpen = $state(false)
+  let editingPolicy = $state<GuardrailPolicy | null>(null)
   let formName = $state('')
   let formScope = $state('global')
   let formScopeId = $state('')
@@ -115,7 +116,7 @@
     try {
       await api.updateSettings({ guardrailsEnabled: next })
       guardrailsEnabled = next
-      notice = next ? 'Guardrails are enforcing.' : 'Guardrails paused — policies kept.'
+      notice = next ? 'Guardrails are enforcing.' : 'Guardrails paused; policies kept.'
     } catch (err) {
       error = err instanceof Error ? err.message : String(err)
     } finally {
@@ -123,13 +124,24 @@
     }
   }
 
-  function openEditor() {
-    formName = ''
-    formScope = scopeFilter === 'all' ? 'global' : scopeFilter
-    formScopeId = ''
-    formDetectors = ['pii']
-    formAction = 'log_only'
-    formCustomPatterns = []
+  function openEditor(policy?: GuardrailPolicy) {
+    editingPolicy = policy ?? null
+    if (policy) {
+      const cfg = parseConfig(policy.config)
+      formName = policy.name
+      formScope = policy.scope
+      formScopeId = policy.scopeId ?? ''
+      formDetectors = cfg.detectors.length > 0 ? [...cfg.detectors] : ['pii']
+      formAction = cfg.action || 'log_only'
+      formCustomPatterns = cfg.customPatterns.map((p) => ({ ...p }))
+    } else {
+      formName = ''
+      formScope = scopeFilter === 'all' ? 'global' : scopeFilter
+      formScopeId = ''
+      formDetectors = ['pii']
+      formAction = 'log_only'
+      formCustomPatterns = []
+    }
     customName = ''
     customRegex = ''
     customReplacement = ''
@@ -198,19 +210,49 @@
       if (formDetectors.includes('custom') && formCustomPatterns.length > 0) {
         config.customPatterns = formCustomPatterns
       }
-      await api.createGuardrailPolicy({
-        name: formName.trim(),
-        scope: formScope,
-        scopeId: formScope === 'global' ? '' : formScopeId.trim(),
-        config: JSON.stringify(config)
-      })
-      isEditorOpen = false
-      notice = 'Policy created'
+      if (editingPolicy) {
+        await api.updateGuardrailPolicy(editingPolicy.id, {
+          name: formName.trim(),
+          scope: formScope,
+          scopeId: formScope === 'global' ? '' : formScopeId.trim(),
+          enabled: editingPolicy.enabled,
+          config: JSON.stringify(config)
+        })
+        isEditorOpen = false
+        editingPolicy = null
+        notice = 'Policy updated'
+      } else {
+        await api.createGuardrailPolicy({
+          name: formName.trim(),
+          scope: formScope,
+          scopeId: formScope === 'global' ? '' : formScopeId.trim(),
+          config: JSON.stringify(config)
+        })
+        isEditorOpen = false
+        notice = 'Policy created'
+      }
       await load()
     } catch (err) {
       error = err instanceof Error ? err.message : String(err)
     } finally {
       isCreating = false
+    }
+  }
+
+  async function togglePolicyEnabled(policy: GuardrailPolicy) {
+    error = null
+    try {
+      await api.updateGuardrailPolicy(policy.id, {
+        name: policy.name,
+        scope: policy.scope,
+        scopeId: policy.scopeId ?? '',
+        enabled: !policy.enabled,
+        config: policy.config
+      })
+      notice = `${policy.name} ${!policy.enabled ? 'enabled' : 'paused'}`
+      await load()
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err)
     }
   }
 
@@ -364,7 +406,7 @@
             <p class="text-xs leading-relaxed text-text-muted">
               Credentials are stored in plaintext. Set
               <span class="font-code text-text-main">ROUTER_MASTER_KEY</span>
-              to a base64 32-byte value and restart the gateway to encrypt them. This is opt-in —
+              to a base64 32-byte value and restart the gateway to encrypt them. This is opt-in:
               nothing changes until you set it.
             </p>
           </div>
@@ -411,7 +453,7 @@
         <p class="text-sm text-text-muted">
           {guardrailsEnabled
             ? 'Policies are scanning prompts and responses on every request.'
-            : 'Policies are kept but not enforced — the escape hatch for a false positive.'}
+            : 'Policies are kept but not enforced (the escape hatch for a false positive).'}
         </p>
         <p class="text-xs leading-relaxed text-text-subtle">
           Policies layer from least to most specific (global → provider → model → chain → API key).
@@ -428,14 +470,14 @@
       <div>
         <h2 class="text-base font-semibold text-text-main">Guardrail policies</h2>
         <p class="mt-0.5 text-sm text-text-muted">
-          One policy per scope — the resolver takes the most specific match.
+          One policy per scope; the resolver takes the most specific match.
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <select
           bind:value={scopeFilter}
           aria-label="Filter policies by scope"
-          class="rounded-[10px] border border-border bg-surface px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-brand-500/40 cursor-pointer"
+          class="min-h-10 rounded-[10px] border border-border bg-surface px-3 py-2 text-[16px] sm:text-sm text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           <option value="all">All scopes</option>
           {#each SCOPES as option (option.id)}
@@ -452,7 +494,7 @@
           <RefreshCw size={15} />
           Refresh
         </Button>
-        <Button variant="primary" size="md" onclick={openEditor}>
+        <Button variant="primary" size="md" onclick={() => openEditor()}>
           <Plus size={16} />
           New policy
         </Button>
@@ -467,12 +509,13 @@
     {:else if visiblePolicies.length === 0}
       <div class="rounded-[14px] border border-border-subtle bg-surface px-5 py-8 text-center">
         <p class="text-sm text-text-muted">
-          No policy{scopeFilter === 'all' ? '' : ` at ${scopeLabel(scopeFilter)} scope`} —
+          No policy{scopeFilter === 'all' ? '' : ` at ${scopeLabel(scopeFilter)} scope`};
           traffic passes through unscanned.
         </p>
       </div>
     {:else}
       <div class="overflow-hidden rounded-[14px] border border-border-subtle bg-surface">
+        <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead class="bg-surface-2 text-text-muted">
             <tr>
@@ -480,6 +523,7 @@
               <th class="px-4 py-2.5 text-left font-medium">Scope</th>
               <th class="px-4 py-2.5 text-left font-medium">Detectors</th>
               <th class="px-4 py-2.5 text-left font-medium">Action</th>
+              <th class="px-4 py-2.5 text-left font-medium">Status</th>
               <th class="hidden px-4 py-2.5 text-left font-medium md:table-cell">Created</th>
               <th class="px-4 py-2.5"></th>
             </tr>
@@ -507,17 +551,33 @@
                 <td class="px-4 py-3">
                   <Badge tone={actionTone(cfg.action)} size="sm">{cfg.action}</Badge>
                 </td>
+                <td class="px-4 py-3">
+                  <Toggle
+                    checked={policy.enabled}
+                    label={policy.enabled ? `Pause ${policy.name}` : `Enable ${policy.name}`}
+                    onchange={() => togglePolicyEnabled(policy)}
+                  />
+                </td>
                 <td class="hidden px-4 py-3 font-code text-xs text-text-subtle md:table-cell">
                   {formatWhen(policy.createdAt)}
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex items-center justify-end">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      type="button"
+                      onclick={() => openEditor(policy)}
+                      title="Edit policy"
+                      aria-label={`Edit ${policy.name}`}
+                      class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted transition-colors cursor-pointer hover:bg-surface-2 hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    >
+                      <Pencil size={15} />
+                    </button>
                     <button
                       type="button"
                       onclick={() => (pendingDelete = policy)}
                       title="Delete policy"
                       aria-label={`Delete ${policy.name}`}
-                      class="rounded-lg p-1.5 text-text-muted transition-colors cursor-pointer hover:bg-error/10 hover:text-error"
+                      class="min-h-8 min-w-8 inline-flex items-center justify-center rounded-lg text-text-muted transition-colors cursor-pointer hover:bg-error/10 hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/50"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -527,6 +587,7 @@
             {/each}
           </tbody>
         </table>
+        </div>
       </div>
     {/if}
   </div>
@@ -550,6 +611,7 @@
       </div>
     {:else}
       <div class="overflow-hidden rounded-[14px] border border-border-subtle bg-surface">
+        <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead class="bg-surface-2 text-text-muted">
             <tr>
@@ -571,22 +633,26 @@
                 <td class="px-4 py-3">
                   <Badge tone={actionTone(entry.action)} size="sm">{entry.action}</Badge>
                 </td>
-                <td class="px-4 py-3 font-code text-xs text-text-subtle">{entry.severity || '—'}</td>
+                <td class="px-4 py-3 font-code text-xs text-text-subtle">{entry.severity || '-'}</td>
               </tr>
             {/each}
           </tbody>
         </table>
+        </div>
       </div>
     {/if}
   </div>
 </div>
 
-<!-- Create policy -->
+<!-- Create / Edit policy -->
 <Modal
   isOpen={isEditorOpen}
-  title="New guardrail policy"
+  title={editingPolicy ? 'Edit guardrail policy' : 'New guardrail policy'}
   size="md"
-  onClose={() => (isEditorOpen = false)}
+  onClose={() => {
+    isEditorOpen = false
+    editingPolicy = null
+  }}
 >
   <form
     id="guardrail-policy-form"
@@ -724,7 +790,14 @@
   </form>
 
   {#snippet footer()}
-    <Button variant="ghost" onclick={() => (isEditorOpen = false)} disabled={isCreating}>
+    <Button
+      variant="ghost"
+      onclick={() => {
+        isEditorOpen = false
+        editingPolicy = null
+      }}
+      disabled={isCreating}
+    >
       Cancel
     </Button>
     <Button
@@ -733,7 +806,7 @@
       disabled={isCreating}
       onclick={createPolicy}
     >
-      Create policy
+      {editingPolicy ? 'Save changes' : 'Create policy'}
     </Button>
   {/snippet}
 </Modal>

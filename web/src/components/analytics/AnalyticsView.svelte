@@ -56,7 +56,7 @@
   // preference: the switch that hides a panel outright is the arrangement's own
   // visibility toggle, and that one also skips the combo query below.
   let comboFlowOpen = $state(false)
-  let usageTrendOpen = $state(false)
+  let usageTrendOpen = $state(true)
   // The trend's metric switch lives in the panel header, and the header label
   // describes the active metric — so both the mode and the hourly fact the
   // label repeats are owned here (UsageChart reports the bucket shape back).
@@ -330,7 +330,8 @@
                   const isNewRequest =
                     newTop.timestamp !== prevTop.timestamp ||
                     newTop.model !== prevTop.model ||
-                    newTop.tokens !== prevTop.tokens
+                    newTop.promptTokens !== prevTop.promptTokens ||
+                    newTop.completionTokens !== prevTop.completionTokens
                   if (isNewRequest && newTop.provider) {
                     lastProvider = newTop.provider
                     triggerPulse(newTop.provider)
@@ -551,7 +552,7 @@
 {/snippet}
 
 
-<div class="flex min-w-0 flex-col gap-6 px-1 sm:px-0">
+<div class="flex min-w-0 flex-col gap-6 lg:gap-7">
   <!-- The section picker and the window selector. Cache Analytics and
        Compression Analytics each put the picker in their own header, beside the
        controls they own (issue #209). Details shares this row's control, which
@@ -562,7 +563,20 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       {@render sectionMenu()}
 
-      <PeriodSelect value={period} busy={isFetching} onChange={(next) => (period = next)} />
+      <div class="flex items-center gap-2.5">
+        <PeriodSelect value={period} busy={isFetching} onChange={(next) => (period = next)} />
+        <button
+          type="button"
+          onclick={() => void loadStats(period)}
+          disabled={isFetching}
+          class="inline-flex h-[38px] items-center gap-1.5 rounded-[10px] border border-border bg-surface px-3 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text-main disabled:opacity-60 cursor-pointer"
+          title="Refresh usage analytics"
+          aria-label="Refresh usage analytics"
+        >
+          <span class="material-symbols-outlined text-[16px] {isFetching ? 'animate-spin' : ''}">refresh</span>
+          <span class="hidden sm:inline">Refresh</span>
+        </button>
+      </div>
     </div>
   {/if}
 
@@ -599,7 +613,7 @@
          full-width blocks once the arrangement separates them. -->
     {#each usageBlocks('overview') as block (block.key)}
       {#if block.key === 'overview.kpi'}
-        <SummaryKpiCards {stats} />
+        <SummaryKpiCards {stats} onSelectSection={(next) => (section = next)} />
       {:else if block.key === 'overview.comboFlow'}
         <!-- Combo flow: router -> combo -> members, only while a combo is in use
              (or just finished). The provider map keeps its own animation. The
@@ -636,7 +650,7 @@
           {/if}
         </Card>
       {:else if block.key === 'overview.topology+overview.recent'}
-        <div class="grid min-w-0 grid-cols-1 items-stretch gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+        <div class="grid min-w-0 grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)] lg:gap-6">
           {@render topologyMap()}
           {@render recentRequestsCard()}
         </div>
@@ -673,9 +687,9 @@
                 <button
                   type="button"
                   onclick={() => (trendMode = 'costs')}
-                  class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors cursor-pointer {trendMode ===
+                  class="min-h-8 rounded-lg px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {trendMode ===
                   'costs'
-                    ? 'bg-brand-500 text-white shadow-sm'
+                    ? 'bg-brand-600 text-white shadow-sm'
                     : 'text-text-muted hover:text-text-main'}"
                 >
                   Costs
@@ -683,9 +697,9 @@
                 <button
                   type="button"
                   onclick={() => (trendMode = 'tokens')}
-                  class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors cursor-pointer {trendMode ===
+                  class="min-h-8 rounded-lg px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer {trendMode ===
                   'tokens'
-                    ? 'bg-brand-500 text-white shadow-sm'
+                    ? 'bg-brand-600 text-white shadow-sm'
                     : 'text-text-muted hover:text-text-main'}"
                 >
                   Tokens
@@ -723,6 +737,7 @@
       {details}
       {detailsTotal}
       {detailsPage}
+      pageSize={20}
       {detailsLoading}
       {detailsError}
       onPageChange={loadDetails}
@@ -745,11 +760,17 @@
 
 {#snippet recentRequestsCard()}
   <div
-    class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-4 flex min-w-0 flex-col overflow-hidden"
-    style="height: 480px"
+    class="bg-surface border border-border-subtle rounded-[14px] shadow-[var(--shadow-soft)] p-5 flex min-w-0 min-h-[360px] lg:h-[480px] flex-col overflow-hidden"
   >
-    <div class="px-1 py-2 border-b border-border shrink-0">
+    <div class="px-2 py-2.5 border-b border-border shrink-0 flex items-center justify-between gap-2">
       <span class="text-xs font-semibold text-text-muted uppercase tracking-wide">Recent Requests</span>
+      <button
+        type="button"
+        onclick={() => (section = 'details')}
+        class="text-[11px] font-medium text-brand-500 hover:underline cursor-pointer"
+      >
+        All details
+      </button>
     </div>
 
     {#if !stats.recentRequests || stats.recentRequests.length === 0}
@@ -776,7 +797,7 @@
           <tbody class="divide-y divide-border/50 font-mono text-[11px]">
             {#each stats.recentRequests as req}
               <tr class="hover:bg-bg-subtle transition-colors">
-                <td class="py-1.5 pl-3 align-middle">
+                <td class="py-2.5 pl-3 align-middle">
                   <span
                     class="mx-auto block w-1.5 h-1.5 rounded-full {req.status === 'ok' || req.status === 'success'
                       ? 'bg-success'
@@ -785,19 +806,24 @@
                         : 'bg-red-500'}"
                   ></span>
                 </td>
-                <td class="py-1.5 pr-2 min-w-0">
-                  <span class="inline-flex items-center gap-1 max-w-full truncate font-mono text-[11px]" title={req.loopWarning ? `⚠️ ${req.loopWarning} · ${req.model}` : req.model}>
+                <td class="py-2.5 pr-2 min-w-0">
+                  <button
+                    type="button"
+                    onclick={() => (section = 'details')}
+                    class="inline-flex items-center gap-1 max-w-full truncate font-mono text-[11px] text-left hover:text-primary rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
+                    title={req.loopWarning ? `⚠️ ${req.loopWarning} · ${req.model} - Click for details` : `${req.model} - Click for details`}
+                  >
                     {#if req.loopWarning}
                       <span class="text-amber-500 text-[11px] shrink-0">⚠️</span>
                     {/if}
                     <span class="truncate">{req.model}</span>
-                  </span>
+                  </button>
                 </td>
-                <td class="py-1.5 pr-3 text-right whitespace-nowrap">
+                <td class="py-2.5 pr-3 text-right whitespace-nowrap">
                   <span class="text-primary">{fmt(req.promptTokens)}↑</span>
                   <span class="text-success">{fmt(req.completionTokens)}↓</span>
                 </td>
-                <td class="py-1.5 pr-3 text-right text-text-muted whitespace-nowrap text-[10px]">
+                <td class="py-2.5 pr-3 text-right text-text-muted whitespace-nowrap text-[10px]">
                   {timeAgo(req.timestamp)}
                 </td>
               </tr>

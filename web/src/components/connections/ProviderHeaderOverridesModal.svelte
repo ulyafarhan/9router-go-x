@@ -125,7 +125,7 @@
     onkeydown={handleKeyDown}
   >
     <div
-      class="w-full max-w-2xl rounded-2xl border border-border bg-surface p-5 shadow-xl"
+      class="w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-elevated)]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="provider-overrides-title"
@@ -142,7 +142,7 @@
           type="button"
           onclick={onClose}
           aria-label="Close"
-          class="shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-2 hover:text-text-main"
+          class="min-h-8 min-w-8 inline-flex items-center justify-center shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-2 hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
         >
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
         </button>
@@ -180,7 +180,7 @@
                     const value = (e.target as HTMLInputElement).value
                     rows = rows.map((r, i) => (i === index ? { ...r, key: value } : r))
                   }}
-                  class="min-w-0 flex-1 rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-xs text-text-main outline-none focus:border-primary"
+                  class="min-w-0 min-h-9 flex-1 rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[16px] sm:text-xs text-text-main outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
                 />
                 <input
                   type="text"
@@ -191,13 +191,13 @@
                     const value = (e.target as HTMLInputElement).value
                     rows = rows.map((r, i) => (i === index ? { ...r, value } : r))
                   }}
-                  class="min-w-0 flex-[2] rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-xs text-text-main outline-none focus:border-primary"
+                  class="min-w-0 min-h-9 flex-[2] rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-[16px] sm:text-xs text-text-main outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/50"
                 />
                 <button
                   type="button"
                   onclick={() => removeRow(index)}
                   aria-label={`Remove header ${index + 1}`}
-                  class="shrink-0 rounded-md p-1.5 text-text-muted hover:bg-surface-2 hover:text-text-main"
+                  class="min-h-8 min-w-8 inline-flex items-center justify-center shrink-0 rounded-md p-1.5 text-text-muted hover:bg-surface-2 hover:text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
                 >
                   <span class="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>
                 </button>

@@ -136,8 +136,8 @@
     // Off chips stay legible against the card surface; on chips take the
     // brand tint so the active set reads at a glance.
     return on
-      ? 'inline-flex items-center gap-1 rounded-full border border-brand-500/40 bg-brand-500/10 px-2 py-0.5 text-[11px] font-medium text-brand-500 cursor-pointer transition-colors hover:bg-brand-500/20'
-      : 'inline-flex items-center gap-1 rounded-full border border-border bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-text-muted cursor-pointer transition-colors hover:text-text-main hover:border-text-muted/40'
+      ? 'inline-flex items-center gap-1 whitespace-nowrap shrink-0 min-h-7 rounded-full border border-brand-500/40 bg-brand-500/12 px-2.5 py-0.5 text-[11px] font-medium text-brand-700 dark:text-brand-300 cursor-pointer transition-colors hover:bg-brand-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60'
+      : 'inline-flex items-center gap-1 whitespace-nowrap shrink-0 min-h-7 rounded-full border border-border bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-text-muted cursor-pointer transition-colors hover:text-text-main hover:border-text-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60'
   }
 </script>
 
@@ -149,9 +149,9 @@
   fixed anchor: the sort control stays on the status row, so it does not
   drift up and down as capability chips wrap.
 -->
-<div class="flex flex-col gap-1.5">
+<div class="flex flex-col gap-2">
   <div class="flex flex-wrap items-center gap-1.5">
-    <span class="w-14 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-text-muted/70">Caps</span>
+    <span class="min-w-[3.5rem] shrink-0 text-[10px] font-semibold uppercase tracking-wide text-text-muted">Caps</span>
     {#each capChips as chip (chip.key)}
       <button type="button" class={chipClass(chip.on)} onclick={chip.toggle} title={chip.title}>
         {#if chip.on}<span class="material-symbols-outlined text-[12px] leading-none">check</span>{/if}
@@ -159,13 +159,13 @@
       </button>
     {/each}
     {#if capChips.length === 0}
-      <span class="text-[11px] italic text-text-muted/60">No capabilities on this list</span>
+      <span class="text-[11px] italic text-text-muted">No capabilities on this list</span>
     {/if}
   </div>
 
   {#if showStatus}
     <div class="flex flex-wrap items-center gap-1.5">
-      <span class="w-14 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-text-muted/70">Status</span>
+      <span class="min-w-[3.5rem] shrink-0 text-[10px] font-semibold uppercase tracking-wide text-text-muted">Status</span>
       {#each statusChips as chip (chip.key)}
         <button type="button" class={chipClass(chip.on)} onclick={chip.toggle} title={chip.title}>
           {#if chip.on}<span class="material-symbols-outlined text-[12px] leading-none">check</span>{/if}
@@ -177,13 +177,13 @@
   <!-- The sort control lives outside the status row on purpose: a compatible
        node renders no status chips at all, and nesting the dropdown inside
        that block left it with no way to reorder its list. -->
-  <div class="flex items-center gap-1">
-    <span class="material-symbols-outlined text-[14px] text-text-muted">sort</span>
+  <div class="flex items-center gap-1.5 pt-0.5">
+    <span class="material-symbols-outlined text-[15px] text-text-muted">sort</span>
     <select
       aria-label="Sort models"
       value={filter.sort}
       onchange={(e) => setSort((e.target as HTMLSelectElement).value as SortMode)}
-      class="rounded-md border border-border bg-background px-1.5 py-0.5 text-[11px] text-text-main focus:border-primary focus:outline-none cursor-pointer"
+      class="min-h-7 rounded-md border border-border bg-bg px-2 py-1 text-[11px] text-text-main focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 cursor-pointer"
     >
       {#each Object.entries(SORT_LABELS) as [mode, label] (mode)}
         <option value={mode}>{label}</option>

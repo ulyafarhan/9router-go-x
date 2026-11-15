@@ -217,7 +217,7 @@
 >
   <!-- Window control / traffic lights -->
   {#if !iconRail}
-    <div class="flex items-center gap-2 px-6 pt-5 pb-2 shrink-0">
+    <div class="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
       <div class="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
       <div class="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
       <div class="w-3 h-3 rounded-full bg-[#27C93F]"></div>
@@ -225,11 +225,11 @@
   {/if}
 
   <!-- Brand header: 9router-go with official favicon.svg logo -->
-  <div class="{iconRail ? 'px-2 py-4' : 'px-6 py-4'} flex flex-col gap-2 shrink-0">
+  <div class="{iconRail ? 'px-2 py-4' : 'px-5 py-3.5'} flex flex-col gap-2.5 shrink-0">
     <a
       href={TAB_ROUTES.endpoint}
       onclick={(e) => handleNav('endpoint', e)}
-      class="flex items-center {iconRail ? 'justify-center' : 'gap-3'} cursor-pointer group"
+      class="flex items-center {iconRail ? 'justify-center' : 'gap-3'} cursor-pointer group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
       title={iconRail ? displayBrandName : undefined}
     >
       <div
@@ -305,7 +305,7 @@
             title={iconRail ? entry.label : undefined}
             class="flex items-center {iconRail
               ? 'justify-center'
-              : 'gap-3'} px-3 py-1.5 rounded-lg transition-all group cursor-pointer {pinActive
+              : 'gap-3'} px-3 py-2 rounded-lg transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {pinActive
               ? 'bg-primary/10 text-primary font-medium'
               : 'text-text-muted hover:bg-surface-2 hover:text-text-main'}"
           >
@@ -360,7 +360,7 @@
             type="button"
             onclick={() => toggleGroup(`group:${group.id}`)}
             aria-expanded={groupOpen}
-            class="w-full flex items-center gap-1.5 px-3 mb-2 text-text-muted/60 uppercase tracking-wider cursor-pointer"
+            class="w-full flex items-center gap-1.5 px-3 py-1 mb-1 text-text-muted uppercase tracking-wider cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
           >
             <span class="text-xs font-semibold">{group.label}</span>
             <span
@@ -386,7 +386,7 @@
               title={iconRail ? entry.label : undefined}
               class="w-full flex items-center {iconRail
                 ? 'justify-center'
-                : 'gap-3'} px-3 py-1.5 rounded-lg transition-all group cursor-pointer {accordionActive
+                : 'gap-3'} px-3 py-2 rounded-lg transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {accordionActive
                 ? 'bg-primary/10 text-primary font-medium'
                 : 'text-text-muted hover:bg-surface-2 hover:text-text-main'}"
             >
@@ -408,7 +408,7 @@
                   <a
                     href={TAB_ROUTES[child.id]}
                     onclick={(e) => handleNav(child.id, e)}
-                    class="flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all group cursor-pointer {childActive
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {childActive
                       ? 'bg-primary/10 text-primary font-medium'
                       : 'text-text-muted hover:bg-surface-2 hover:text-text-main'}"
                   >
@@ -433,7 +433,7 @@
               title={iconRail ? entry.label : undefined}
               class="flex items-center {iconRail
                 ? 'justify-center'
-                : 'gap-3'} px-3 py-1.5 rounded-lg transition-all group cursor-pointer {active
+                : 'gap-3'} px-3 py-2 rounded-lg transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 {active
                 ? 'bg-primary/10 text-primary font-medium'
                 : 'text-text-muted hover:bg-surface-2 hover:text-text-main'}"
             >

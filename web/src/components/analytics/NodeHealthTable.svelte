@@ -88,8 +88,16 @@
           {@const open = expanded.has(node.provider)}
           {@const children = modelsFor(node)}
           <tr
-            class="hover:bg-surface-2/60 transition-colors cursor-pointer"
+            class="hover:bg-surface-2/60 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500/50"
+            tabindex="0"
+            role="button"
             onclick={() => toggle(node.provider)}
+            onkeydown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                toggle(node.provider)
+              }
+            }}
             aria-expanded={open}
           >
             <td class="py-2.5 px-3 min-w-0">

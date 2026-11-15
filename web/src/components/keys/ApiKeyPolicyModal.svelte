@@ -369,19 +369,24 @@
 <svelte:window onkeydown={onKeydown} />
 
 <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-  <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-surface-2 border border-border shadow-2xl">
-    <div class="sticky top-0 bg-surface-2 border-b border-border px-6 py-4 flex items-center justify-between z-10">
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-label={`Policy: ${apiKey.name || apiKey.keyDisplay || apiKey.key}`}
+    class="w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar rounded-2xl bg-surface-2 border border-border shadow-[var(--shadow-elevated)]"
+  >
+    <div class="sticky top-0 bg-surface-2 border-b border-border px-6 py-4 flex items-center justify-between gap-3 z-10">
       <div class="min-w-0">
         <h2 class="font-headline text-sm font-bold text-text-main truncate">
-          Policy — {apiKey.name || apiKey.keyDisplay || apiKey.key}
+          Policy: {apiKey.name || apiKey.keyDisplay || apiKey.key}
         </h2>
-        <p class="font-code text-[10px] text-text-subtle truncate">{apiKey.id}</p>
+        <p class="font-code text-[10px] text-text-muted truncate">{apiKey.id}</p>
       </div>
       <button
         type="button"
         onclick={onClose}
         aria-label="Close policy dialog"
-        class="p-1.5 rounded-lg text-text-subtle hover:text-text-main hover:bg-surface-3 transition cursor-pointer"
+        class="min-h-8 min-w-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text-main hover:bg-surface-3 transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
         <X class="w-4 h-4" />
       </button>
@@ -394,7 +399,7 @@
       <section class="space-y-3">
         <div>
           <h3 class="font-headline text-xs font-bold text-text-main">Name</h3>
-          <p class="text-text-subtle mt-0.5">
+          <p class="text-text-muted mt-0.5">
             Shown in this dashboard only. Clearing it falls back to the masked token.
           </p>
         </div>
@@ -405,7 +410,7 @@
           maxlength="200"
           placeholder="Client Token"
           aria-label="Key name"
-          class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-xs text-text-main focus:outline-none focus:border-brand-500"
+          class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
         />
       </section>
 
@@ -416,7 +421,7 @@
         <section class="space-y-3">
           <div>
             <h3 class="font-headline text-xs font-bold text-text-main">Plan</h3>
-            <p class="text-text-subtle mt-0.5">
+            <p class="text-text-muted mt-0.5">
               The key inherits this plan's limits as defaults. Any limit set below overrides the plan.
               Choose <span class="font-code">No plan</span> to detach the key.
             </p>
@@ -424,9 +429,9 @@
           <select
             bind:value={planId}
             aria-label="Plan"
-            class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-xs text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
-            <option value="">No plan — this key's own columns only</option>
+            <option value="">No plan: this key's own columns only</option>
             {#each plans as plan (plan.id)}
               <option value={plan.id}>{plan.name}</option>
             {/each}
@@ -446,7 +451,7 @@
         <div>
           <h3 class="font-headline text-xs font-bold text-text-main">Rate limits</h3>
           <p class="text-text-subtle mt-0.5">
-            Applied per key. <span class="font-code">0</span> means unlimited — a rejected request
+            Applied per key. <span class="font-code">0</span> means unlimited; a rejected request
             returns 429 with <span class="font-code">Retry-After</span> and never reaches the provider.
           </p>
         </div>
@@ -462,7 +467,7 @@
               min="0"
               step="1"
               bind:value={rpm}
-              class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
             />
           </div>
           <div>
@@ -475,7 +480,7 @@
               min="0"
               step="1"
               bind:value={tpm}
-              class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
             />
           </div>
           <div>
@@ -488,7 +493,7 @@
               min="0"
               step="1"
               bind:value={concurrency}
-              class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
             />
           </div>
         </div>
@@ -504,7 +509,7 @@
               inputmode="text"
               placeholder="1M"
               bind:value={tokenQuota}
-              class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
             />
             <p class="text-text-subtle mt-1">
               Total prompt + completion tokens for the key's lifetime. Accepts a number or a scale
@@ -521,7 +526,7 @@
               min="0"
               step="1"
               bind:value={queueTimeoutMs}
-              class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+              class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
             />
             <p class="text-text-subtle mt-1">
               How long a request waits for a free concurrency slot before it is refused with 429.
@@ -545,7 +550,7 @@
                 inputmode="decimal"
                 placeholder="25.00"
                 bind:value={budgetLimitUsd}
-                class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+                class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
               />
               <p class="text-text-subtle mt-1">
                 USD the key may spend each {budgetPeriod}. Blank = no cost limit.
@@ -560,7 +565,7 @@
                 type="text"
                 placeholder="1M"
                 bind:value={budgetLimitTokens}
-                class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+                class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
               />
               <p class="text-text-subtle mt-1">
                 Prompt + completion tokens per period. Blank = no token limit.
@@ -576,12 +581,12 @@
               <select
                 id="pol-bud-period"
                 bind:value={budgetPeriod}
-                class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-xs text-text-main focus:outline-none focus:border-brand-500"
+                class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 cursor-pointer"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
-                <option value="total">Total — never resets</option>
+                <option value="total">Total (never resets)</option>
               </select>
             </div>
             <div>
@@ -594,7 +599,7 @@
                 min="0"
                 max="100"
                 bind:value={alertPct}
-                class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+                class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
               />
               <p class="text-text-subtle mt-1">
                 Warn at this share of the budget. 0 = no warning.
@@ -603,7 +608,7 @@
           </div>
 
           <label class="flex items-start gap-2 cursor-pointer">
-            <input type="checkbox" bind:checked={hardCutoff} class="mt-0.5" />
+            <input type="checkbox" bind:checked={hardCutoff} class="mt-0.5 size-4 rounded accent-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer" />
             <span>
               <span class="block font-semibold text-text-muted">Refuse when exhausted (402)</span>
               <span class="text-text-subtle block">
@@ -656,7 +661,7 @@
             inputmode="text"
             placeholder="200K"
             bind:value={contextLimit}
-            class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+            class="w-full min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
           />
           <p class="text-text-subtle mt-1">
             The largest context one request may use. Accepts a number or a scale (200K, 1M). A
@@ -678,7 +683,7 @@
           type="datetime-local"
           bind:value={expiresLocal}
           aria-label="Expiry date and time"
-          class="w-full sm:w-64 bg-surface border border-border rounded-lg px-3 py-2 font-code text-xs text-text-main focus:outline-none focus:border-brand-500"
+          class="w-full sm:w-64 min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40"
         />
       </section>
 
@@ -692,8 +697,8 @@
             <span class="font-code">priceCents</span> (whole cents),
             <span class="font-code">billingCycle</span> (one-off, monthly, quarterly, yearly),
             <span class="font-code">contact</span>,
-            <span class="font-code">notes</span>
-            — up to 2 KB. Any other key is refused, so a typo cannot silently drop
+            <span class="font-code">notes</span>,
+            up to 2 KB. Any other key is refused, so a typo cannot silently drop
             the key out of the resale report.
           </p>
         </div>
@@ -702,7 +707,7 @@
           rows="3"
           spellcheck="false"
           placeholder={'{\n  "customerId": "acme",\n  "priceCents": 5000,\n  "billingCycle": "monthly"\n}'}
-          class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-[11px] text-text-main focus:outline-none focus:border-brand-500 resize-y"
+          class="w-full bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 resize-y"
         ></textarea>
       </section>
 
@@ -719,7 +724,7 @@
             type="button"
             onclick={loadModels}
             disabled={isLoadingModels}
-            class="shrink-0 px-2.5 py-1.5 rounded-lg border border-border text-[11px] text-text-muted hover:text-text-main hover:border-brand-500/40 transition cursor-pointer disabled:opacity-50"
+            class="shrink-0 min-h-8 px-2.5 py-1.5 rounded-lg border border-border text-xs text-text-muted hover:text-text-main hover:border-brand-500/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer disabled:opacity-50"
           >
             {#if isLoadingModels}
               <Loader2 class="w-3.5 h-3.5 animate-spin inline" />
@@ -774,23 +779,23 @@
         </button>
 
         {#if showPatternInput}
-          <div class="flex gap-2">
+          <div class="flex flex-wrap sm:flex-nowrap gap-2">
             <input
               type="text"
               bind:value={modelDraft}
               onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), addModel())}
               placeholder="e2e/allowed-*"
-              class="flex-1 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[11px] text-text-main focus:outline-none focus:border-brand-500"
+              class="flex-1 min-w-[160px] min-h-9 bg-surface border border-border rounded-lg px-3 py-2 font-code text-[16px] sm:text-xs text-text-main focus:outline-none focus:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/50"
             />
             <button
               type="button"
               onclick={addModel}
-              class="px-3 py-2 rounded-lg bg-surface-3 border border-border text-[11px] text-text-main hover:border-brand-500/40 transition cursor-pointer"
+              class="min-h-9 px-3.5 py-2 rounded-lg bg-surface-3 border border-border text-xs font-semibold text-text-main hover:border-brand-500/40 transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
             >
               Add
             </button>
           </div>
-          <p class="text-text-subtle text-[11px]">
+          <p class="text-text-muted text-[11px]">
             Patterns may use <span class="font-code">*</span> per segment, e.g.
             <span class="font-code">e2e/allowed-*</span>, and
             <span class="font-code">!</span> or <span class="font-code">-</span> denies a model.
@@ -804,18 +809,18 @@
         </p>
       {/if}
 
-      <div class="flex justify-end gap-2 pt-3 border-t border-border">
+      <div class="flex flex-wrap justify-end gap-2 pt-3 border-t border-border">
         <button
           type="button"
           onclick={onClose}
-          class="px-4 py-2 rounded-lg text-text-muted hover:text-text-main cursor-pointer"
+          class="min-h-9 px-4 py-2 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-3 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSaving}
-          class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-bold shadow-md shadow-brand-500/25 transition cursor-pointer disabled:opacity-60"
+          class="min-h-9 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-bold whitespace-nowrap shadow-md shadow-brand-500/25 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-60"
         >
           {#if isSaving}
             <Loader2 class="w-3.5 h-3.5 animate-spin" />

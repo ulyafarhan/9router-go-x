@@ -26,12 +26,12 @@
     default: 'bg-surface-2 text-text-muted border border-border',
     neutral: 'bg-surface-2 text-text-muted border border-border',
     outline: 'bg-transparent text-text-muted border border-border',
-    primary: 'bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/25',
-    success: 'bg-success/10 text-success border border-success/25',
-    warning: 'bg-warning/10 text-warning border border-warning/25',
+    primary: 'bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/25',
+    success: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25',
+    warning: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/25',
     danger: 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/25',
-    error: 'bg-red-500/10 text-red-500 border border-red-500/25',
-    info: 'bg-info/10 text-info border border-info/25',
+    error: 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/25',
+    info: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/25',
   }
 
   const dotColors: Record<string, string> = {
@@ -54,7 +54,7 @@
 </script>
 
 <span
-  class="inline-flex items-center gap-1.5 rounded-full font-medium {sizeClasses[size] || sizeClasses.md} {tones[activeTone] || tones.default} {klass}"
+  class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 rounded-full font-medium {sizeClasses[size] || sizeClasses.md} {tones[activeTone] || tones.default} {klass}"
 >
   {#if dot}
     <span class="w-1.5 h-1.5 rounded-full shrink-0 {dotColors[activeTone] || 'bg-current'}"></span>

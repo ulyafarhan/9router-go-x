@@ -763,12 +763,12 @@
 {/snippet}
 
 {#if loading}
-  <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-1 sm:gap-6 sm:px-0">
+  <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:gap-6">
     <div class="h-20 rounded-[14px] bg-surface border border-border-subtle animate-pulse"></div>
     <div class="h-64 rounded-[14px] bg-surface border border-border-subtle animate-pulse"></div>
   </div>
 {:else}
-  <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-1 sm:gap-6 sm:px-0">
+  <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:gap-6">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div class="min-w-0">
         <h1 class="text-xl font-semibold sm:text-2xl">Proxy Pools</h1>
@@ -882,7 +882,7 @@
             <span class="text-xs text-text-muted shrink-0">Sort:</span>
             <select
               bind:value={sortOption}
-              class="h-8 rounded-lg border border-border-subtle bg-surface-2 px-2 text-xs text-text-main outline-none transition-colors hover:bg-surface-3 cursor-pointer"
+              class="min-h-8 rounded-lg border border-border-subtle bg-surface-2 px-2.5 text-[16px] sm:text-xs text-text-main outline-none transition-colors hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
               aria-label="Sort proxy pools"
             >
               <option value="default">Default</option>
@@ -1131,7 +1131,7 @@
               regions)
             </li>
             <li>
-              Vercel serves millions of apps — providers can't block Vercel IPs without affecting
+              Vercel serves millions of apps, so providers can't block Vercel IPs without affecting
               legitimate traffic
             </li>
             <li>Free tier: 100GB bandwidth/month, 500K edge invocations</li>
@@ -1351,7 +1351,7 @@
             <ol class="list-decimal pl-4 space-y-0.5">
               <li>Go to <b>User Settings</b> → <b>Applications</b> → <b>Personal access tokens</b></li>
               <li>Select <b>New access token</b> and generate a token</li>
-              <li>Copy the token — you won't see it again after leaving the page</li>
+              <li>Copy the token. You won't see it again after leaving the page</li>
             </ol>
           </div>
         </div>
@@ -1417,7 +1417,7 @@
                 role="tab"
                 aria-selected={formTab === tab.value}
                 onclick={() => (formTab = tab.value as 'single' | 'bulk')}
-                class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors {formTab ===
+                class="flex-1 min-h-8 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {formTab ===
                 tab.value
                   ? 'bg-brand-500 text-white shadow-sm'
                   : 'text-text-muted hover:text-text-main'}"
@@ -1450,7 +1450,7 @@
                 id="bulk-proxies"
                 bind:value={batchImportText}
                 placeholder={'http://user:pass@127.0.0.1:7897\n127.0.0.1:7897:user:pass'}
-                class="w-full min-h-[180px] py-2 px-3 text-sm text-text-main bg-surface-2 border border-transparent rounded-[10px] focus:ring-1 focus:ring-primary/30 focus:border-primary/50 focus:outline-none transition-all font-mono"
+                class="w-full min-h-[180px] py-2 px-3 text-[16px] sm:text-sm text-text-main bg-surface-2 border border-transparent rounded-[10px] focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 focus:outline-none transition-all font-mono"
               ></textarea>
               <p class="text-xs text-text-muted mt-1">
                 Supported formats: protocol://user:pass@host:port, host:port:user:pass

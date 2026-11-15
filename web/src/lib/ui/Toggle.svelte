@@ -30,7 +30,7 @@
     const fn = onChange || onchange
     fn?.(!checked)
   }}
-  class="relative inline-flex shrink-0 {size === 'sm' ? 'h-4 w-7' : 'h-5 w-9'} items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed {checked
+  class="relative inline-flex shrink-0 {size === 'sm' ? 'h-4 w-7' : 'h-5 w-9'} items-center rounded-full transition-colors cursor-pointer before:content-[''] before:absolute before:-inset-2 sm:before:-inset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed {checked
     ? 'bg-brand-500'
     : 'bg-surface-3'}"
 >

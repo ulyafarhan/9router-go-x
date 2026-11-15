@@ -161,7 +161,7 @@
     <!-- View selector dropdown -->
     <select
       bind:value={tableView}
-      class="w-full sm:w-auto rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-semibold text-text-main focus:outline-none focus:ring-2 focus:ring-brand-500/50 cursor-pointer"
+      class="w-full sm:w-auto min-h-9 rounded-lg border border-border bg-surface px-3 py-1.5 text-[16px] sm:text-sm font-semibold text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 cursor-pointer"
     >
       {#each TABLE_OPTIONS as opt}
         <option value={opt.value}>{opt.label}</option>
@@ -173,7 +173,7 @@
       <button
         type="button"
         onclick={() => (viewMode = 'costs')}
-        class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors cursor-pointer {viewMode === 'costs'
+        class="rounded-lg px-3 py-1.5 min-h-7 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {viewMode === 'costs'
           ? 'bg-brand-500 text-white shadow-sm'
           : 'text-text-muted hover:text-text-main'}"
       >
@@ -182,7 +182,7 @@
       <button
         type="button"
         onclick={() => (viewMode = 'tokens')}
-        class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors cursor-pointer {viewMode === 'tokens'
+        class="rounded-lg px-3 py-1.5 min-h-7 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 {viewMode === 'tokens'
           ? 'bg-brand-500 text-white shadow-sm'
           : 'text-text-muted hover:text-text-main'}"
       >

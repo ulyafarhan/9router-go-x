@@ -46,7 +46,7 @@
     }).length
   )
   let total = $derived(providerConns.length)
-  let allDisabled = $derived(total > 0 && providerConns.every((c) => c.isActive === 0 || c.isActive === false))
+  let allDisabled = $derived(total > 0 && providerConns.every((c) => !c.isActive))
 
   let bgColor = $derived(
     provider.color && provider.color.length > 7
@@ -71,7 +71,7 @@
 <a
   href={`/dashboard/media-providers/${kind}/${provider.id}`}
   onclick={handleClick}
-  class="group block text-left focus:outline-none"
+  class="group block rounded-xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
 >
   <Card
     padding="xs"

@@ -184,6 +184,9 @@ export async function openRowMenu(page: Page, keyName: string): Promise<void> {
  * about them has to open it first, the way a reader reaches it.
  */
 export async function openUsageTrend(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Toggle Usage trend' }).click()
+  const toggle = page.getByRole('button', { name: 'Toggle Usage trend' })
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
+    await toggle.click()
+  }
   await page.getByRole('img', { name: 'Usage trend chart' }).waitFor()
 }
