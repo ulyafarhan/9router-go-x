@@ -4,60 +4,42 @@
 
 # 9router-go-x
 
-Personal fork of [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) (Go + Svelte port of [decolua/9router](https://github.com/decolua/9router)).
+Personal fork of [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go), a Go and Svelte port of [decolua/9router](https://github.com/decolua/9router).
 
-Built to fix dashboard layout and routing issues I ran into in daily use, and to try out features from other open-source AI gateways.
+One Go binary with an embedded Svelte dashboard for routing Claude Code, Codex, Cursor, Cline, and other CLI tools across OpenAI, Anthropic, Gemini, and Ollama-compatible providers, with RTK prompt compression and multi-account fallback.
 
 [![License](https://img.shields.io/github/license/ulyafarhan/9router-go-x)](LICENSE)
 [![Upstream Go](https://img.shields.io/badge/upstream-luqman--v1%2F9router--go-blue)](https://github.com/luqman-v1/9router-go)
 [![Original JS](https://img.shields.io/badge/original-decolua%2F9router-black)](https://github.com/decolua/9router)
 
-[What Changed in This Fork](#what-changed-in-this-fork) • [Quick Start](#-quick-start) • [Key Features](#-key-features) • [Setup Guide](#-setup-guide) • [Share DB with 9Router](#-sharing-a-database-with-9router) • [Credits](#credits)
+[What changed](#what-changed-in-this-fork) • [Quick start](#quick-start) • [Key features](#key-features) • [Share DB](#sharing-a-database-with-9router) • [Setup guide](#setup-guide) • [Credits](#credits)
 
 </div>
 
----
+## What changed in this fork
 
-## What Changed in This Fork
+Branched off `luqman-v1/9router-go` (`v1.9.17-exp.2`), keeping compatibility with `~/.9router/db/data.sqlite`:
 
-Branched off `luqman-v1/9router-go` (`v1.9.17-exp.2`), keeping the same `~/.9router/db/data.sqlite` database compatibility:
-
-- Fixed tight padding, uneven margins, and cramped layouts across the Svelte dashboard (`Usage`, `Console Log`, `Providers`, `Endpoint`, `Combos`, `Quota`).
-- Fixed `Console Log` live stream, `Usage` chart/table interactions, and several OAuth/provider routing bugs.
+- Fixed tight padding, uneven margins, and cramped layouts across the Svelte dashboard (`Usage`, `Console Log`, `Providers`, `Endpoint`, `Combos`, and `Quota`).
+- Fixed the `Console Log` live stream, `Usage` chart and table interactions, and several OAuth and provider routing bugs.
 - Added `Task Persona` (`internal/persona`, `PersonaView.svelte`), `context_rescue`, `loopdetect`, and `weblanes`.
-- Pointed `LICENSE`, repo links, and self-updater config to `ulyafarhan/9router-go-x`.
+- Pointed `LICENSE`, repository links, and self-updater config to `ulyafarhan/9router-go-x`.
 
-No pre-built release binaries are uploaded here yet, so build from source below if you want to try this fork.
+I have not published pre-built release binaries for `9router-go-x` yet, so build from source below if you want to run these changes.
 
----
+## Why 9router-go
 
-## 🤔 Why 9router-go?
+Same architecture as [9Router](https://github.com/decolua/9router) without the Node.js runtime: one Go binary serves the proxy APIs and the embedded Svelte dashboard.
 
-Same idea as [9Router](https://github.com/decolua/9router), minus the Node.js runtime: **one Go binary** serves the proxy APIs + an embedded Svelte dashboard.
+If you code with multiple subscriptions, API keys, and free tiers, quota expires unused on some accounts while rate limits or long tool outputs (`git diff`, `grep`, `ls`) hit others. This router sits at `http://localhost:20130/v1` and handles:
 
-**Stop wasting money, tokens and hitting limits:**
+- RTK Token Saver, which compresses `tool_result` blocks to trim token spend.
+- Auto fallback and combo routing across subscription, cheap, and free tiers using fallback, round-robin, sticky, capacity, or fusion strategies.
+- Multi-account round-robin per provider with OAuth refresh and reactive 401 retry.
+- Per-connection outbound proxy pools, including bulk Apply Proxy and custom headers for compatible providers.
+- Live `Console Log` and usage SSE streams with custom windows (`14d`, `12h`), currency display (USD, IDR, EUR, and ten others), and per-request payload inspection.
 
-- ❌ Subscription quota expires unused every month
-- ❌ Rate limits stop you mid-coding
-- ❌ Tool outputs (git diff, grep, ls...) burn tokens fast
-- ❌ Manual switching between providers
-
-**9router-go solves this:**
-
-- ✅ **RTK Token Saver** — auto-compress tool_result content, save 20-40% tokens
-- ✅ **Auto fallback** — Subscription → Cheap → Free, zero downtime
-- ✅ **Extended combo routing** — per-combo strategy: fallback, round-robin, sticky, capacity, or fusion
-- ✅ **Multi-account** — round-robin between accounts per provider
-- ✅ **Proxy per API key** — bind a proxy pool to each provider API key (connection), one-by-one or via **Apply Proxy** across many at once
-- ✅ **Custom headers** — add your own request headers to custom compatible providers
-- ✅ **Unified custom provider add** — one shared dialog adds OpenAI-/Anthropic-compatible endpoints
-- ✅ **Custom usage ranges** — analyze any window (`14d`, `12h`), not just fixed presets
-- ✅ **Extended logging** — live console log with level filters & search, plus per-request payload inspector
-- ✅ **Single binary** — Go + embedded dashboard, works with Claude Code, Codex, Cursor, Cline, any CLI tool
-
----
-
-## 🔄 How It Works
+## How it works
 
 ```text
 ┌─────────────┐
@@ -79,15 +61,11 @@ Same idea as [9Router](https://github.com/decolua/9router), minus the Node.js ru
        ├─→ [Tier 2: CHEAP] GLM ($0.6/1M), MiniMax ($0.2/1M)
        │   ↓ budget limit
        └─→ [Tier 3: FREE] Kiro, OpenCode Free, Vertex ($300 credits)
-
-Result: Never stop coding, minimal cost + 20-40% token savings via RTK
 ```
 
----
+## Quick start
 
-## ⚡ Quick Start
-
-**1. Build `9router-go-x` from source (requires Go 1.27 and Bun 1.x):**
+Build `9router-go-x` from source (requires Go 1.27 and Bun 1.x):
 
 ```bash
 git clone -b custom-edition https://github.com/ulyafarhan/9router-go-x.git
@@ -96,7 +74,7 @@ make web-build   # bun install --frozen-lockfile && bun run build
 make build       # embeds the built dashboard into the Go binary
 ```
 
-If you want pre-built binaries from upstream [`luqman-v1/9router-go`](https://github.com/luqman-v1/9router-go) instead of this fork:
+If you prefer upstream pre-built binaries from [`luqman-v1/9router-go`](https://github.com/luqman-v1/9router-go) instead of this fork:
 
 ```bash
 # macOS / Linux (upstream release)
@@ -104,74 +82,53 @@ curl -fsSL https://raw.githubusercontent.com/luqman-v1/9router-go/main/install.s
 ```
 
 ```powershell
-# Windows PowerShell (upstream release)
+# Windows PowerShell (upstream release, writes to %LOCALAPPDATA% and user PATH)
 irm https://raw.githubusercontent.com/luqman-v1/9router-go/main/install.ps1 | iex
 ```
 
-For Linux x86-64 CPUs without AVX, upstream provides `install-noavx.sh` (`CGO_ENABLED=0`, `GOAMD64=v1`).
+On Linux x86-64 CPUs without AVX (Celeron/Pentium N-series, older Atom, some VMs), a regular build dies with `Illegal instruction` on startup. Use upstream's `install-noavx.sh` (`CGO_ENABLED=0`, `GOAMD64=v1`) or pass `VARIANT=noavx` to `install.sh`:
 
-🎉 Then start it (defaults: port `20130`, data `~/.9router` — no flags needed):
+```bash
+curl -fsSL https://raw.githubusercontent.com/luqman-v1/9router-go/main/install-noavx.sh | bash
+```
+
+Start the gateway (defaults to port `20130` and data dir `~/.9router`):
 
 ```bash
 9router-go
-# Dashboard: http://localhost:20130 (Default password: 123456)
+# Dashboard: http://localhost:20130 (Default password on localhost: 123456)
 ```
-> **Already using upstream [9Router](https://github.com/decolua/9router)?** Point 9router-go at the same data dir — it opens the **same `DATA_DIR/db/data.sqlite`**. Your providers, connections, combos, API keys, and usage history carry over as-is. No import step, no migration. See [Sharing a database with 9Router](#-sharing-a-database-with-9router) for the caveats.
 
-**Keep the terminal free (background mode):**
+If you already run upstream [9Router](https://github.com/decolua/9router), point `9router-go` at the same data directory and it opens the existing `DATA_DIR/db/data.sqlite` without an import or migration step. See [Sharing a database with 9Router](#sharing-a-database-with-9router) for details.
+
+Run in the background:
 
 ```bash
-9router-go start          # same as: 9router-go --background   (or -d)
-9router-go status         # is it running? (pid, dashboard, log)
+9router-go start          # same as: 9router-go --background (or -d)
+9router-go status         # pid, dashboard URL, log path
 9router-go restart        # replace the running daemon
 9router-go logs -n 100    # tail the background log
 9router-go stop           # stop it
 ```
 
-The detached process records itself in `DATA_DIR/run/gateway.pid` and writes its
-output to `DATA_DIR/run/gateway.log`. A second `start` while one is running
-refuses instead of fighting over the port, and a daemon killed from Task Manager
-leaves nothing behind: the stale pid file is cleaned on the next command.
-> Windows stops the process with `TerminateProcess` instead of `SIGTERM`, so
-> stopping skips the graceful drain; use the dashboard's Shutdown button or
-> `9router-go restart` when you want in-flight streams to finish first.
+The detached process writes `DATA_DIR/run/gateway.pid` and `DATA_DIR/run/gateway.log`. Running `start` while a daemon is active exits instead of fighting over the port, and a stale pid file is cleaned on the next command. On Windows, `stop` calls `TerminateProcess` instead of `SIGTERM`, so it skips graceful stream drain; use the dashboard Shutdown button or `9router-go restart` when in-flight streams matter.
 
-**Start on boot (autostart):**
+Register autostart on boot:
 
 ```bash
-9router-go service install     # systemd user unit, launchd agent, OpenRC/runit service, cron @reboot, or a Windows logon task
-9router-go service status      # which backend owns the entry, and whether it is enabled/active
-9router-go service start       # start the supervised service now (falls back to the background daemon)
-9router-go service restart     # restart it
-9router-go service stop        # stop it now but keep it enabled for boot
-9router-go service uninstall   # remove the autostart entry
+9router-go service install     # systemd user unit, launchd agent, OpenRC/runit service, cron @reboot, or Windows logon task
+9router-go service status
+9router-go service start
+9router-go service restart
+9router-go service stop
+9router-go service uninstall
 ```
 
-`install` picks the native backend for the host. systemd, launchd, and cron all
-install into the **user** scope and need no root; runit's `~/service` path too.
-Two exceptions: OpenRC is a system service and needs root (`service install`
-refuses without it — run with `sudo`, or pick `--backend cron`), and on Windows
-install registers a scheduled task via `schtasks`, which requires an
-Administrator console. The Windows task runs as the current user at logon, so it
-reads that user's data dir rather than `SYSTEM`'s. Force a backend with
-`--backend systemd|launchd|openrc|runit|cron`.
+`install` picks the host's native backend (override with `--backend systemd|launchd|openrc|runit|cron`). `systemd`, `launchd`, `cron`, and `runit` (`~/service`) run in user scope without root. OpenRC requires `sudo` (or `--backend cron`), and Windows registers a `schtasks` logon task for the current user from an Administrator console.
 
-**2. Connect a FREE provider (no signup needed):**
+Then connect a free provider in the dashboard under Providers (for example Kiro AI or OpenCode Free) and point your CLI tool at `http://localhost:20130/v1` with an API key from Settings -> API Keys.
 
-Dashboard → Providers → Connect **Kiro AI** (~50 credits/month free) or **OpenCode Free** (no auth) → Done!
-
-**3. Use in your CLI tool:**
-
-```text
-Claude Code / Codex / OpenClaw / Cursor / Cline Settings:
-  Endpoint: http://localhost:20130/v1
-  API Key:  [Settings → API Keys in the dashboard]
-  Model:    kr/claude-sonnet-4.5
-```
-
-**That's it!** Start coding with FREE AI models.
-
-**Upstream Docker image (`luqman-v1/9router-go`, does not include fork changes):**
+Upstream also publishes Docker images (`luqmenul/9router-go:latest`, without fork changes):
 
 ```bash
 docker run -d --name 9router-go --restart unless-stopped \
@@ -181,45 +138,18 @@ docker run -d --name 9router-go --restart unless-stopped \
   luqmenul/9router-go:latest
 ```
 
-[Upstream releases (`luqman-v1/9router-go`)](https://github.com/luqman-v1/9router-go/releases/latest) • [Build `9router-go-x` from source](#-setup-guide)
+## Key features
 
----
+- Native Svelte 5 dashboard for providers, OAuth, combos, proxy pools, API keys, usage, quota, plans, Task Persona, and sidebar customization.
+- OpenAI Chat, Claude Messages, Gemini, Ollama-compatible, Responses API, embeddings, media, search, and web tools.
+- Multi-currency cost display (USD, IDR, EUR, and ten more) with editable rates and public rate refresh.
+- SQLite WAL persistence, outbound proxy pools, stall and loop detection, MITM commands, self-update, Docker, and cross-compilation.
 
-## 💡 Key Features
+For sequential combo routing, you can set `Model response timeout` in seconds (decimals like `5.3` work) in the combo's Edit dialog or on the combo card; leave it empty or `0` to disable it. The timer covers connection selection and waiting for a usable response on every model candidate except the last, which keeps the gateway's normal deadline so a combo never fails sooner than it would without the setting (#744). Once a stream starts, the timer does not cut it off; for non-streaming requests, it waits for the complete response. Fusion panel timing is separate. A model that times out is paused from that combo for a grace period (5 minutes by default, configurable under the timeout, or `0` to retry on the next request), held in memory until restart. Stored as `firstTokenGraceMs` and `comboStrategies[comboName].firstTokenTimeoutMs`.
 
-- 🖥️ Native Svelte 5 dashboard: providers, OAuth, combos, proxy pools, API keys, usage, quota, settings, plans, per-entry sidebar visibility
-- 💱 Cost display in USD, IDR, EUR and ten more currencies — editable rate table, dual display, one-click refresh from a public provider
-- 🔌 OpenAI Chat, Claude Messages, Gemini, Ollama-compatible, Responses, embeddings, media, search, web tools
-- 🔁 Combos with fallback, round-robin, sticky routing, fusion, capability-aware reordering
-- 👥 Per-provider executors, OAuth refresh, reactive 401 retry
-- 📡 Live usage + console-log SSE streams, stall detection
-- 💾 SQLite WAL persistence, outbound proxy support, self-update, MITM commands, Docker, cross-compilation
+## Sharing a database with 9Router
 
-For sequential combo routing, set **Model response timeout** in seconds (decimals
-such as `5.3` are fine) in the combo's Edit dialog, or from the compact field on the
-combo card. Empty or `0` disables it. The timer covers each model
-candidate except the last, including connection selection and waiting for a
-usable response. If it expires before output is committed, the router cancels
-that candidate and tries the next. The last candidate keeps the gateway's
-normal deadline, so the setting never makes a combo fail sooner than it would
-without it (#744). An active stream is not cut off by this setting. For
-non-streaming requests, the timer covers the wait for the complete response.
-Fusion panel timing is separate. A model that times out is left out of that
-combo for a
-grace period (default 5 minutes, set per combo under the timeout in the Edit
-dialog; `0` re-includes it on the next request) and then rejoins the chain. If
-every model in the chain is inside its grace period, the full chain is used. The
-pause is held in memory and resets on restart. Stored as
-`firstTokenGraceMs` next to the timeout. The dashboard shows seconds; the setting is stored in
-milliseconds as `comboStrategies[comboName].firstTokenTimeoutMs`.
-
----
-
-## 🔄 Sharing a database with 9Router
-
-**Already running [9Router](https://github.com/decolua/9router) (the Next.js version)? 9router-go reads that exact database. There is no import, no export, and no migration step.**
-
-Both projects default to the same file and speak the same schema:
+If you already run [9Router](https://github.com/decolua/9router) (the Next.js version), `9router-go` reads the same SQLite database without import, export, or migration:
 
 | | Path |
 |---|---|
@@ -227,44 +157,36 @@ Both projects default to the same file and speak the same schema:
 | Windows | `%APPDATA%\9router\db\data.sqlite` |
 | Docker | `/data/db/data.sqlite` inside the container |
 
-Stop 9Router, start 9router-go, and log in with your existing password. Your provider connections, proxy pools, combos, API keys, model aliases, and usage history are all there — 9router-go's own dashboard renders them, because it *is* the same data.
-
-**You don't even have to stop 9Router** if you want to keep the Node.js dashboard around. Run 9router-go on a different port against the same `DATA_DIR`:
+Stop 9Router, start `9router-go`, and log in with your existing password. Your provider connections, proxy pools, combos, API keys, model aliases, and usage history stay intact. You can also run both side by side against the same `DATA_DIR` on different ports:
 
 ```bash
-# 9Router on :20128 (Next.js)  ·  9router-go on :20130 (Go, same DB)
+# 9Router on :20128 (Next.js) and 9router-go on :20130 (Go, same DB)
 PORT=20130 DATA_DIR=/home/you/.9router ./9router-go
 ```
 
-Both read the same tables, so a connection you add in either dashboard shows up in the other. SQLite serialises the writes; the supported setup is one active writer, so avoid editing the same combo or settings entry in both at the same moment.
+SQLite serialises writes, so keep one active writer at a time and avoid editing the same combo or setting in both dashboards simultaneously. Running `9router-go` first and switching back to 9Router later also works: `9router-go` adds `lastUsedAt` and `consecutiveUseCount` on `providerConnections` plus the `upstream_leases` table, and upstream's additive schema sync ignores extra columns and tables.
 
-**Running it the other way round** (9router-go first, then pointing 9Router at the same directory) works the same way. 9router-go will have added two columns to `providerConnections` (`lastUsedAt`, `consecutiveUseCount`) and one extra table (`upstream_leases`). Upstream ignores both — its schema sync is additive and doesn't drop unknown columns — so nothing breaks.
+What `9router-go` does not do:
 
-What 9router-go will **not** do:
+- It will not import legacy JSON exports; start upstream once to convert old JSON files first.
+- It never drops or retypes existing tables or columns, only adds missing ones on startup.
+- It does not interpret `_meta.schemaVersion`; check compatibility before pointing an older build at a database written by a much newer 9Router release.
 
-- **Import a legacy JSON export.** If your 9Router data still lives in old JSON files, start upstream once to convert them, then switch.
-- **Run destructive migrations or pre-migration backups.** Its bootstrap only ever *adds* — create missing tables, add missing columns, seed missing rows. It never drops or retypes.
-- **Interpret `_meta.schemaVersion`.** It's upstream's migration bookkeeping. A database written by a much newer 9Router release should be checked before you rely on it.
-
-Take a backup first if the database matters:
+Back up your database directory first if it holds data you cannot rebuild:
 
 ```bash
-cp -r ~/.9router/db ~/9router-db-backup   # stop the daemon first — see DATABASE.md
+cp -r ~/.9router/db ~/9router-db-backup   # stop the daemon first (see DATABASE.md)
 ```
 
-Full schema, operator contract, and multi-process limits: [`DATABASE.md`](DATABASE.md). Routing internals: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Full schema and multi-process rules live in [`DATABASE.md`](DATABASE.md), and routing internals live in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
----
-
-## 📸 Screenshots
+## Screenshots
 
 ![9router-go dashboard — Providers view](docs/screenshots/providers.png)
 
 ![9router-go dashboard — Endpoint & API key setup](docs/screenshots/endpoint.png)
 
----
-
-## ⚙️ Setup Guide
+## Setup guide
 
 ### Build from source (`9router-go-x`)
 
@@ -277,13 +199,13 @@ make web-build
 make build
 ```
 
-### Upstream release binary
+### Upstream release binaries
 
-Pre-built binaries and Docker `exp` images are published by upstream at [`luqman-v1/9router-go/releases`](https://github.com/luqman-v1/9router-go/releases) (verify with `SHA256SUMS.txt`). Those artifacts track upstream `luqman-v1/9router-go`, not this fork.
+Pre-built binaries and Docker `exp` images are published by upstream at [`luqman-v1/9router-go/releases`](https://github.com/luqman-v1/9router-go/releases) with `SHA256SUMS.txt`. Those binaries track upstream `luqman-v1/9router-go`, not this fork.
 
 ### Run
 
-Defaults are enough for most people — plain `9router-go` listens on port `20130` with data in `~/.9router`:
+Defaults listen on port `20130` with data in `~/.9router`:
 
 ```bash
 9router-go
@@ -291,30 +213,19 @@ curl http://localhost:20130/health
 ./9router-go version
 ```
 
-Only override when you need something different (`PORT`, `DATA_DIR`/`DB_PATH` — there are no `--port` flags):
+Override settings via environment variables (`PORT`, `DATA_DIR`, `DB_PATH`, `HOST`; there are no `--port` CLI flags):
 
 ```bash
-PORT=20129 ./9router-go                        # different port
-DATA_DIR=/srv/9router ./9router-go              # different data dir
-DB_PATH=/srv/9router/data.sqlite ./9router-go   # explicit SQLite file
-HOST=127.0.0.1 ./9router-go                     # localhost only, behind a reverse proxy
+PORT=20129 ./9router-go
+DATA_DIR=/srv/9router ./9router-go
+DB_PATH=/srv/9router/data.sqlite ./9router-go
+HOST=127.0.0.1 ./9router-go
 ```
 
-### 🔑 Dashboard Login & Fresh Install
+### Dashboard login and fresh install
 
-- **Localhost (`localhost` / `127.0.0.1`)**: First login uses the default compatibility password `123456`. Once logged in, change your password in **Settings → Profile**.
-- **Remote / VPS / Docker / LAN**: For security (preventing public takeover of fresh installs with known defaults, CVE-2026-56679), remote access blocks the default `123456` password. You **must** either:
-  1. **Set `INITIAL_PASSWORD` on launch (Recommended)**:
-     ```bash
-     INITIAL_PASSWORD="your-secure-password" ./9router-go
-     # Or in your .env file:
-     # INITIAL_PASSWORD=your-secure-password
-     ```
-  2. **Or access via SSH port-forwarding first**:
-     ```bash
-     ssh -L 20130:127.0.0.1:20130 user@remote-host
-     # Open http://localhost:20130, login with 123456, then change password in Settings
-     ```
+- On `localhost` / `127.0.0.1`, first login uses the default compatibility password `123456`. Change it in Settings -> Profile once logged in.
+- On remote hosts, VPS, Docker, or LAN, remote access blocks `123456` to prevent public takeover of fresh installs (CVE-2026-56679). Either set `INITIAL_PASSWORD="your-secure-password"` on launch (or in `.env`) or tunnel via `ssh -L 20130:127.0.0.1:20130 user@remote-host`, log in over `localhost`, and change the password first.
 
 ### Client example
 
@@ -325,7 +236,7 @@ curl http://localhost:20130/v1/chat/completions \
   -d '{"model":"ag/gemini-3.8-flash-high","messages":[{"role":"user","content":"Hello"}],"stream":true}'
 ```
 
-For Claude Messages clients: `ANTHROPIC_BASE_URL=http://localhost:20130/v1`.
+For Claude Messages clients, set `ANTHROPIC_BASE_URL=http://localhost:20130/v1`.
 
 <details>
 <summary><b>Advanced: environment variables, API surface, auth, database</b></summary>
@@ -345,55 +256,24 @@ For Claude Messages clients: `ANTHROPIC_BASE_URL=http://localhost:20130/v1`.
 | `HTTP_PROXY` / `HTTPS_PROXY` | Go defaults | Upstream egress proxy |
 | `PPROF_ENABLED` | `false` | Expose `/debug/pprof/*` (keep off on untrusted networks) |
 | `TRUST_PROXY` / `TRUST_CLOUDFLARE` | unset | Trust forwarded client-IP headers |
-| `TRUSTED_PROXIES` | unset | CIDR list of the reverse proxies whose forwarded client-IP headers are trusted |
-| `GEMINI_WEB_ROTATION` | `on` | Renew the Gemini Web session cookie in the background (see below) |
+| `TRUSTED_PROXIES` | unset | CIDR list of reverse proxies whose forwarded client-IP headers are trusted |
+| `GEMINI_WEB_ROTATION` | `on` | Renew the Gemini Web session cookie in the background |
 
 #### Gemini Web session renewal
 
-The `gemini-web` provider reaches `gemini.google.com` with a session cookie,
-and Google rotates the session's timestamp cookie (`__Secure-1PSIDTS`) every
-few minutes. The router renews it in the background, so a signed-in account
-keeps reaching the models it pays for instead of falling back to one model
-after a few minutes.
+The `gemini-web` provider talks to `gemini.google.com` with a session cookie, and Google rotates `__Secure-1PSIDTS` every few minutes. The router renews it in the background so signed-in accounts keep reaching paid models.
 
-**There are three ways to get a session, and the dashboard offers two of
-them as a button.**
+The dashboard offers two ways to grab a session, plus manual paste:
 
-1. *A throwaway browser* — the safest. The button opens a browser with a
-   profile of its own, waits for the Google sign-in, reads the session out of
-   it, then closes the browser and deletes the profile. Nothing is left
-   running that could rotate the session, so the router's renewal is the
-   only one.
-2. *A browser that is already signed in* — the convenient one. The button
-   opens the browser's own cookie database, takes the key that seals it from
-   the platform's secret store (the login keyring on Linux, the Keychain on
-   macOS, the profile's "Local State" file on Windows), and unseals the
-   cookies. **A browser that is still open keeps rotating the same session**
-   and the router renews it from the other side, and the two cancel each
-   out — which signs the account out. Close the browser first, or use the
-   throwaway browser above. The dashboard says so when it finds a browser
-   that is running.
-3. *A cookie you paste* — the fallback. Copy the cookie header from an
-   Incognito window that you close right after, not from a normal tab, and
-   paste it into the connection form.
+1. Throwaway browser (safest): opens a clean browser profile, waits for Google sign-in, reads the cookies, then closes the browser and deletes the profile so nothing else rotates the session.
+2. Already signed-in browser: reads the existing browser cookie database and unseals it using the OS secret store (Linux keyring, macOS Keychain, Windows Local State). Close the browser first so it does not race with the router's renewal and sign the account out.
+3. Manual cookie paste: copy the `Cookie` header from an Incognito window, close that window right away, and paste it into the connection form.
 
-Set `GEMINI_WEB_ROTATION=off` to run the router without renewing anything at
-all. That is the right choice when the credential belongs to a browser you
-want to keep using.
+Set `GEMINI_WEB_ROTATION=off` if the cookie belongs to a browser session you want to keep open.
 
 `.env.example` documents the security-sensitive subset and OAuth overrides.
 
-A forwarded client-IP header is only read when the TCP peer is inside the
-trusted set — otherwise a client could rotate `X-Forwarded-For` and give every
-login attempt its own rate-limit bucket. `TRUST_PROXY=true` trusts loopback and
-the RFC1918/link-local ranges; `TRUSTED_PROXIES` takes a comma-separated list
-of CIDRs or single IPs and **replaces** those defaults, so set it when the
-proxy connects from an address outside them.
-
-Behind a proxy that is *not* in the trusted set, every request is bucketed by
-the proxy's own socket address, so all users of that proxy share one login
-bucket: five failed attempts lock them all out. `TRUSTED_PROXIES` is the knob
-that separates them again.
+Forwarded client-IP headers are only trusted when the TCP peer is inside the trusted set, otherwise clients could spoof `X-Forwarded-For` to bypass login rate limits. `TRUST_PROXY=true` trusts loopback and RFC1918/link-local ranges; `TRUSTED_PROXIES` takes a comma-separated list of CIDRs or IPs and replaces those defaults. Behind an untrusted proxy, all login attempts share the proxy's socket bucket and five failures lock everyone out.
 
 ### API surface
 
@@ -417,48 +297,37 @@ GET  /api/version               Version metadata
 ### Authentication
 
 - Public: `/health`, dashboard HTML/assets, `/login`, OAuth callbacks.
-- Proxy routes need an active client API key (`Authorization: Bearer` / `X-API-Key`).
-- Dashboard APIs need a session cookie, CLI token, or API key; destructive ops (shutdown, update, DB import) need a session or CLI token.
-- The API server defaults to all interfaces — bind localhost or protect the port outside trusted machines.
+- Proxy routes require an active client API key (`Authorization: Bearer` or `X-API-Key`).
+- Dashboard APIs require a session cookie, CLI token, or API key; destructive ops (shutdown, update, DB import) require a session or CLI token.
+- The server binds all interfaces by default; bind localhost or protect the port on untrusted networks.
 
 ### Database compatibility
 
-Go reads/writes the upstream 9router table/JSON shapes and bootstraps the core schema on startup (creates the 11 tables when absent, backfills missing columns, seeds an empty settings row) — a fresh `DATA_DIR` just works, no upstream install needed. Existing databases are never modified beyond additive backfills. Full contract in [`DATABASE.md`](DATABASE.md), routing internals in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Go reads and writes the upstream 9Router table and JSON shapes, bootstrapping the 11 core tables, backfilling missing columns, and seeding an empty settings row on startup. Existing databases only receive additive backfills. Full contract in [`DATABASE.md`](DATABASE.md), routing internals in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 </details>
 
----
+## Contributing
 
-## 🤝 Contributing
+Pick the matching template when opening issues or pull requests: Bug report (include reproduction, `9router-go version`, OS, and log excerpt), Feature request, Upstream parity (link the `decolua/9router` commit or PR), or Question.
 
-Issues and pull requests use templates, so pick the right one rather than opening a blank report:
+PR checks match CI: `go vet ./...`, `go test -count=1 ./...`, `make test-integration`, plus `cd web && bun test` and `make vet-svelte` for dashboard changes. Skim [`AGENTS.md`](AGENTS.md) before editing code, since provider isolation and Go/Svelte conventions are checked during review.
 
-- **Bug report** — something behaves incorrectly. Include a reproduction, `9router-go version`, OS, and the log excerpt around the failure.
-- **Feature request** — the problem you cannot solve today, the surface it touches, and whether upstream already has it.
-- **Upstream parity** — a behaviour `decolua/9router` has and this gateway does not; link the upstream commit or PR.
-- **Question** — configuration and usage help.
+## Docs
 
-PRs follow the checks CI runs: `go vet ./...`, `go test -count=1 ./...`, `make test-integration`, plus `cd web && bun test` and `make vet-svelte` for anything touching the dashboard. Before writing code, skim [`AGENTS.md`](AGENTS.md) — provider isolation and the Go/Svelte conventions there are enforced by review.
+Upstream documentation is searchable at the [9router-go Wiki](https://luqman-v1.github.io/9router-go/). Repository references:
 
-Everyone whose commit landed in the repository is credited on the wiki's [**Owner & Contributors**](https://luqman-v1.github.io/9router-go/team.html) page — photo, username, and contribution count, generated from the GitHub API.
-
-## 📚 Docs
-
-**Full documentation, searchable:** [**9router-go Wiki**](https://luqman-v1.github.io/9router-go/) — installation, usage, API reference, dashboard, providers, architecture, database, CLI, and a screenshot gallery. Every page supports `?q=` search and `#section` deep links.
-
-Repository references:
-
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — routing, providers, runtime layout
-- [`DATABASE.md`](DATABASE.md) — SQLite schema & operator contract
-- [`ROADMAP.md`](ROADMAP.md) — proposals only, not current behavior
-- [`CHANGELOG.md`](CHANGELOG.md) — release history (Go **v1.9.15**, upstream baseline `decolua/9router`). Work merged since the last tag lives in [`.changes/`](.changes/) and is folded in at the next release; the dashboard's changelog modal shows both. Check what you are running with `9router-go version`.
-- [`docs/TELEGRAM_RELEASE_NOTIFICATIONS.md`](docs/TELEGRAM_RELEASE_NOTIFICATIONS.md) — one-time setup for the release notice posted to Telegram
+- [`ARCHITECTURE.md`](ARCHITECTURE.md): routing, providers, runtime layout
+- [`DATABASE.md`](DATABASE.md): SQLite schema and operator contract
+- [`ROADMAP.md`](ROADMAP.md): proposals only, not current behavior
+- [`CHANGELOG.md`](CHANGELOG.md): release history (`9router-go version` prints the active binary version; unreleased `.changes/` fragments fold in at release)
+- [`docs/TELEGRAM_RELEASE_NOTIFICATIONS.md`](docs/TELEGRAM_RELEASE_NOTIFICATIONS.md): Telegram release notice setup
 
 ## Credits
 
-- [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) (Go + Svelte implementation this fork builds on)
-- [decolua/9router](https://github.com/decolua/9router) (original Next.js gateway and SQLite schema)
+- [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go): Go + Svelte implementation this fork builds on
+- [decolua/9router](https://github.com/decolua/9router): original Next.js gateway and SQLite schema
 
-## 📄 License
+## License
 
 MIT License. See [`LICENSE`](LICENSE) (retains copyright notices for `decolua and contributors`, `Luqmanul Hakim`, and `Muhammad Ulya Farhan`).
