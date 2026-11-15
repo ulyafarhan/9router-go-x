@@ -2,7 +2,9 @@
 
 ![9router-go](docs/logo.svg)
 
-# 9router-go
+# 9router-go-x
+
+> Fork [luqman-v1/9router-go](https://github.com/luqman-v1/9router-go) (Go + Svelte port dari [decolua/9router](https://github.com/decolua/9router)) dengan pengembangan UI dan fitur dari berbagai referensi AI gateway.
 
 ### FREE AI Router & Token Saver with Single Binary
 
@@ -10,11 +12,11 @@
 
 **Connect Claude Code, Cursor, Antigravity, Codex, Gemini, OpenCode, Cline, OpenClaw... to 40+ AI providers & 100+ models — no Node.js needed at runtime.**
 
-[![CI](https://github.com/luqman-v1/9router-go/actions/workflows/ci.yml/badge.svg)](https://github.com/luqman-v1/9router-go/actions/workflows/ci.yml)
-[![Release](https://github.com/luqman-v1/9router-go/actions/workflows/release.yml/badge.svg)](https://github.com/luqman-v1/9router-go/actions/workflows/release.yml)
-[![GitHub release](https://img.shields.io/github/v/release/luqman-v1/9router-go)](https://github.com/luqman-v1/9router-go/releases/latest)
-[![License](https://img.shields.io/github/license/luqman-v1/9router-go)](https://github.com/luqman-v1/9router-go/blob/main/LICENSE)
-[![GitHub All Releases](https://img.shields.io/github/downloads/luqman-v1/9router-go/total.svg)](https://github.com/luqman-v1/9router-go/releases)
+[![CI](https://github.com/ulyafarhan/9router-go-x/actions/workflows/ci.yml/badge.svg)](https://github.com/ulyafarhan/9router-go-x/actions/workflows/ci.yml)
+[![Release](https://github.com/ulyafarhan/9router-go-x/actions/workflows/release.yml/badge.svg)](https://github.com/ulyafarhan/9router-go-x/actions/workflows/release.yml)
+[![GitHub release](https://img.shields.io/github/v/release/ulyafarhan/9router-go-x)](https://github.com/ulyafarhan/9router-go-x/releases/latest)
+[![License](https://img.shields.io/github/license/ulyafarhan/9router-go-x)](https://github.com/ulyafarhan/9router-go-x/blob/main/LICENSE)
+[![GitHub All Releases](https://img.shields.io/github/downloads/ulyafarhan/9router-go-x/total.svg)](https://github.com/ulyafarhan/9router-go-x/releases)
 [![Telegram](https://img.shields.io/badge/Telegram-Join%20Group-26A5E1?logo=telegram&logoColor=white)](https://luqman-v1.github.io/9router-go/tg)
 
 [🚀 Quick Start](#-quick-start) • [💡 Features](#-key-features) • [⚙️ Setup](#-setup-guide) • [🔄 Share DB with 9Router](#-sharing-a-database-with-9router) • [🌐 Upstream](https://github.com/decolua/9router)
@@ -468,8 +470,9 @@ Repository references:
 
 ## Credits
 
+- [9router-go](https://github.com/luqman-v1/9router-go) — upstream Go + Svelte gateway & dashboard this fork extends
 - [9Router](https://github.com/decolua/9router) — original Next.js gateway & dashboard this Go port preserves compatibility with
 
 ## 📄 License
 
-MIT License — lihat [`LICENSE`](https://github.com/luqman-v1/9router-go/blob/main/LICENSE).
+MIT License — lihat [`LICENSE`](LICENSE).
